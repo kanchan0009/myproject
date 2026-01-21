@@ -1,322 +1,53 @@
 <template>
-  <div style="border-bottom: 0.8px solid grey">
-    <div
-      style="
-        width: 100%;
-        min-height: 480px;
-        background: linear-gradient(90deg, #1f9d3a, #4fb26b);
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 60px 80px;
-      "
-    >
-      <!-- LEFT CONTENT -->
-      <div style="max-width: 600px; color: #ffffff">
-        <h1
-          style="
-            font-size: 48px;
-            line-height: 1.2;
-            margin: 0 0 20px 0;
-            font-weight: 700;
-          "
-        >
-          Professional<br />Physiotherapy Equipment
-        </h1>
-
-        <p style="font-size: 18px; line-height: 1.6; margin: 0 0 30px 0">
-          Premium equipment from trusted brands. Direct from manufacturers.<br />
-          Lowest prices guaranteed.
-        </p>
-
-        <button
-          style="
-            background: #ffffff;
-            color: #1f9d3a;
-            border: none;
-            padding: 14px 36px;
-            font-size: 16px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-          "
-          @click="products"
-        >
-          Shop Now
-        </button>
-      </div>
-
-      <!-- RIGHT CONTENT -->
-      <div style="color: #ffffff; text-align: center">
-        <div style="font-size: 24px; font-weight: 600">UPTO</div>
-        <div style="font-size: 90px; font-weight: 800; line-height: 1">50%</div>
-        <div style="font-size: 22px; font-weight: 500">OFF</div>
-      </div>
-    </div>
-
-    <!-- FEATURES BAR -->
-    <div
-      style="
-        width: 100%;
-        background: #ffffff;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        padding: 30px 60px;
-        box-sizing: border-box;
-        border-top: 1px solid #eaeaea;
-      "
-    >
-      <div style="text-align: center">
-        <div style="font-size: 18px; font-weight: 600">✔ Genuine Products</div>
-        <div style="font-size: 14px; color: #555; margin-top: 6px">
-          Sourced directly from brands
-        </div>
-      </div>
-
-      <div style="text-align: center">
-        <div style="font-size: 18px; font-weight: 600">✔ 1500+ Brands</div>
-        <div style="font-size: 14px; color: #555; margin-top: 6px">
-          Curated selection
-        </div>
-      </div>
-
-      <div style="text-align: center">
-        <div style="font-size: 18px; font-weight: 600">✔ Safe Payments</div>
-        <div style="font-size: 14px; color: #555; margin-top: 6px">
-          Secure transactions
-        </div>
-      </div>
-
-      <div style="text-align: center">
-        <div style="font-size: 18px; font-weight: 600">✔ Fast Delivery</div>
-        <div style="font-size: 14px; color: #555; margin-top: 6px">
-          Across Nepal
-        </div>
-      </div>
-    </div>
-  </div>
-
   <section class="featured-categories">
     <h2>Featured Categories</h2>
-
     <div class="categories-grid">
-      <div class="category-card">
-        <span class="badge">40% OFF</span>
-        <h3 class="active">Traction Systems</h3>
-        <p>24 Products</p>
-      </div>
+      <div
+        class="category-card"
+        v-for="(category, index) in categories"
+        :key="index"
+      >
+        <span class="badge">{{ category.discount }} OFF</span>
 
-      <div class="category-card">
-        <span class="badge">35% OFF</span>
-        <h3>TENS/EMS Units</h3>
-        <p>18 Products</p>
-      </div>
+        <h3>{{ category.name }}</h3>
 
-      <div class="category-card">
-        <span class="badge">30% OFF</span>
-        <h3>Ultrasound Therapy</h3>
-        <p>15 Products</p>
-      </div>
-
-      <div class="category-card">
-        <span class="badge">45% OFF</span>
-        <h3>Infra-Red Therapy</h3>
-        <p>12 Products</p>
-      </div>
-
-      <div class="category-card">
-        <span class="badge">38% OFF</span>
-        <h3>Rehabilitation</h3>
-        <p>28 Products</p>
-      </div>
-
-      <div class="category-card">
-        <span class="badge">42% OFF</span>
-        <h3>Sports Recovery</h3>
-        <p>21 Products</p>
-      </div>
-
-      <div class="category-card">
-        <span class="badge">33% OFF</span>
-        <h3>Orthopedic Care</h3>
-        <p>19 Products</p>
-      </div>
-
-      <div class="category-card">
-        <span class="badge">25% OFF</span>
-        <h3>Diagnostic Tools</h3>
-        <p>14 Products</p>
+        <p>{{ category.products }} Products</p>
       </div>
     </div>
 
-    <button class="view-all-btn" @click="categories">
-      View All Categories
-    </button>
+    <button class="view-all-btn" @click="category">View All Categories</button>
   </section>
   <div class="best-sellers-container">
-    <!-- Heading Aligned Left -->
     <h1 class="section-heading">Best Sellers</h1>
+    <div class="nav-links">
+      <a href="/products" class="nav-sale">On Sale</a>
 
-    <!-- Product Grid Container -->
+      <a href="/products" class="show-products">Show All Products</a>
+    </div>
+
     <div class="product-grid">
-      <!-- Product Card 1 -->
-      <div class="product-card">
+      <div class="product-card" @click="goToProduct(products.id)">
         <div class="image-container">
-          <!-- Placeholder image URL -->
-          <img src="https://via.placeholder.com" alt="Traction Bed Pro X1" />
-          <span class="discount-badge">40% OFF</span>
+          <img :src="products.image" :alt="products.title" />
+          <span class="discount-badge">{{ products.discount }} OFF</span>
         </div>
-        <div class="product-details">
-          <h2 class="product-title">Traction Bed Pro X1</h2>
-          <div class="rating">
-            <span class="star">⭐</span>
-            <span class="rating-value">4.8</span>
-          </div>
-          <div class="price-container">
-            <span class="current-price">NPR 45,000</span>
-            <span class="old-price">NPR 75,000</span>
-          </div>
-          <button class="add-to-cart-button">Add to Cart</button>
-        </div>
-      </div>
 
-      <!-- Product Card 2 -->
-      <div class="product-card">
-        <div class="image-container">
-          <!-- Placeholder image URL -->
-          <img src="https://via.placeholder.com" alt="TENS Machine Ultra" />
-          <span class="discount-badge">38% OFF</span>
-        </div>
         <div class="product-details">
-          <h2 class="product-title">TENS Machine Ultra</h2>
-          <div class="rating">
-            <span class="star">⭐</span>
-            <span class="rating-value">4.7</span>
-          </div>
-          <div class="price-container">
-            <span class="current-price">NPR 8,500</span>
-            <span class="old-price">NPR 13,000</span>
-          </div>
-          <button class="add-to-cart-button">Add to Cart</button>
-        </div>
-      </div>
+          <h2 class="product-title">{{ products.title }}</h2>
 
-      <!-- Product Card 3 -->
-      <div class="product-card">
-        <div class="image-container">
-          <!-- Placeholder image URL -->
-          <img src="https://via.placeholder.com" alt="Ultrasound Device" />
-          <span class="discount-badge">33% OFF</span>
-        </div>
-        <div class="product-details">
-          <h2 class="product-title">Ultrasound Device</h2>
           <div class="rating">
             <span class="star">⭐</span>
-            <span class="rating-value">4.9</span>
+            <span class="rating-value">{{ products.rating }}</span>
           </div>
-          <div class="price-container">
-            <span class="current-price">NPR 28,000</span>
-            <span class="old-price">NPR 42,000</span>
-          </div>
-          <button class="add-to-cart-button">Add to Cart</button>
-        </div>
-      </div>
 
-      <!-- Product Card 4 -->
-      <div class="product-card">
-        <div class="image-container">
-          <!-- Placeholder image URL -->
-          <img src="https://via.placeholder.com" alt="Infra-Red Lamp" />
-          <span class="discount-badge">38% OFF</span>
-        </div>
-        <div class="product-details">
-          <h2 class="product-title">Infra-Red Lamp</h2>
-          <div class="rating">
-            <span class="star">⭐</span>
-            <span class="rating-value">4.6</span>
-          </div>
           <div class="price-container">
-            <span class="current-price">NPR 5,200</span>
-            <span class="old-price">NPR 6,000</span>
+            <span class="current-price">{{ products.price }}</span>
+            <span class="old-price">{{ products.oldprice }}</span>
           </div>
-          <button class="add-to-cart-button">Add to Cart</button>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="image-container">
-          <!-- Placeholder image URL -->
-          <img src="https://via.placeholder.com" alt="Infra-Red Lamp" />
-          <span class="discount-badge">38% OFF</span>
-        </div>
-        <div class="product-details">
-          <h2 class="product-title">Infra-Red Lamp</h2>
-          <div class="rating">
-            <span class="star">⭐</span>
-            <span class="rating-value">4.6</span>
-          </div>
-          <div class="price-container">
-            <span class="current-price">NPR 5,200</span>
-            <span class="old-price">NPR 6,000</span>
-          </div>
-          <button class="add-to-cart-button">Add to Cart</button>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="image-container">
-          <!-- Placeholder image URL -->
-          <img src="https://via.placeholder.com" alt="Infra-Red Lamp" />
-          <span class="discount-badge">38% OFF</span>
-        </div>
-        <div class="product-details">
-          <h2 class="product-title">Infra-Red Lamp</h2>
-          <div class="rating">
-            <span class="star">⭐</span>
-            <span class="rating-value">4.6</span>
-          </div>
-          <div class="price-container">
-            <span class="current-price">NPR 5,200</span>
-            <span class="old-price">NPR 6,000</span>
-          </div>
-          <button class="add-to-cart-button">Add to Cart</button>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="image-container">
-          <!-- Placeholder image URL -->
-          <img src="https://via.placeholder.com" alt="Infra-Red Lamp" />
-          <span class="discount-badge">38% OFF</span>
-        </div>
-        <div class="product-details">
-          <h2 class="product-title">Infra-Red Lamp</h2>
-          <div class="rating">
-            <span class="star">⭐</span>
-            <span class="rating-value">4.6</span>
-          </div>
-          <div class="price-container">
-            <span class="current-price">NPR 5,200</span>
-            <span class="old-price">NPR 6,000</span>
-          </div>
-          <button class="add-to-cart-button">Add to Cart</button>
-        </div>
-      </div>
-      <div class="product-card">
-        <div class="image-container">
-          <!-- Placeholder image URL -->
-          <img src="https://via.placeholder.com" alt="Infra-Red Lamp" />
-          <span class="discount-badge">38% OFF</span>
-        </div>
-        <div class="product-details">
-          <h2 class="product-title">Infra-Red Lamp</h2>
-          <div class="rating">
-            <span class="star">⭐</span>
-            <span class="rating-value">4.6</span>
-          </div>
-          <div class="price-container">
-            <span class="current-price">NPR 5,200</span>
-            <span class="old-price">NPR 6,000</span>
-          </div>
-          <button class="add-to-cart-button">Add to Cart</button>
+
+          <button class="add-to-cart-button" @click.stop="addToCart(products)">
+            Add to Cart
+          </button>
         </div>
       </div>
     </div>
@@ -325,12 +56,14 @@
     <h1 class="section-title">Trusted Brands</h1>
 
     <div class="brands-container">
-      <div class="brand-card">BTL</div>
-      <div class="brand-card">Enraf Nonius</div>
-      <div class="brand-card">Dynatron</div>
-      <div class="brand-card">Intelect</div>
-      <div class="brand-card">Chattanooga</div>
-      <div class="brand-card">Storz Medical</div>
+      <div
+        class="brand-card"
+        v-for="(brand, index) in brands"
+        :key="index"
+        @click="selectBrand(brand)"
+      >
+        {{ brand.name }}
+      </div>
     </div>
   </div>
   <div class="app-banner">
@@ -340,7 +73,6 @@
         Download our mobile app for exclusive deals and faster checkout
       </p>
       <div class="buttons-container">
-        <!-- Use the 'to' attribute with the path '/' -->
         <router-link to="/" class="app-button" type="button"
           >Android
         </router-link>
@@ -362,7 +94,7 @@
       <router-link to="/contact" class="btn btn-primary"
         >Schedule Consultation</router-link
       >
-      <!-- Using a span for the arrow icon visually -->
+
       <a class="btn btn-secondary" href="https://www.daraz.com.np/"
         >Visit on Daraz<span>&rarr;</span></a
       >
@@ -372,37 +104,88 @@
 <script>
 export default {
   setup() {
-    const categories = () => {
+    const category = () => {
       window.location.href = "/categories";
     };
     const products = () => {
       window.location.href = "/products";
     };
     return {
-      categories,
+      category,
       products,
     };
   },
+
+  data() {
+    return {
+      products: {
+        id: 1,
+        title: "Traction Bed Pro X1",
+        image: "https://via.placeholder.com/300",
+        rating: 4.5,
+        price: "Rs. 45,000",
+        oldprice: "Rs. 55,000",
+        discount: "20%",
+      },
+      brands: [
+        { name: "BTL" },
+        { name: "Enraf Nonius" },
+        { name: "Dynatron" },
+        { name: "Intelect" },
+        { name: "Chattanooga" },
+        { name: "Storz Medical" },
+      ],
+      activeCategory: 0,
+      categories: [
+        { name: "Traction Systems", discount: "40%", products: 24 },
+        { name: "TENS/EMS Units", discount: "35%", products: 18 },
+        { name: "Ultrasound Therapy", discount: "30%", products: 15 },
+        { name: "Infra-Red Therapy", discount: "45%", products: 12 },
+        { name: "Rehabilitation", discount: "38%", products: 28 },
+        { name: "Sports Recovery", discount: "42%", products: 21 },
+        { name: "Orthopedic Care", discount: "33%", products: 19 },
+        { name: "Diagnostic Tools", discount: "25%", products: 14 },
+      ],
+    };
+  },
+  methods: {
+    goToProduct(id) {
+      this.$router.push(`/products/${id}`);
+    },
+    addToCart(product) {
+      console.log("Added to cart:", product.title);
+    },
+    selectBrand(brand) {
+      console.log("Selected Brand:", brand.name);
+    },
+    selectCategory(index) {
+      this.activeCategory = index;
+      console.log("Selected category:", this.categories[index].name);
+    },
+  },
 };
 </script>
-<style >
+<style>
 .featured-categories {
-  margin-top: 80px;
+  margin-top: 40px;
   padding: 0 20px;
 }
 
 .featured-categories h2 {
-  margin-top: 20px;
-  font-size: 30px;
   font-weight: 700;
-  margin-bottom: 30px;
+  font-size: 30px;
+  color: #333;
+  margin-top: 40px;
+  text-align: left;
+  margin: 0 auto;
+  max-width: 1320px;
 }
 
 .categories-grid {
-  padding: 30px 80px 30px 80px;
+  padding: 20px 80px 30px 80px;
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 30px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 10px;
 }
 
 .category-card {
@@ -413,6 +196,47 @@ export default {
   text-align: center;
   border: 1px solid #eeeeee;
   min-height: 170px;
+}
+.nav-links {
+  background-color: white;
+  max-width: 1320px;
+  margin: 3px auto;
+  /* This ensures the container itself stays on the right */
+  display: flex;
+  justify-content: space-between;
+  height: 60px;
+  border-radius: 2px;
+
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.show-products {
+  margin: 10px;
+  text-decoration: none;
+  color:  #7ed9b0;
+  padding: 0.5rem 0.5rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  border: 1px solid  #7ed9b0;
+  border-radius: 10px;
+}
+
+.nav-sale {
+  text-decoration: none;
+  color:#6fc6f5 ;
+  padding: 1rem 1rem;
+  border: 1px solid transparent;
+  transition: all 0.3s ease;
+}
+.show-products:hover {
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+}
+.nav-sale:hover {
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.1);
+  text-decoration: none;
 }
 
 .category-card h3 {
@@ -438,7 +262,7 @@ export default {
   position: absolute;
   top: 18px;
   right: 18px;
-  background-color: #1f9d45;
+  background-color:#6fc6f5 ;
   color: #ffffff;
   font-size: 13px;
   font-weight: 700;
@@ -448,8 +272,9 @@ export default {
 
 .view-all-btn {
   display: block;
-  margin: 40px auto 0;
-  background-color: #1f9d45;
+  margin: 10px auto 0;
+  background: #7ed9b0;
+;
   color: #ffffff;
   border: none;
   padding: 14px 36px;
@@ -459,7 +284,7 @@ export default {
   cursor: pointer;
 }
 .best-sellers-container {
-  background: rgb(239, 238, 238);
+  background: rgb(236, 234, 234);
   padding: 20px;
   max-width: 100%;
   margin-top: 80px;
@@ -469,23 +294,23 @@ export default {
   font-weight: 700;
   font-size: 30px;
   color: #333;
-  margin-top: 40px;
-  text-align: left; /* Ensures heading aligns left within the container */
+
+  text-align: left;
+  padding: 0.5rem 0.5rem;
+  margin: 0 auto;
+  max-width: 1320px;
 }
 
 .product-grid {
-  padding: 30px 80px 30px 80px;
+  padding: 0px 80px 30px 80px;
   display: grid;
-  /* This creates 4 columns of equal width for the 4x4 layout requirement */
+
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px; /* Space between the cards */
 }
 
 .product-card {
   background-color: #fff;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  overflow: hidden; /* Ensures image corners match card corners */
+  overflow: hidden;
   display: flex;
   flex-direction: column;
   cursor: pointer;
@@ -501,20 +326,20 @@ export default {
 .image-container img {
   width: 100%;
   height: 100%;
-  object-fit: cover; /* Ensures the image covers the container nicely */
+  object-fit: cover;
   display: block;
 }
 .product-card:hover {
-  transform: scale(1.01);
+  transform: scale(1);
   transition: all 0.3s ease-in-out;
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
 }
 
 .discount-badge {
   position: absolute;
   top: 10px;
   right: 10px;
-  background-color: #388e3c; /* Green background */
+  background-color: #6fc6f5;
   color: white;
   padding: 5px 10px;
   border-radius: 4px;
@@ -524,7 +349,7 @@ export default {
 
 .product-details {
   padding: 15px;
-  flex-grow: 1; /* Allows details section to fill remaining space */
+  flex-grow: 1;
   display: flex;
   flex-direction: column;
 }
@@ -542,7 +367,7 @@ export default {
 }
 
 .star {
-  color: #ffb700; /* Yellow color for the star icon */
+  color: #ffb700;
   margin-right: 5px;
 }
 
@@ -552,7 +377,7 @@ export default {
 }
 
 .price-container {
-  margin-top: auto; /* Pushes prices to bottom before button */
+  margin-top: auto;
   margin-bottom: 15px;
 }
 
@@ -566,12 +391,13 @@ export default {
 .old-price {
   font-size: 14px;
   color: #999;
-  text-decoration: line-through; /* Strikethrough style */
+  text-decoration: line-through;
 }
 
 .add-to-cart-button {
   width: 100%;
-  background-color: #4caf50; /* Green button background */
+  background: radial-gradient(circle, #7ed9b0 0%, #6fc6f5 70%);
+
   color: white;
   padding: 10px 0;
   border: none;
@@ -583,65 +409,62 @@ export default {
 }
 
 .add-to-cart-button:hover {
-  background-color: #45a049;
+  transform:scaleX(1.01);
 }
 .brands-section {
-  padding: 60px 20px; /* Vertical spacing around the section */
+  padding: 60px 20px;
   text-align: center;
-  /* Centers the heading and the container below it */
 }
 
 .section-title {
   font-size: 28px;
   font-weight: bold;
-  color: #2c3e50; /* Dark text color */
-  margin-bottom: 30px; /* Space below the heading */
+  color: #2c3e50;
+  margin-bottom: 30px;
 }
 
 .brands-container {
   display: flex;
-  justify-content: center; /* Evenly spaces the cards in the center */
-  gap: 20px; /* Space between the cards */
+  justify-content: center;
+  gap: 20px;
   max-width: 1700px;
   margin: 0 auto;
   padding: 0px 60px 0px 60px;
 }
 
 .brand-card {
-  background-color: #f8f9fa; /* Lighter background for the cards */
+  background-color: #f8f9fa;
   padding: 20px;
-  border-radius: 8px; /* Rounded corners */
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08); /* Subtle shadow effect */
-  flex: 1; /* Ensures all 6 cards take equal space */
-  color: #6c757d; /* Text color */
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  flex: 1;
+  color: #6c757d;
   font-size: 14px;
   font-weight: 500;
   text-align: center;
   cursor: pointer;
 }
 .brand-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
-  transform: translateY(-4px); /* Slight lift effect */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
   transition: all 0.3s ease;
 }
 
-/* Responsive adjustment if needed for smaller screens */
 @media (max-width: 768px) {
   .brands-container {
-    flex-wrap: wrap; /* Allows cards to wrap onto new lines if necessary */
+    flex-wrap: wrap;
   }
   .brand-card {
-    flex-basis: calc(50% - 20px); /* 2 cards per row on mobile */
+    flex-basis: calc(50% - 20px);
     margin-bottom: 10px;
   }
 }
 .app-banner {
-  /* The blue gradient background color from the image */
-  background: linear-gradient(to right, #005f99, #007bb6);
+  background: radial-gradient(circle, #6fc6f5 0%, #6fc6f5 60%, #7ed9b0 100%);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 40px 10%; /* General padding and width control */
+  padding: 40px 10%;
   color: white;
   height: 250px;
 }
@@ -662,18 +485,18 @@ export default {
   font-size: 16px;
   margin: 0 0 20px 0;
   opacity: 0.9;
-  color:white;
+  color: white;
 }
 
 .buttons-container {
   display: flex;
-  gap: 15px; /* Space between the two buttons */
+  gap: 15px;
 }
 
 .app-button {
   text-decoration: none;
   background-color: white;
-  color: #005f99; /* Button text color */
+  color:  #6fc6f5;
   border: none;
   border-radius: 4px;
   padding: 10px 25px;
@@ -683,9 +506,8 @@ export default {
   transition: background-color 0.3s, color 0.3s;
 }
 
-/* Hover effect: make the button color darker */
 .app-button:hover {
-  background-color: #f0f0f0; /* Slightly darker/off-white background */
+  background-color: #f0f0f0;
   color: #004c7a;
 }
 
@@ -703,39 +525,38 @@ export default {
   color: white;
   font-size: 18px;
   font-weight: bold;
-  text-decoration: none; /* Initially no underline */
+  text-decoration: none;
   transition: text-decoration 0.3s;
 }
 
-/* Hover effect: underline should appear */
 .daraz-link:hover {
   text-decoration: underline;
 }
 .banner-section {
   padding: 80px 20px;
-  text-align: center; /* Centers all content horizontally */
+  text-align: center;
   max-width: 800px;
   margin: 0 auto;
 }
 
-.main-heading-s{
+.main-heading-s {
   font-size: 36px;
   font-weight: bold;
-  color:black; /* Dark text color */
+  color: black;
   margin-bottom: 20px;
 }
 
 .sub-text-s {
   font-size: 16px;
-  color: black; /* Gray text color */
+  color: black;
   margin-bottom: 30px;
   line-height: 1.5;
 }
 
 .buttons-group {
   display: flex;
-  justify-content: center; /* Centers the button group */
-  gap: 15px; /* Space between buttons */
+  justify-content: center;
+  gap: 15px;
 }
 
 .btn {
@@ -749,34 +570,182 @@ export default {
   outline: none;
 }
 
-/* Primary Button (Blue) */
 .btn-primary {
-  background-color: #006699; /* Blue background color from image */
+  background-color:  #6fc6f5;
   color: white;
-  border-color: #006699;
+  border-color:  #6fc6f5;
   text-decoration: none;
 }
 
-/* Hover effect for Primary Button: slightly darker blue */
 .btn-primary:hover {
-  background-color: #00507a;
-  border-color: #00507a;
+  background-color: #6fc6f5;
+  border-color:  #6fc6f5;
+  text-decoration:none;
+  color:white;
 }
 
-/* Secondary Button (Green Outline) */
 .btn-secondary {
+  text-decoration: none;
   background-color: transparent;
-  color: #388e3c; /* Green text color from image */
-  border-color: #388e3c; /* Green border color from image */
+  color: #7ed9b0;
+  border-color: #7ed9b0;
+  font-size: medium;
 }
 
 .btn-secondary span {
-  margin-left: 8px; /* Space between "Daraz" text and the arrow */
+  margin-left: 8px;
 }
 
-/* Hover effect for Secondary Button: green background, white text */
 .btn-secondary:hover {
-  background-color: #388e3c;
+  background-color: #7ed9b0;
   color: white;
+  text-decoration:none;
+}
+@media (max-width: 1024px) {
+  .categories-grid {
+    grid-template-columns: repeat(3, 1fr);
+    padding: 20px 40px;
+    gap: 15px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 0 40px 30px 40px;
+  }
+
+  .brands-container {
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 0 30px;
+  }
+
+  .brand-card {
+    flex-basis: calc(33.33% - 20px);
+    margin-bottom: 15px;
+  }
+
+  .app-banner {
+    flex-direction: column;
+    height: auto;
+    padding: 30px 10%;
+    text-align: center;
+  }
+
+  .content-left,
+  .content-right {
+    max-width: 100%;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+
+  .buttons-container {
+    justify-content: center;
+  }
+}
+
+/* Small tablets / large phones */
+@media (max-width: 768px) {
+  .categories-grid {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 20px 20px;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+    padding: 0 20px 20px 20px;
+  }
+
+  .brands-container {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .brand-card {
+    flex-basis: 80%;
+    margin-bottom: 10px;
+  }
+
+  .main-heading {
+    font-size: 28px;
+  }
+
+  .sub-text {
+    font-size: 14px;
+  }
+
+  .main-heading-s {
+    font-size: 28px;
+  }
+
+  .sub-text-s {
+    font-size: 14px;
+  }
+
+  .buttons-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .view-all-btn {
+    width: 100%;
+    font-size: 14px;
+    padding: 12px 20px;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  .categories-grid {
+    grid-template-columns: 1fr;
+    padding: 10px;
+    gap: 10px;
+  }
+
+  .category-card {
+    padding: 30px 15px;
+  }
+
+  .product-grid {
+    grid-template-columns: 1fr;
+    padding: 0 10px 20px 10px;
+  }
+
+  .product-card {
+    margin-bottom: 20px;
+  }
+
+  .brands-container {
+    flex-direction: column;
+    padding: 0 10px;
+  }
+
+  .brand-card {
+    flex-basis: 100%;
+    margin-bottom: 10px;
+  }
+
+  .main-heading,
+  .main-heading-s {
+    font-size: 24px;
+  }
+
+  .sub-text,
+  .sub-text-s {
+    font-size: 13px;
+  }
+
+  .buttons-container,
+  .buttons-group {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .app-banner {
+    padding: 20px 5%;
+  }
+
+  .daraz-link {
+    font-size: 16px;
+  }
 }
 </style>

@@ -1,17 +1,20 @@
 <template>
   <div class="app-layout">
+    <!-- Navbar -->
     <Navbar />
 
+    <!-- Breadcrumbs -->
     <BreadCrumbs />
 
     <!-- Page Content -->
     <main class="main-content">
       <router-view />
     </main>
+
     <!-- Footer -->
     <div class="footer-container">
       <div class="footer-grid">
-        <!-- Column 1: PhysioNepals Brand -->
+        <!-- Column 1: PhysioNepal Brand -->
         <div class="brand-column">
           <div class="logo">PhysioNepals</div>
           <p class="tagline">
@@ -60,20 +63,22 @@
         </div>
       </div>
 
+      <!-- Footer Bottom -->
       <div class="footer-bottom">
         <div class="copyright">© 2025 PhysioNepals. All rights reserved</div>
         <div class="legal-links">
-          <a href="#">Go to Settings</a>
-          <a href="#">Built with VSCode</a>
+          <a href="#"><i class="fa-brands fa-facebook-f fa-bounce"></i></a>
+          <a href="#"><i class="fa-brands fa-instagram fa-bounce"></i></a>
         </div>
       </div>
     </div>
   </div>
 </template>
 
-<script >
+<script>
 import Navbar from "@/components/NavSection.vue";
 import BreadCrumbs from "@/components/Navigation/BreadSection.vue";
+
 export default {
   name: "MainLayout",
   components: {
@@ -100,23 +105,33 @@ export default {
       contact,
     };
   },
-  
 };
 </script>
 
 <style scoped>
+/* Main Layout */
 .app-layout {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
+/* Main Content */
+.main-content {
+  flex: 1;
+  width: 100%;
+  margin: 20px auto;
+  padding: 0 40px;
+}
+
+/* Footer Container */
 .footer-container {
   width: 100%;
   background-color: white;
   padding: 40px 20px 20px;
 }
 
+/* Footer Grid */
 .footer-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -128,7 +143,7 @@ export default {
 .brand-column .logo {
   font-size: 28px;
   font-weight: 700;
-  color: #1e9b3b;
+  color: #7ed9b0;
   margin-bottom: 15px;
 }
 
@@ -138,15 +153,17 @@ export default {
   font-size: 15px;
 }
 
-/* Links Columns */
+/* Links Column */
 .links-column h3 {
   font-size: 18px;
-  color:#1e9b3b;
+  color: #7ed9b0;
   margin-bottom: 20px;
 }
 
 .links-column ul {
   list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .links-column ul li {
@@ -161,13 +178,13 @@ export default {
 }
 
 .links-column ul li a:hover {
-  color: #1e9b3b;
+  color: #7ed9b0;
 }
 
 /* Contact Column */
 .contact-column h3 {
   font-size: 18px;
-  color: #1e9b3b;
+  color: #7ed9b0;
   margin-bottom: 20px;
 }
 
@@ -193,6 +210,7 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .copyright {
@@ -202,7 +220,7 @@ export default {
 
 .legal-links {
   display: flex;
-  gap: 20px;
+  gap: 10px;
 }
 
 .legal-links a {
@@ -213,10 +231,10 @@ export default {
 }
 
 .legal-links a:hover {
-  color: #3498db;
+  color: #6fc6f5;
 }
 
-/* Responsive Design */
+/* Responsive Footer */
 @media (max-width: 992px) {
   .footer-grid {
     grid-template-columns: repeat(2, 1fr);
@@ -237,10 +255,9 @@ export default {
   }
 }
 
-/* Responsive */
+/* Responsive Main Content */
 @media (max-width: 768px) {
   .main-content {
-    margin: 20px auto;
     padding: 0 15px;
   }
 }

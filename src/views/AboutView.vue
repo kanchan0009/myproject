@@ -10,7 +10,6 @@
         box-sizing: border-box;
       "
     >
-      <!-- Text Column -->
       <div style="padding-right: 40px">
         <h1
           style="
@@ -20,7 +19,7 @@
             color: #000;
           "
         >
-          About <span style="color: #1f9d4c">PhysioNepals</span>
+          About <span style="color: #7ed9b0">PhysioNepals</span>
         </h1>
 
         <p
@@ -43,7 +42,6 @@
         </p>
       </div>
 
-      <!-- Image Space Column -->
       <div
         style="
           background: #eee;
@@ -61,7 +59,13 @@
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: #1f9d4c;
+        background: linear-gradient(
+          120deg,
+          #6fc6f5 0%,
+          #6fc6f5 45%,
+          #7ed9b0 55%,
+          #7ed9b0 100%
+        );
         padding: 50px 80px;
         box-sizing: border-box;
       "
@@ -106,7 +110,6 @@
           align-items: flex-start;
         "
       >
-        <!-- Text Column -->
         <div>
           <h3 style="font-size: 28px; font-weight: 700; margin: 0 0 20px 0">
             From Passion to Purpose
@@ -154,7 +157,6 @@
           </p>
         </div>
 
-        <!-- Image Space Column -->
         <div
           style="
             background: #eee;
@@ -167,558 +169,84 @@
         ></div>
       </div>
     </div>
-    <h2
-      style="
-        text-align: center;
-        font-size: 32px;
-        font-weight: 700;
-        color: #111;
-        margin: 0 0 40px 0;
-      "
-    >
-      Our Values
-    </h2>
+    <div class="values-section">
+      <!-- Section Title -->
+      <h2 class="value-title">Our Values</h2>
 
-    <div
-      style="
-        display: flex;
-        justify-content: space-around;
-        align-items: flex-start;
-        gap: 24px;
-        padding: 0 40px 40px 40px;
-      "
-    >
-      <div
-        style="
-          background: #ffffff;
-          width: 260px;
-          padding: 28px 24px;
-          border-radius: 12px;
-          box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
-        "
-      >
-        <div
-          style="
-            width: 44px;
-            height: 44px;
-            background: #e7f6ec;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-          "
-        >
-          <div
-            style="
-              width: 18px;
-              height: 18px;
-              border: 3px solid #16a34a;
-              border-radius: 50%;
-            "
-          ></div>
-        </div>
-        <h3
-          style="
-            margin: 0 0 12px 0;
-            font-size: 18px;
-            font-weight: 700;
-            color: #111;
-          "
-        >
-          Quality First
-        </h3>
-        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #555">
-          We prioritize quality in every product, ensuring international
-          standards and durability.
-        </p>
-      </div>
+      <!-- Values Grid -->
+      <div class="values-grid">
+        <div class="value-card" v-for="(value, index) in values" :key="index">
+          <div class="value-icon">
+            <div
+              class="icon-inner"
+              :style="{
+                width: value.iconWidth,
+                height: value.iconHeight,
+                border: value.iconBorder,
+                borderRadius: value.iconRadius,
+              }"
+            ></div>
+          </div>
 
-      <div
-        style="
-          background: #ffffff;
-          width: 260px;
-          padding: 28px 24px;
-          border-radius: 12px;
-          box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
-        "
-      >
-        <div
-          style="
-            width: 44px;
-            height: 44px;
-            background: #e7f6ec;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-          "
-        >
-          <div
-            style="
-              width: 22px;
-              height: 14px;
-              border: 2px solid #16a34a;
-              border-radius: 8px;
-            "
-          ></div>
+          <h3 class="value-title">{{ value.title }}</h3>
+          <p class="value-description">{{ value.description }}</p>
         </div>
-        <h3
-          style="
-            margin: 0 0 12px 0;
-            font-size: 18px;
-            font-weight: 700;
-            color: #111;
-          "
-        >
-          Customer Focused
-        </h3>
-        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #555">
-          Your success is our success. We provide comprehensive support
-          throughout your journey.
-        </p>
-      </div>
-
-      <div
-        style="
-          background: #ffffff;
-          width: 260px;
-          padding: 28px 24px;
-          border-radius: 12px;
-          box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
-        "
-      >
-        <div
-          style="
-            width: 44px;
-            height: 44px;
-            background: #e7f6ec;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-          "
-        >
-          <div
-            style="
-              width: 14px;
-              height: 20px;
-              border: 2px solid #16a34a;
-              border-radius: 7px 7px 10px 10px;
-            "
-          ></div>
-        </div>
-        <h3
-          style="
-            margin: 0 0 12px 0;
-            font-size: 18px;
-            font-weight: 700;
-            color: #111;
-          "
-        >
-          Innovation
-        </h3>
-        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #555">
-          We stay updated with the latest technologies to provide cutting-edge
-          solutions.
-        </p>
-      </div>
-
-      <div
-        style="
-          background: #ffffff;
-          width: 260px;
-          padding: 28px 24px;
-          border-radius: 12px;
-          box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
-        "
-      >
-        <div
-          style="
-            width: 44px;
-            height: 44px;
-            background: #e7f6ec;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-          "
-        >
-          <div
-            style="
-              width: 14px;
-              height: 18px;
-              border: 2px solid #16a34a;
-              border-radius: 4px;
-            "
-          ></div>
-        </div>
-        <h3
-          style="
-            margin: 0 0 12px 0;
-            font-size: 18px;
-            font-weight: 700;
-            color: #111;
-          "
-        >
-          Excellence
-        </h3>
-        <p style="margin: 0; font-size: 14px; line-height: 1.6; color: #555">
-          We are committed to delivering excellence in products, service, and
-          support.
-        </p>
       </div>
     </div>
-    <!-- Meet Our Team Section (placed directly below previous div, no top margin) -->
-    <div
-      style="
-        margin: 0;
-        padding: 0 40px 40px 40px;
-        font-family: Arial, Helvetica, sans-serif;
-      "
-    >
-      <h2
-        style="
-          margin: 0 0 40px 0;
-          text-align: center;
-          font-size: 32px;
-          font-weight: 700;
-          color: #111;
-        "
-      >
-        Meet Our Team
-      </h2>
+    <div class="section-container">
+      <!-- Section Title -->
+      <h2 class="section-title">Meet Our Team</h2>
 
-      <div style="display: flex; justify-content: space-around; gap: 24px">
-        <!-- Card 1 -->
+      <!-- Team Grid -->
+      <div class="team-grid">
         <div
-          style="
-            width: 260px;
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
-            overflow: hidden;
-          "
+          class="team-card"
+          v-for="(member, index) in teamMembers"
+          :key="index"
         >
-          <div style="height: 180px; background: #f0f0f0"></div>
-          <div style="padding: 22px">
-            <h3
-              style="
-                margin: 0 0 6px 0;
-                font-size: 18px;
-                font-weight: 700;
-                color: #111;
-              "
-            >
-              Dr. Rajesh Sharma
-            </h3>
-            <div
-              style="
-                margin: 0 0 10px 0;
-                font-size: 14px;
-                font-weight: 600;
-                color: #16a34a;
-              "
-            >
-              Founder &amp; CEO
-            </div>
-            <p
-              style="margin: 0; font-size: 14px; line-height: 1.6; color: #555"
-            >
-              Physical Therapist with 15+ years of clinical experience
-            </p>
-          </div>
-        </div>
-
-        <!-- Card 2 -->
-        <div
-          style="
-            width: 260px;
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
-            overflow: hidden;
-          "
-        >
-          <div style="height: 180px; background: #f0f0f0"></div>
-          <div style="padding: 22px">
-            <h3
-              style="
-                margin: 0 0 6px 0;
-                font-size: 18px;
-                font-weight: 700;
-                color: #111;
-              "
-            >
-              Priya Poudel
-            </h3>
-            <div
-              style="
-                margin: 0 0 10px 0;
-                font-size: 14px;
-                font-weight: 600;
-                color: #16a34a;
-              "
-            >
-              Operations Manager
-            </div>
-            <p
-              style="margin: 0; font-size: 14px; line-height: 1.6; color: #555"
-            >
-              Expert in equipment distribution and logistics
-            </p>
-          </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div
-          style="
-            width: 260px;
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
-            overflow: hidden;
-          "
-        >
-          <div style="height: 180px; background: #f0f0f0"></div>
-          <div style="padding: 22px">
-            <h3
-              style="
-                margin: 0 0 6px 0;
-                font-size: 18px;
-                font-weight: 700;
-                color: #111;
-              "
-            >
-              Amit Tamang
-            </h3>
-            <div
-              style="
-                margin: 0 0 10px 0;
-                font-size: 14px;
-                font-weight: 600;
-                color: #16a34a;
-              "
-            >
-              Technical Lead
-            </div>
-            <p
-              style="margin: 0; font-size: 14px; line-height: 1.6; color: #555"
-            >
-              Specialist in medical device maintenance and support
-            </p>
-          </div>
-        </div>
-
-        <!-- Card 4 -->
-        <div
-          style="
-            width: 260px;
-            background: #fff;
-            border-radius: 14px;
-            box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
-            overflow: hidden;
-          "
-        >
-          <div style="height: 180px; background: #f0f0f0"></div>
-          <div style="padding: 22px">
-            <h3
-              style="
-                margin: 0 0 6px 0;
-                font-size: 18px;
-                font-weight: 700;
-                color: #111;
-              "
-            >
-              Nisha Rai
-            </h3>
-            <div
-              style="
-                margin: 0 0 10px 0;
-                font-size: 14px;
-                font-weight: 600;
-                color: #16a34a;
-              "
-            >
-              Sales Director
-            </div>
-            <p
-              style="margin: 0; font-size: 14px; line-height: 1.6; color: #555"
-            >
-              Building relationships with clinics and rehabilitation centers
-            </p>
+          <div class="team-image"></div>
+          <div class="team-info">
+            <h3 class="team-name">{{ member.name }}</h3>
+            <div class="team-role">{{ member.role }}</div>
+            <p class="team-description">{{ member.description }}</p>
           </div>
         </div>
       </div>
     </div>
-    <div style="max-width: 1200px; margin: auto">
-      <h2 style="text-align: center; font-size: 32px; margin-bottom: 40px">
-        What Our Clients Say
-      </h2>
+    <div class="sec-container">
+      <!-- Section Title -->
+      <h2 class="sec-title">What Our Clients Say</h2>
 
-      <!-- Grid Container -->
-      <div
-        style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 30px"
-      >
-        <!-- Card 1 -->
+      <!-- Testimonials Grid -->
+      <div class="testimonial-grid">
         <div
-          style="
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-          "
+          class="testimonial-card"
+          v-for="(testimonial, index) in testimonials"
+          :key="index"
         >
-          <div style="color: #22c55e; font-size: 20px; margin-bottom: 15px">
-            ★★★★★
+          <div
+            class="testimonial-rating"
+            :class="{ 'gradient-text': testimonial.gradient }"
+            :style="{ color: testimonial.color }"
+          >
+            {{ testimonial.rating }}
           </div>
 
-          <p style="color: #555; line-height: 1.6; margin-bottom: 25px">
-            "PhysioNepals provided us with high-quality equipment at competitive
-            prices. Their installation and training service was exceptional.
-            Highly recommended!"
-          </p>
+          <p class="testimonial-text">{{ testimonial.text }}</p>
 
-          <div style="display: flex; align-items: center; gap: 15px">
-            <div
-              style="
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                background: #e5e5e5;
-              "
-            ></div>
-
+          <div class="testimonial-user">
+            <div class="testimonial-avatar"></div>
             <div>
-              <div style="font-weight: bold">Dr. Sunil Gurung</div>
-              <div style="font-size: 14px; color: #777">
-                Central Rehabilitation Clinic, Kathmandu
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 2 -->
-        <div
-          style="
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-          "
-        >
-          <div style="color: #22c55e; font-size: 20px; margin-bottom: 15px">
-            ★★★★★
-          </div>
-
-          <p style="color: #555; line-height: 1.6; margin-bottom: 25px">
-            "Excellent customer service and reliable products. The 24/7 support
-            team has been incredibly helpful. We are very satisfied with our
-            purchase."
-          </p>
-
-          <div style="display: flex; align-items: center; gap: 15px">
-            <div
-              style="
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                background: #e5e5e5;
-              "
-            ></div>
-
-            <div>
-              <div style="font-weight: bold">Arjun Kharel</div>
-              <div style="font-size: 14px; color: #777">
-                Sports Physiotherapy Center, Pokhara
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 3 -->
-        <div
-          style="
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-          "
-        >
-          <div style="color: #22c55e; font-size: 20px; margin-bottom: 15px">
-            ★★★★★
-          </div>
-
-          <p style="color: #555; line-height: 1.6; margin-bottom: 25px">
-            "We have been working with PhysioNepals for 3 years now. Their
-            commitment to quality and customer satisfaction is unmatched in the
-            industry."
-          </p>
-
-          <div style="display: flex; align-items: center; gap: 15px">
-            <div
-              style="
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                background: #e5e5e5;
-              "
-            ></div>
-
-            <div>
-              <div style="font-weight: bold">Ramesh Thapa</div>
-              <div style="font-size: 14px; color: #777">
-                Rehab Care Clinic, Lalitpur
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Card 4 -->
-        <div
-          style="
-            background: #ffffff;
-            padding: 30px;
-            border-radius: 12px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-          "
-        >
-          <div style="color: #22c55e; font-size: 20px; margin-bottom: 15px">
-            ★★★★★
-          </div>
-
-          <p style="color: #555; line-height: 1.6; margin-bottom: 25px">
-            "Best investment for our clinic. The equipment is durable, efficient
-            and the after-sales service is phenomenal."
-          </p>
-
-          <div style="display: flex; align-items: center; gap: 15px">
-            <div
-              style="
-                width: 50px;
-                height: 50px;
-                border-radius: 50%;
-                background: #e5e5e5;
-              "
-            ></div>
-
-            <div>
-              <div style="font-weight: bold">Manisha Shrestha</div>
-              <div style="font-size: 14px; color: #777">
-                Wellness Physiotherapy, Bhaktapur
-              </div>
+              <div class="testimonial-name">{{ testimonial.name }}</div>
+              <div class="testimonial-clinic">{{ testimonial.clinic }}</div>
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <div style="background: #f6fbfa; padding: 80px 40px">
-      <!-- Content Container -->
       <div style="max-width: 1200px; margin: 0 auto; display: flex; gap: 40px">
-        <!-- Our Mission -->
         <div
           style="
             background: #ffffff;
@@ -746,7 +274,6 @@
           </p>
         </div>
 
-        <!-- Our Vision -->
         <div
           style="
             background: #ffffff;
@@ -774,70 +301,18 @@
         </div>
       </div>
     </div>
-    <!-- CTA Section -->
-    <div style="background: #1f8f3a; padding: 90px 20px; text-align: center">
-      <h1
-        style="
-          margin: 0 0 20px 0;
-          color: #ffffff;
-          font-size: 38px;
-          font-weight: 700;
-        "
-      >
-        Join Us in Our Mission
-      </h1>
+    <div class="mission-section">
+    <h1 class="mission-title">Join Us in Our Mission</h1>
+    <p class="mission-text">
+      Partner with PhysioNepals and elevate your rehabilitation services with
+      world-class equipment and professional support.
+    </p>
 
-      <p
-        style="
-          margin: 0 auto 40px auto;
-          max-width: 800px;
-          color: #eaf5ee;
-          font-size: 18px;
-          line-height: 1.6;
-        "
-      >
-        Partner with PhysioNepals and elevate your rehabilitation services with
-        world-class equipment and professional support.
-      </p>
-
-      <!-- Buttons -->
-      <div style="display: flex; justify-content: center; gap: 20px">
-        <a
-          href="#"
-          @click="contact"
-          style="
-            background: #0d6efd;
-            color: #ffffff;
-            padding: 14px 30px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: 600;
-            display: inline-block;
-          "
-        >
-          Get in Touch
-        </a>
-
-        <a
-          href="#"
-          @click="products"
-          style="
-            background: transparent;
-            color: #ffffff;
-            padding: 14px 30px;
-            border-radius: 8px;
-            border: 2px solid #ffffff;
-            text-decoration: none;
-            font-size: 16px;
-            font-weight: 600;
-            display: inline-block;
-          "
-        >
-          Explore Products
-        </a>
-      </div>
+    <div class="mission-buttons">
+      <a href="#" class="btn btn-primary" @click.prevent="contact">Get in Touch</a>
+      <a href="#" class="btn btn-outline" @click.prevent="products">Explore Products</a>
     </div>
+  </div>
   </div>
 </template>
 <script>
@@ -854,5 +329,410 @@ export default {
       contact,
     };
   },
+  data() {
+    return {
+      teamMembers: [
+        {
+          name: "Dr. Rajesh Sharma",
+          role: "Founder & CEO",
+          description:
+            "Physical Therapist with 15+ years of clinical experience",
+        },
+        {
+          name: "Priya Poudel",
+          role: "Operations Manager",
+          description: "Expert in equipment distribution and logistics",
+        },
+        {
+          name: "Amit Tamang",
+          role: "Technical Lead",
+          description: "Specialist in medical device maintenance and support",
+        },
+        {
+          name: "Nisha Rai",
+          role: "Sales Director",
+          description:
+            "Building relationships with clinics and rehabilitation centers",
+        },
+      ],
+      testimonials: [
+        {
+          rating: "★★★★★",
+          gradient: true,
+          color: "",
+          text: "PhysioNepals provided us with high-quality equipment at competitive prices. Their installation and training service was exceptional. Highly recommended!",
+          name: "Dr. Sunil Gurung",
+          clinic: "Central Rehabilitation Clinic, Kathmandu",
+        },
+        {
+          rating: "★★★★★",
+          gradient: true,
+          color: "",
+          text: "Excellent customer service and reliable products. The 24/7 support team has been incredibly helpful. We are very satisfied with our purchase.",
+          name: "Arjun Kharel",
+          clinic: "Sports Physiotherapy Center, Pokhara",
+        },
+        {
+          rating: "★★★★★",
+          gradient: true,
+          color: "",
+          text: "We have been working with PhysioNepals for 3 years now. Their commitment to quality and customer satisfaction is unmatched in the industry.",
+          name: "Ramesh Thapa",
+          clinic: "Rehab Care Clinic, Lalitpur",
+        },
+        {
+          rating: "★★★★★",
+          gradient: true,
+          color: "",
+          text: "Best investment for our clinic. The equipment is durable, efficient and the after-sales service is phenomenal.",
+          name: "Manisha Shrestha",
+          clinic: "Wellness Physiotherapy, Bhaktapur",
+        },
+      ],
+      values: [
+        {
+          title: "Quality First",
+          description:
+            "We prioritize quality in every product, ensuring international standards and durability.",
+          iconWidth: "18px",
+          iconHeight: "18px",
+          iconBorder: "3px solid #7ed9b0",
+          iconRadius: "50%",
+        },
+        {
+          title: "Customer Focused",
+          description:
+            "Your success is our success. We provide comprehensive support throughout your journey.",
+          iconWidth: "22px",
+          iconHeight: "14px",
+          iconBorder: "2px solid #7ed9b0",
+          iconRadius: "8px",
+        },
+        {
+          title: "Innovation",
+          description:
+            "We stay updated with the latest technologies to provide cutting-edge solutions.",
+          iconWidth: "14px",
+          iconHeight: "20px",
+          iconBorder: "2px solid #7ed9b0",
+          iconRadius: "7px 7px 10px 10px",
+        },
+        {
+          title: "Excellence",
+          description:
+            "We are committed to delivering excellence in products, service, and support.",
+          iconWidth: "14px",
+          iconHeight: "18px",
+          iconBorder: "2px solid #7ed9b0",
+          iconRadius: "4px",
+        },
+      ],
+    };
+  },
 };
 </script>
+<style>
+/* Section container */
+.section-container {
+  margin: 0;
+  padding: 0 40px 40px 40px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Section title */
+.section-title {
+  margin: 0 0 40px 0;
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #111;
+}
+
+/* Team grid */
+.team-grid {
+  display: flex;
+  justify-content: space-around;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+/* Team card */
+.team-card {
+  width: 260px;
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+/* Team image placeholder */
+.team-image {
+  height: 180px;
+  background: #f0f0f0;
+}
+
+/* Team info */
+.team-info {
+  padding: 22px;
+}
+
+.team-name {
+  margin: 0 0 6px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+}
+
+.team-role {
+  margin: 0 0 10px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #6fc6f5;
+}
+
+.team-description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555;
+}
+
+.sec-container {
+  max-width: 1200px;
+  margin: auto;
+  padding: 0 20px 40px 20px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.sec-title {
+  text-align: center;
+  font-size: 32px;
+  margin-bottom: 40px;
+  color: #111;
+}
+
+.testimonial-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 30px;
+}
+
+.testimonial-card {
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.testimonial-rating {
+  font-size: 20px;
+  margin-bottom: 15px;
+  color: #6fc6f5;
+}
+
+.gradient-text {
+  background: linear-gradient(120deg, #6fc6f5, #7ed9b0);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.testimonial-text {
+  color: #555;
+  line-height: 1.6;
+  margin-bottom: 25px;
+}
+
+.testimonial-user {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.testimonial-avatar {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: #e5e5e5;
+}
+
+.testimonial-name {
+  font-weight: bold;
+}
+
+.testimonial-clinic {
+  font-size: 14px;
+  color: #777;
+}
+.values-section {
+  padding: 0 40px 40px 40px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Section title */
+.value-title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: #111;
+  margin: 0 0 40px 0;
+}
+
+/* Values grid */
+.values-grid {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+/* Individual value card */
+.value-card {
+  background: #ffffff;
+  width: 260px;
+  padding: 28px 24px;
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px; /* spacing for smaller screens */
+}
+
+/* Icon wrapper */
+.value-icon {
+  width: 44px;
+  height: 44px;
+  background: #e7f6ec;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+/* Inner icon (dynamic size & border) */
+.icon-inner {
+  display: block;
+}
+
+/* Value title */
+.value-title {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #111;
+}
+
+/* Value description */
+.value-description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #555;
+}
+/* Hero Section Container with Gradient Background */
+.mission-section {
+  --bg-gradient: linear-gradient(
+    120deg,
+    #6fc6f5 0%,
+    #6fc6f5 45%,
+    #7ed9b0 55%,
+    #7ed9b0 100%
+  );
+  background: var(--bg-gradient);
+  padding: 90px 20px;
+  text-align: center;
+}
+
+/* Title */
+.mission-title {
+  margin: 0 0 20px 0;
+  color: #ffffff;
+  font-size: 38px;
+  font-weight: 700;
+}
+
+/* Description Text */
+.mission-text {
+  margin: 0 auto 40px auto;
+  max-width: 800px;
+  color: #eaf5ee;
+  font-size: 18px;
+  line-height: 1.6;
+}
+
+/* Buttons Container */
+.mission-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+/* Shared Button Styles */
+.btn {
+  padding: 14px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  transition: 0.3s all ease;
+}
+
+
+.btn-primary {
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+
+.btn-primary:hover {
+  transform:scale(1.02);
+  transition:all 0.2s ease-in; 
+  text-decoration:none;
+  color:white;
+}
+
+
+.btn-outline {
+  background: transparent;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+
+.btn-outline:hover {
+  transform:scale(1.02);
+  transition:all 0.2s ease-in; 
+  text-decoration:none;
+  color:white;
+}
+@media screen and (max-width: 480px) {
+  .mission-title {
+    font-size: 22px;
+  }
+
+  .mission-text {
+    font-size: 14px;
+  }
+
+  .section-title,
+  .sec-title,
+  .value-title {
+    font-size: 20px;
+  }
+
+  .team-info,
+  .testimonial-card,
+  .value-card {
+    padding: 16px;
+  }
+
+  .value-icon {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 16px;
+  }
+}
+
+</style>

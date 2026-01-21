@@ -4,7 +4,7 @@
       style="
         width: 100%;
         padding: 70px 60px;
-        background: linear-gradient(135deg, #f4fbf8, #ffffff);
+        background: radial-gradient(circle, #6fc6f5 0%, #6fc6f5 60%, #7ed9b0 100%);
       "
     >
       <h1
@@ -70,7 +70,7 @@
 
     <div class="container">
       <div class="grid">
-        <!-- LEFT: CONTACT FORM (MERGED ROWS) -->
+        <!-- LEFT: CONTACT FORM  -->
         <div class="card form-card">
           <h2>Send us a Message</h2>
 
@@ -176,7 +176,7 @@ body {
 }
 
 .container {
-  max-width: 100%;
+  max-width: 1400px;
   margin: 10px;
   padding:30px;
 }
@@ -188,7 +188,7 @@ body {
   gap: 20px;
 }
 
-/* MERGE LEFT COLUMN ROWS */
+
 .form-card {
   grid-row: 1 / span 2;
 }
@@ -200,7 +200,7 @@ body {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
-/* FORM STYLING */
+
 .form-card h2 {
   margin-bottom: 20px;
 }
@@ -239,7 +239,7 @@ textarea {
 button {
   width: 100%;
   padding: 14px;
-  background: #1e9b3b;
+  background: radial-gradient(circle, #6fc6f5 0%, #6fc6f5 60%, #7ed9b0 100%);
   border: none;
   color: white;
   font-size: 16px;
@@ -248,10 +248,13 @@ button {
 }
 
 button:hover {
-  background: #178232;
+  transform: scale(1.01);
+  transition:all 0.2s ease-out;
+  font-size:700;
+  
 }
 
-/* BUSINESS HOURS */
+
 .business-card h3 {
   margin-bottom: 15px;
 }
@@ -277,11 +280,11 @@ hr {
 }
 
 .hotline {
-  color: #1e9b3b;
+  color:#7ed9b0;
   font-weight: bold;
 }
 
-/* MAP */
+
 .map-card {
   background: #dbe7e2;
 }
@@ -307,21 +310,25 @@ hr {
 .contact-container {
   min-height: 300px;
   display: flex;
-  align-items: center; /* vertical center */
-  justify-content: center; /* horizontal center */
+  align-items: center; 
+  justify-content: center; 
 }
 
-/* GRID */
+
 .contact-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 30px;
   width: 100%;
-  max-width: 1200px;
-  padding: 0 30px; /* side spacing only */
+  max-width: 1400px;
+  padding: 0 30px; 
+}
+.contact-card:hover{
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transform:scale(1.02);
 }
 
-/* CARD */
+
 .contact-card {
   background: #ffffff;
   border-radius: 16px;
@@ -332,7 +339,7 @@ hr {
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
 }
 
-/* ICON */
+
 .icon {
   width: 56px;
   height: 56px;
@@ -344,7 +351,7 @@ hr {
   font-size: 24px;
 }
 
-/* TEXT */
+
 .content h3 {
   font-size: 18px;
   margin-bottom: 6px;
@@ -359,6 +366,140 @@ hr {
 .bold {
   font-weight: bold;
   color: #111;
+}
+@media (max-width: 1024px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .form-card {
+    grid-row: 1 / span 1;
+  }
+
+  .contact-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 0 20px;
+  }
+
+  .contact-card {
+    flex-direction: row;
+    gap: 20px;
+  }
+
+  .hours {
+    flex-direction: column;
+  }
+
+  .time {
+    margin-top: 8px;
+  }
+}
+
+/* Small tablets / large phones */
+@media (max-width: 768px) {
+  .grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .form-card {
+    grid-row: 1 / span 1;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+    padding: 0 15px;
+    gap: 15px;
+  }
+
+  .contact-card {
+    flex-direction: row;
+    gap: 15px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  h1 {
+    font-size: 40px;
+  }
+
+  p {
+    font-size: 16px;
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  .contact > div:first-child {
+    padding: 50px 20px;
+  }
+
+  h1 {
+    font-size: 28px !important;
+  }
+
+  p {
+    font-size: 14px !important;
+    line-height: 1.5;
+  }
+
+  .contact-grid {
+    gap: 12px;
+    padding: 0 10px;
+  }
+
+  .contact-card {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .icon {
+    width: 48px;
+    height: 48px;
+    font-size: 20px;
+  }
+
+  .hours {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .time {
+    margin-top: 4px;
+  }
+
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  input,
+  select,
+  textarea {
+    font-size: 13px;
+    padding: 10px;
+  }
+
+  button {
+    font-size: 14px;
+    padding: 12px;
+  }
+
+  .map-placeholder {
+    height: 180px;
+  }
+
+  .business-card h3 {
+    font-size: 16px;
+  }
 }
 </style>
 <script setup>

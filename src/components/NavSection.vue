@@ -1,5 +1,6 @@
 <template>
-  <div class="box">
+  <!-- Top Announcement Bar -->
+  <div class="top-bar">
     <span>Professional Physiotherapy Equipment</span>
     <a
       class="top-link"
@@ -7,85 +8,33 @@
       target="_blank"
       rel="noopener"
     >
-      Visit us on Daraz.np</a
-    >
+      Visit us on Daraz.np
+    </a>
   </div>
-  <header
-    style="
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 5%;
-      background-color: #ffffff;
-      border-bottom: 1px solid #e0e0e0;
-      height: 70px;
-    "
-  >
-    <div style="display: flex; align-items: center">
-      <div
-        style="
-          background-color: green;
-          width: 40px;
-          height: 40px;
-          border-radius: 30%;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          color: white;
-          font-weight: bold;
-          margin-right: 10px;
-        "
-      >
-        P
-      </div>
-      <span style="font-size: 1.2em; font-weight: bold; color: #333333"
-        >PhysioNepal</span
-      >
+
+  <!-- Header with Logo and Search -->
+  <header class="main-header">
+    <div class="logo-section">
+      <div class="logo-icon">P</div>
+      <span class="logo-text">PhysioNepal</span>
     </div>
 
-    <div style="flex-grow: 1; margin: 0 50px">
-      <form
-        style="
-          display: flex;
-          max-width: 600px;
-          margin: 0 auto;
-          border: 1px solid #cccccc;
-          border-radius: 20px;
-          overflow: hidden;
-        "
-      >
-        <input
-          type="text"
-          placeholder="Search products....."
-          style="padding: 10px 15px; border: none; flex-grow: 1; outline: none"
-        />
+    <form class="search-form">
+      <input type="text" placeholder="Search products..." />
+      <button type="submit">
+        <i class="fas fa-search"></i>
+      </button>
+    </form>
 
-        <button
-          type="submit"
-          style="
-            background-color: #f1f1f1;
-            border: none;
-            padding: 10px 15px;
-            cursor: pointer;
-          "
-        >
-          <i class="fas fa-search" style="color: #888888"></i>
-        </button>
-      </form>
-    </div>
-
-    <div>
-      <i
-        class="fas fa-shopping-cart"
-        style="font-size: 1.5em; color: #333333"
-      ></i>
-      <!-- Cart Icon -->
+    <div class="cart-icon">
+      <i class="fas fa-shopping-cart"></i>
     </div>
   </header>
 
+  <!-- Navbar -->
   <nav class="navbar">
     <div class="nav-container">
-      <ul class="nav-menu">
+      <ul :class="['nav-menu', { active: isMobileMenuOpen }]">
         <li class="nav-item">
           <router-link
             to="/categories"
@@ -95,15 +44,41 @@
             Categories
           </router-link>
         </li>
+
         <li class="nav-item">
-          <router-link
-            to="/products"
-            class="nav-link"
-            :class="{ active: $route.path.includes('/products') }"
+          <div
+            class="nav-item-wrapper"
+            @mouseenter="showCategoriesDesktop = true"
+            @mouseleave="showCategoriesDesktop = false"
+            @click="toggleCategoriesMobile"
           >
-            Products
-          </router-link>
+            <router-link
+              to="/products"
+              class="nav-link"
+              :class="{ active: $route.path.includes('/products') }"
+            >
+              Products
+            </router-link>
+
+            <transition name="fade">
+              <div
+                v-if="showCategoriesDesktop || showCategoriesMobile"
+                class="category-dropdown-container"
+              >
+                <div class="category-list">
+                  <div
+                    v-for="category in categories"
+                    :key="category.id"
+                    class="category-item"
+                  >
+                    {{ category.name }}
+                  </div>
+                </div>
+              </div>
+            </transition>
+          </div>
         </li>
+
         <li class="nav-item">
           <router-link
             to="/about"
@@ -113,6 +88,7 @@
             About Us
           </router-link>
         </li>
+
         <li class="nav-item">
           <router-link
             to="/contact"
@@ -124,7 +100,7 @@
         </li>
       </ul>
 
-      <!-- Mobile menu toggle (optional) -->
+      <!-- Hamburger Button -->
       <button class="mobile-toggle" @click="toggleMobileMenu">
         <span class="hamburger"></span>
       </button>
@@ -139,78 +115,146 @@ export default {
   name: "Navbar",
   setup() {
     const isMobileMenuOpen = ref(false);
+    const showCategoriesDesktop = ref(false);
+    const showCategoriesMobile = ref(false);
 
     const toggleMobileMenu = () => {
       isMobileMenuOpen.value = !isMobileMenuOpen.value;
     };
 
+    const toggleCategoriesMobile = () => {
+      if (window.innerWidth <= 768) {
+        showCategoriesMobile.value = !showCategoriesMobile.value;
+      }
+    };
+
     return {
       isMobileMenuOpen,
+      showCategoriesDesktop,
+      showCategoriesMobile,
       toggleMobileMenu,
+      toggleCategoriesMobile,
+    };
+  },
+  data() {
+    return {
+      categories: [
+        { id: 1, name: "Traction Systems" },
+        { id: 2, name: "TENS/EMS Units" },
+        { id: 3, name: "Ultrasound Therapy" },
+        { id: 4, name: "Infra-Red Therapy" },
+        { id: 5, name: "Rehabilitation" },
+        { id: 6, name: "Sports Recovery" },
+        { id: 7, name: "Orthopedic Care" },
+        { id: 8, name: "Diagnostic Tools" },
+      ],
     };
   },
 };
 </script>
 
 <style scoped>
-.brand,
-.search-box {
+/* Top Bar */
+.top-bar {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(
+    120deg,
+    #6fc6f5 0%,
+    #6fc6f5 45%,
+    #7ed9b0 55%,
+    #7ed9b0 100%
+  );
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 5%;
+  color: white;
+  font-weight: bold;
+  z-index: 1001;
+}
+
+.top-link {
+  color: white;
+  text-decoration: none;
+}
+.top-link:hover {
+  text-decoration: underline;
+}
+
+/* Header */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 5%;
+  background-color: #ffffff;
+  border-bottom: 1px solid #e0e0e0;
+  height: 70px;
+  position: sticky;
+  top: 40px;
+  z-index: 1000;
+}
+
+.logo-section {
   display: flex;
   align-items: center;
   gap: 10px;
 }
-.search-box input {
-  width: auto;
-  border: 1px solid #ccc;
-  padding: 5px 10px;
-  border-radius: 5px;
-}
-.icon {
-  background: white;
-  color: black;
-}
-.box-container {
-  padding: 5px;
-  margin-top: 1px;
-  background: white;
-  border: 1px solid black;
-  padding: 20px;
+.logo-icon {
+  background: linear-gradient(120deg, #6fc6f5 0%, #6fc6f5 45%, #7ed9b0 55%, #7ed9b0 100%);
+  width: 40px;
+  height: 40px;
+  border-radius: 30%;
   display: flex;
+  justify-content: center;
   align-items: center;
-  justify-content: space-around;
-  color: green;
-}
-.box {
-  top: 0px;
-  position: sticky;
-  background: green;
-  padding: 20px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
   color: white;
   font-weight: bold;
 }
-.top-link {
-  color: white;
-  text-decoration: none;
-
-  color: white;
+.logo-text {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #333;
 }
 
-.top_link:hover {
-  margin-right: 3px;
-  text-decoration: underline;
+/* Search Form */
+.search-form {
+  display: flex;
+  max-width: 600px;
+  flex-grow: 1;
+  margin: 0 50px;
+  border: 1px solid #ccc;
+  border-radius: 20px;
+  overflow: hidden;
+}
+.search-form input {
+  padding: 10px 15px;
+  border: none;
+  flex-grow: 1;
+  outline: none;
+}
+.search-form button {
+  background-color: #f1f1f1;
+  border: none;
+  padding: 10px 15px;
+  cursor: pointer;
+}
+.search-form button i {
+  color: #888;
 }
 
+/* Cart Icon */
+.cart-icon i {
+  font-size: 1.5em;
+  color: #333;
+}
+
+/* Navbar */
 .navbar {
   background-color: #ffffff;
   border-bottom: 1px solid #e0e0e0;
-  padding: 0;
-  position: sticky;
-  top: 0;
   z-index: 1000;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .nav-container {
@@ -221,21 +265,6 @@ export default {
   justify-content: space-between;
   align-items: center;
   height: 60px;
-}
-
-.nav-brand {
-  margin-right: 40px;
-}
-
-.brand-link {
-  text-decoration: none;
-  color: #333;
-  font-size: 20px;
-  font-weight: bold;
-}
-
-.brand-text {
-  color: #2c3e50;
 }
 
 .nav-menu {
@@ -250,11 +279,12 @@ export default {
 .nav-item {
   display: flex;
   align-items: center;
+  position: relative;
 }
 
 .nav-link {
   text-decoration: none;
-  color:black;
+  color: black;
   font-size: 16px;
   font-weight: 300;
   padding: 4px 0;
@@ -262,16 +292,13 @@ export default {
   transition: color 0.3s ease;
   letter-spacing: 0.5px;
 }
-
 .nav-link:hover {
-  color: rgb(29, 28, 28);
+  color: #2c3e50;
 }
-
 .nav-link.active {
   color: #2c3e50;
   font-weight: 600;
 }
-
 .nav-link.active::after {
   content: "";
   position: absolute;
@@ -282,6 +309,61 @@ export default {
   background-color: grey;
 }
 
+/* Category Dropdown */
+.nav-item-wrapper {
+  position: relative;
+  cursor: pointer;
+}
+.category-dropdown-container {
+   position: absolute;
+  top: 100%;          
+  left: 50%;          
+  transform: translateX(-50%); 
+  background: white;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  width: 250px;      
+  border-radius: 4px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.category-list {
+  display: flex;
+  flex-direction: column;
+}
+.category-item {
+  padding: 10px 15px;
+  color: #333;
+  border-bottom: 1px solid #f0f0f0;
+  cursor: pointer;
+  background-color: #cae1ed ;
+  color:white ;
+  
+}
+.category-item:hover {
+  font-size:large;
+  transform:scale(1.01);
+  transition:all 0.2s ease-out;
+
+  
+}
+.category-item:last-child {
+  border-bottom: none;
+}
+
+/* Vue Transitions */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
+/* Hamburger */
 .mobile-toggle {
   display: none;
   background: none;
@@ -289,7 +371,6 @@ export default {
   cursor: pointer;
   padding: 8px;
 }
-
 .hamburger {
   display: block;
   width: 25px;
@@ -298,7 +379,6 @@ export default {
   position: relative;
   transition: all 0.3s;
 }
-
 .hamburger::before,
 .hamburger::after {
   content: "";
@@ -308,17 +388,18 @@ export default {
   background-color: #333;
   transition: all 0.3s;
 }
-
 .hamburger::before {
   top: -8px;
 }
-
 .hamburger::after {
   bottom: -8px;
 }
 
-/* Responsive Design */
+/* Mobile Responsiveness */
 @media (max-width: 768px) {
+  .search-form {
+    margin: 0 10px;
+  }
   .nav-menu {
     position: fixed;
     top: 60px;
@@ -330,24 +411,26 @@ export default {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transform: translateY(-100%);
     transition: transform 0.3s ease;
+    z-index: 999;
   }
-
   .nav-menu.active {
     transform: translateY(0);
   }
-
   .nav-item {
     border-bottom: 1px solid #f0f0f0;
   }
-
   .nav-link {
     padding: 15px 20px;
     width: 100%;
     display: block;
   }
-
   .mobile-toggle {
     display: block;
+  }
+  .category-dropdown-container {
+    position: static;
+    box-shadow: none;
+    width: 100%;
   }
 }
 </style>

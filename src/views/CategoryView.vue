@@ -1,19 +1,19 @@
 <template>
   <div class="product-categories">
-    <div style="background: #f6fbfa; padding: 50px 40px">
+    <div style="background: #7ed9b0; padding: 50px 40px">
       <div style="max-width: 1200px; margin: 0 auto">
         <h1
           style="
             margin: 0 0 10px 0;
             font-size: 32px;
             font-weight: 700;
-            color: #000000;
+            color: white;
           "
         >
           Product Categories
         </h1>
 
-        <p style="margin: 0; font-size: 16px; color: #555555">
+        <p style="margin: 0; font-size: 16px; color: white">
           Browse our comprehensive selection of physiotherapy equipment
         </p>
       </div>
@@ -165,12 +165,11 @@ export default defineComponent({
   max-width: 1700px;
   margin: 30px;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 24px;
   padding: 0 20px;
 }
 .category-card:hover {
-  border: 0.5px solid #1f9d3a;
   transform: scale(1.02);
   transition: all 0.3s ease-in-out;
 }
@@ -199,7 +198,7 @@ export default defineComponent({
   position: absolute;
   top: 12px;
   right: 12px;
-  background: #1f9d3a;
+  background:#62cd9d ;
   color: #fff;
   padding: 6px 12px;
   border-radius: 20px;
@@ -243,7 +242,7 @@ export default defineComponent({
   display: block;
   width: 100%;
   padding: 14px;
-  background: #1f9d3a;
+  background: #6fc6f5;
   color: #fff;
   text-align: center;
   border-radius: 8px;
@@ -282,7 +281,8 @@ h2 {
   background-color: #fafbfc;
 }
 .contact-section {
-  background-color: rgb(232, 243, 248);
+  background: radial-gradient(circle at center, #6fc6f5 50%, #7ad9b0 80%, #7ed9b0 100%);
+
 
   width: 100%;
 
@@ -293,32 +293,74 @@ h2 {
 
 h1 {
   font-size: 28px;
-  color: #333;
+  color: white;
   margin-bottom: 10px;
 }
 
 p {
   font-size: 16px;
-  color: #666;
+  color: white;
   margin-bottom: 25px;
 }
 
 .contact-button {
-  background-color: #4caf50;
+  background-color: #6fc6f5;
   color: white;
   padding: 12px 24px;
   border: none;
   border-radius: 6px;
   font-size: 16px;
   cursor: pointer;
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.2),
+              0 3px 6px rgba(0, 0, 0, 0.1);
+
 
   outline: none;
+  border:1px solid white;
 
   margin: 0 auto;
   display: block;
 }
 
 .contact-button:hover {
-  background-color: #45a049;
+  transform:scale(1.05);
+  transition: all 0.2s  ease-in-out;
+  box-shadow: inset 0 3px 6px white,
+              0 3px 6px white; 
+}
+@media (max-width: 768px) {
+  .category-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .brands {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* Mobile phones */
+@media (max-width: 480px) {
+  .category-container {
+    grid-template-columns: 1fr;
+  }
+  .brands {
+    grid-template-columns: 1fr;
+  }
+  h1, h2 {
+    font-size: 24px;
+  }
+  .category-title {
+    font-size: 18px;
+  }
+  .category-desc,
+  .extra-info li {
+    font-size: 13px;
+  }
+  .contact-section {
+    padding: 50px 10px;
+  }
+  .contact-button {
+    width: 100%;
+    padding: 14px;
+  }
 }
 </style>
