@@ -15,7 +15,7 @@
   <!-- Header with Logo and Search -->
   <header class="main-header">
     <div class="logo-section">
-      <div class="logo-icon">P</div>
+      <div class="logo-icon"><img :src="require('@/assets/img.png')" alt="Logo" /></div>
       <span class="logo-text">PhysioNepal</span>
     </div>
 
@@ -198,19 +198,25 @@ export default {
 
 .logo-section {
   display: flex;
-  align-items: center;
-  gap: 10px;
+  align-items: center;       /* vertically center icon and text */
+  gap: 10px;                 /* space between logo and text */
 }
+
 .logo-icon {
-  background: linear-gradient(120deg, #6fc6f5 0%, #6fc6f5 45%, #7ed9b0 55%, #7ed9b0 100%);
-  width: 40px;
-  height: 40px;
-  border-radius: 30%;
+  width: 100px;               /* fixed width */
+  height: 100px;              /* fixed height */
   display: flex;
-  justify-content: center;
   align-items: center;
-  color: white;
-  font-weight: bold;
+  justify-content: center;
+  overflow: hidden;           /* hide overflow if image is too big */
+  border-radius: 12px;       /* rounded corners */
+  background-color: #fff;     /* optional background */
+}
+
+.logo-icon img {
+  width: 100%;               /* fill container width */
+  height: 100%;              /* fill container height */
+  object-fit: contain;       /* keep aspect ratio */
 }
 .logo-text {
   font-size: 1.2em;

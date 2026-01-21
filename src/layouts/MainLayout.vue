@@ -1,20 +1,17 @@
 <template>
   <div class="app-layout">
-    <!-- Navbar -->
     <Navbar />
 
-    <!-- Breadcrumbs -->
     <BreadCrumbs />
 
     <!-- Page Content -->
     <main class="main-content">
       <router-view />
     </main>
-
     <!-- Footer -->
     <div class="footer-container">
       <div class="footer-grid">
-        <!-- Column 1: PhysioNepal Brand -->
+        <!-- Column 1: PhysioNepals Brand -->
         <div class="brand-column">
           <div class="logo">PhysioNepals</div>
           <p class="tagline">
@@ -63,7 +60,6 @@
         </div>
       </div>
 
-      <!-- Footer Bottom -->
       <div class="footer-bottom">
         <div class="copyright">© 2025 PhysioNepals. All rights reserved</div>
         <div class="legal-links">
@@ -78,7 +74,6 @@
 <script>
 import Navbar from "@/components/NavSection.vue";
 import BreadCrumbs from "@/components/Navigation/BreadSection.vue";
-
 export default {
   name: "MainLayout",
   components: {
@@ -109,29 +104,18 @@ export default {
 </script>
 
 <style scoped>
-/* Main Layout */
 .app-layout {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
 }
 
-/* Main Content */
-.main-content {
-  flex: 1;
-  width: 100%;
-  margin: 20px auto;
-  padding: 0 40px;
-}
-
-/* Footer Container */
 .footer-container {
   width: 100%;
   background-color: white;
   padding: 40px 20px 20px;
 }
 
-/* Footer Grid */
 .footer-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -139,7 +123,6 @@ export default {
   margin-bottom: 40px;
 }
 
-/* Brand Column */
 .brand-column .logo {
   font-size: 28px;
   font-weight: 700;
@@ -153,7 +136,6 @@ export default {
   font-size: 15px;
 }
 
-/* Links Column */
 .links-column h3 {
   font-size: 18px;
   color: #7ed9b0;
@@ -162,8 +144,6 @@ export default {
 
 .links-column ul {
   list-style: none;
-  padding: 0;
-  margin: 0;
 }
 
 .links-column ul li {
@@ -178,7 +158,7 @@ export default {
 }
 
 .links-column ul li a:hover {
-  color: #7ed9b0;
+  color:#7ed9b0;
 }
 
 /* Contact Column */
@@ -186,6 +166,7 @@ export default {
   font-size: 18px;
   color: #7ed9b0;
   margin-bottom: 20px;
+  margin-right:230px;
 }
 
 .contact-info {
@@ -210,7 +191,6 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
 }
 
 .copyright {
@@ -221,6 +201,7 @@ export default {
 .legal-links {
   display: flex;
   gap: 10px;
+  width:100px;
 }
 
 .legal-links a {
@@ -233,6 +214,7 @@ export default {
 .legal-links a:hover {
   color: #6fc6f5;
 }
+
 
 /* Responsive Footer */
 @media (max-width: 992px) {

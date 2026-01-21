@@ -184,7 +184,7 @@ export default {
 .categories-grid {
   padding: 20px 80px 30px 80px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 10px;
 }
 
@@ -201,7 +201,7 @@ export default {
   background-color: white;
   max-width: 1320px;
   margin: 3px auto;
-  /* This ensures the container itself stays on the right */
+  
   display: flex;
   justify-content: space-between;
   height: 60px;
@@ -601,98 +601,6 @@ export default {
   color: white;
   text-decoration:none;
 }
-@media (max-width: 1024px) {
-  .categories-grid {
-    grid-template-columns: repeat(3, 1fr);
-    padding: 20px 40px;
-    gap: 15px;
-  }
-
-  .product-grid {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 0 40px 30px 40px;
-  }
-
-  .brands-container {
-    flex-wrap: wrap;
-    gap: 15px;
-    padding: 0 30px;
-  }
-
-  .brand-card {
-    flex-basis: calc(33.33% - 20px);
-    margin-bottom: 15px;
-  }
-
-  .app-banner {
-    flex-direction: column;
-    height: auto;
-    padding: 30px 10%;
-    text-align: center;
-  }
-
-  .content-left,
-  .content-right {
-    max-width: 100%;
-    text-align: center;
-    margin-bottom: 15px;
-  }
-
-  .buttons-container {
-    justify-content: center;
-  }
-}
-
-/* Small tablets / large phones */
-@media (max-width: 768px) {
-  .categories-grid {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 20px 20px;
-  }
-
-  .product-grid {
-    grid-template-columns: 1fr;
-    padding: 0 20px 20px 20px;
-  }
-
-  .brands-container {
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .brand-card {
-    flex-basis: 80%;
-    margin-bottom: 10px;
-  }
-
-  .main-heading {
-    font-size: 28px;
-  }
-
-  .sub-text {
-    font-size: 14px;
-  }
-
-  .main-heading-s {
-    font-size: 28px;
-  }
-
-  .sub-text-s {
-    font-size: 14px;
-  }
-
-  .buttons-group {
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .view-all-btn {
-    width: 100%;
-    font-size: 14px;
-    padding: 12px 20px;
-  }
-}
-
 /* Mobile phones */
 @media (max-width: 480px) {
   .categories-grid {
