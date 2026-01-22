@@ -19,12 +19,7 @@
       </div>
     </div>
     <div class="category-container">
-      <div
-        class="category-card"
-        v-for="(card, index) in cards"
-        :key="index"
-        @click="toggleCard(index)"
-      >
+      <div class="category-card" v-for="(card, index) in cards" :key="index">
         <div class="category-image">
           <img :src="card.image" />
           <div class="count-badge">{{ card.count }}</div>
@@ -34,23 +29,18 @@
           <div class="category-title">{{ card.title }}</div>
           <div class="category-desc">{{ card.desc }}</div>
 
-          <div class="extra-info" v-if="activeCard === index">
-            <ul>
-              <li v-for="item in card.details" :key="item">✔ {{ item }}</li>
-            </ul>
-          </div>
-
-          <a class="view-btn" :href="card.link" @click.stop> View Products </a>
+          <button class="view-btn" @click.stop="viewProducts(card.link)">
+            View Products
+          </button>
         </div>
       </div>
     </div>
     <div class="container">
       <h2>Featured Brands</h2>
       <div class="brands">
-        <div class="brand-card">Dynatron</div>
-        <div class="brand-card">Enraf-Nonius</div>
-        <div class="brand-card">Physiomed</div>
-        <div class="brand-card">BTL</div>
+        <div class="brand-card" v-for="brand in brands" :key="brand">
+          {{ brand }}
+        </div>
       </div>
     </div>
     <div class="contact-section">
@@ -64,89 +54,38 @@
 </template>
 <script>
 import { defineComponent } from "vue";
+import products from "@/data/products.json";
 
 export default defineComponent({
   name: "CategoryCards",
 
   data() {
+    // Get unique types
+    const types = [...new Set(products.map((p) => p.type))];
+    const cards = types.map((type) => {
+      const typeProducts = products.filter((p) => p.type === type);
+      const firstProduct = typeProducts[0];
+      return {
+        title: type,
+        desc: `Equipment for ${type}`,
+        image: "/assets/medical.jpeg",
+        count: typeProducts.length,
+        link: `/products?type=${type}`,
+      };
+    });
+
+    // Get unique brands, first 4
+    const brands = [...new Set(products.map((p) => p.brand))].slice(0, 4);
+
     return {
-      activeCard: null,
-      cards: [
-        {
-          title: "Advanced Setup",
-          desc: "High-end rehabilitation systems with advanced controls",
-          image: "/mnt/data/30cd9e2c-9ac7-4cc4-9fd5-c111a13afe15.png",
-          count: 24,
-          details: [
-            "Traction Machines",
-            "Decompression Systems",
-            "Advanced Therapy Units",
-          ],
-          link: "/products",
-        },
-        {
-          title: "Orthopedic Equipment",
-          desc: "Specialized devices for orthopedic rehabilitation",
-          image: "/mnt/data/7c81f55f-cc17-4915-b549-dc144b064ba6.png",
-          count: 32,
-          details: ["Joint Therapy", "Post Surgery Rehab", "Support Systems"],
-          link: "/products",
-        },
-        {
-          title: "Neurologic Rehabilitation",
-          desc: "Equipment for neurological recovery and therapy",
-          image: "/mnt/data/30cd9e2c-9ac7-4cc4-9fd5-c111a13afe15.png",
-          count: 15,
-          details: ["Motor Control", "Brain Therapy", "Neuro Training"],
-          link: "/products",
-        },
-        {
-          title: "Cardio Rehab",
-          desc: "Cardiovascular recovery systems",
-          image: "/mnt/data/7c81f55f-cc17-4915-b549-dc144b064ba6.png",
-          count: 18,
-          details: ["Heart Monitoring", "Endurance Training", "Pulse Systems"],
-          link: "/products",
-        },
-        {
-          title: "Pediatric Rehab",
-          desc: "Therapy systems for children",
-          image: "/mnt/data/30cd9e2c-9ac7-4cc4-9fd5-c111a13afe15.png",
-          count: 12,
-          details: ["Motor Skills", "Balance Therapy", "Growth Support"],
-          link: "/products",
-        },
-        {
-          title: "Sports Rehabilitation",
-          desc: "Recovery systems for athletes",
-          image: "/mnt/data/7c81f55f-cc17-4915-b549-dc144b064ba6.png",
-          count: 28,
-          details: ["Injury Recovery", "Strength Training", "Mobility Systems"],
-          link: "/products",
-        },
-        {
-          title: "Pain Management",
-          desc: "Advanced pain relief solutions",
-          image: "/mnt/data/30cd9e2c-9ac7-4cc4-9fd5-c111a13afe15.png",
-          count: 20,
-          details: ["Electro Therapy", "Laser Therapy", "Heat Therapy"],
-          link: "/products",
-        },
-        {
-          title: "Home Care",
-          desc: "Rehabilitation devices for home use",
-          image: "/mnt/data/7c81f55f-cc17-4915-b549-dc144b064ba6.png",
-          count: 14,
-          details: ["Portable Units", "Easy Setup", "Daily Therapy"],
-          link: "/products",
-        },
-      ],
+      cards,
+      brands,
     };
   },
 
   methods: {
-    toggleCard(index) {
-      this.activeCard = this.activeCard === index ? null : index;
+    viewProducts(link) {
+      this.$router.push(link);
     },
   },
   setup() {
@@ -180,6 +119,7 @@ export default defineComponent({
   overflow: hidden;
   cursor: pointer;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease-in-out;
 }
 
 .category-image {
@@ -198,7 +138,7 @@ export default defineComponent({
   position: absolute;
   top: 12px;
   right: 12px;
-  background:#62cd9d ;
+  background: #62cd9d;
   color: #fff;
   padding: 6px 12px;
   border-radius: 20px;
@@ -247,7 +187,7 @@ export default defineComponent({
   text-align: center;
   border-radius: 8px;
   text-decoration: none;
-  font-weight: bold;
+  font-size:medium;
 }
 .container {
   padding: 48px 56px;
@@ -281,8 +221,12 @@ h2 {
   background-color: #fafbfc;
 }
 .contact-section {
-  background: radial-gradient(circle at center, #6fc6f5 50%, #7ad9b0 80%, #7ed9b0 100%);
-
+  background: radial-gradient(
+    circle at center,
+    #6fc6f5 50%,
+    #7ad9b0 80%,
+    #7ed9b0 100%
+  );
 
   width: 100%;
 
@@ -311,22 +255,19 @@ p {
   border-radius: 6px;
   font-size: 16px;
   cursor: pointer;
-  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.2),
-              0 3px 6px rgba(0, 0, 0, 0.1);
-
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.2), 0 3px 6px rgba(0, 0, 0, 0.1);
 
   outline: none;
-  border:1px solid white;
+  border: 1px solid white;
 
   margin: 0 auto;
   display: block;
 }
 
 .contact-button:hover {
-  transform:scale(1.05);
-  transition: all 0.2s  ease-in-out;
-  box-shadow: inset 0 3px 6px white,
-              0 3px 6px white; 
+  transform: scale(1.05);
+  transition: all 0.2s ease-in-out;
+  box-shadow: inset 0 3px 6px white, 0 3px 6px white;
 }
 @media (max-width: 768px) {
   .category-container {
@@ -345,14 +286,14 @@ p {
   .brands {
     grid-template-columns: 1fr;
   }
-  h1, h2 {
+  h1,
+  h2 {
     font-size: 24px;
   }
   .category-title {
     font-size: 18px;
   }
-  .category-desc,
-  .extra-info li {
+  .category-desc {
     font-size: 13px;
   }
   .contact-section {

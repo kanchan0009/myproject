@@ -302,17 +302,21 @@
       </div>
     </div>
     <div class="mission-section">
-    <h1 class="mission-title">Join Us in Our Mission</h1>
-    <p class="mission-text">
-      Partner with PhysioNepals and elevate your rehabilitation services with
-      world-class equipment and professional support.
-    </p>
+      <h1 class="mission-title">Join Us in Our Mission</h1>
+      <p class="mission-text">
+        Partner with PhysioNepals and elevate your rehabilitation services with
+        world-class equipment and professional support.
+      </p>
 
-    <div class="mission-buttons">
-      <a href="#" class="btn btn-primary" @click.prevent="contact">Get in Touch</a>
-      <a href="#" class="btn btn-outline" @click.prevent="products">Explore Products</a>
+      <div class="mission-buttons">
+        <a href="#" class="btn btn-primary" @click.prevent="contact"
+          >Get in Touch</a
+        >
+        <a href="#" class="btn btn-outline" @click.prevent="products"
+          >Explore Products</a
+        >
+      </div>
     </div>
-  </div>
   </div>
 </template>
 <script>
@@ -680,7 +684,6 @@ export default {
   transition: 0.3s all ease;
 }
 
-
 .btn-primary {
   background: transparent;
   color: #ffffff;
@@ -688,12 +691,11 @@ export default {
 }
 
 .btn-primary:hover {
-  transform:scale(1.02);
-  transition:all 0.2s ease-in; 
-  text-decoration:none;
-  color:white;
+  transform: scale(1.02);
+  transition: all 0.2s ease-in;
+  text-decoration: none;
+  color: white;
 }
-
 
 .btn-outline {
   background: transparent;
@@ -702,24 +704,205 @@ export default {
 }
 
 .btn-outline:hover {
-  transform:scale(1.02);
-  transition:all 0.2s ease-in; 
-  text-decoration:none;
-  color:white;
+  transform: scale(1.02);
+  transition: all 0.2s ease-in;
+  text-decoration: none;
+  color: white;
 }
-@media screen and (max-width: 480px) {
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .about > section {
+    padding: 40px;
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .about > section > div {
+    padding-right: 0;
+  }
+
+  .about > div {
+    padding: 35px 60px;
+  }
+
+  .about > div > div {
+    font-size: 36px;
+  }
+
+  .about > div > div:nth-child(2) {
+    font-size: 16px;
+  }
+
+  .about > div > div:nth-child(3) {
+    font-size: 16px;
+  }
+
+  .values-section,
+  .section-container,
+  .sec-container {
+    padding: 0 20px 20px 20px;
+  }
+
+  .values-grid,
+  .team-grid,
+  .testimonial-grid {
+    gap: 20px;
+  }
+
+  .value-card,
+  .team-card,
+  .testimonial-card {
+    width: 100%;
+  }
+}
+
+@media (max-width: 768px) {
+  .about > section {
+    padding: 30px 20px;
+  }
+
+  h1 {
+    font-size: 40px;
+  }
+
+  p {
+    font-size: 16px;
+  }
+
+  .about > div {
+    padding: 30px 40px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .about > div > div {
+    font-size: 32px;
+  }
+
+  .about > div > div:nth-child(2),
+  .about > div > div:nth-child(3) {
+    font-size: 14px;
+  }
+
+  .about > div > div:nth-child(4) {
+    font-size: 14px;
+  }
+
+  .about > div > div:nth-child(5) {
+    font-size: 14px;
+  }
+
+  .about > div > div:nth-child(6) {
+    font-size: 14px;
+  }
+
+  .section-container,
+  .sec-container {
+    padding: 0 15px 15px 15px;
+  }
+
+  .section-title,
+  .sec-title,
+  .value-title {
+    font-size: 24px;
+  }
+
+  .values-grid,
+  .team-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .testimonial-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .team-grid {
+    justify-content: center;
+  }
+
+  .team-card {
+    width: 280px;
+  }
+
+  .value-card {
+    width: 280px;
+  }
+
+  .testimonial-card {
+    max-width: 500px;
+    margin: 0 auto;
+  }
+
+  .mission-section {
+    padding: 60px 20px;
+  }
+
   .mission-title {
-    font-size: 22px;
+    font-size: 32px;
   }
 
   .mission-text {
+    font-size: 16px;
+  }
+
+  .mission-buttons {
+    gap: 12px;
+  }
+
+  .btn {
+    padding: 12px 20px;
     font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .about > section {
+    padding: 20px 15px;
+  }
+
+  h1 {
+    font-size: 28px;
+  }
+
+  p {
+    font-size: 14px;
+  }
+
+  .about > div {
+    padding: 25px 20px;
+  }
+
+  .about > div > div {
+    font-size: 24px;
+  }
+
+  .about > div > div:nth-child(2),
+  .about > div > div:nth-child(3),
+  .about > div > div:nth-child(4),
+  .about > div > div:nth-child(5),
+  .about > div > div:nth-child(6) {
+    font-size: 12px;
+  }
+
+  .section-container,
+  .sec-container {
+    padding: 0 10px 10px 10px;
   }
 
   .section-title,
   .sec-title,
   .value-title {
     font-size: 20px;
+  }
+
+  .values-grid,
+  .team-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+  }
+
+  .testimonial-grid {
+    gap: 15px;
   }
 
   .team-info,
@@ -733,6 +916,59 @@ export default {
     height: 36px;
     margin-bottom: 16px;
   }
-}
 
+  .team-image {
+    height: 160px;
+  }
+
+  .team-name {
+    font-size: 16px;
+  }
+
+  .team-role {
+    font-size: 13px;
+  }
+
+  .team-description {
+    font-size: 13px;
+  }
+
+  .testimonial-rating {
+    font-size: 18px;
+  }
+
+  .testimonial-text {
+    font-size: 14px;
+  }
+
+  .testimonial-name {
+    font-size: 14px;
+  }
+
+  .testimonial-clinic {
+    font-size: 12px;
+  }
+
+  .mission-section {
+    padding: 40px 15px;
+  }
+
+  .mission-title {
+    font-size: 22px;
+  }
+
+  .mission-text {
+    font-size: 14px;
+  }
+
+  .mission-buttons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .btn {
+    padding: 10px 18px;
+    font-size: 13px;
+  }
+}
 </style>

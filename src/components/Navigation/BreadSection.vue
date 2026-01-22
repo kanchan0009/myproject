@@ -67,6 +67,7 @@ export default {
 }
 
 .breadcrumb-item {
+  
   display: flex;
   align-items: center;
   flex-wrap: wrap; /* allows better wrapping on small screens */

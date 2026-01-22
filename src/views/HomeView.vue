@@ -1,53 +1,50 @@
 <template>
-  <section class="featured-categories">
-    <h2>Featured Categories</h2>
-    <div class="categories-grid">
+  <h1 class="section-heading">Products</h1>
+
+  <div class="container">
+    <div class="card-grid">
       <div
         class="category-card"
         v-for="(category, index) in categories"
         :key="index"
       >
-        <span class="badge">{{ category.discount }} OFF</span>
+        <h3 class="card-title">{{ category.title }}</h3>
 
-        <h3>{{ category.name }}</h3>
+        <div class="image-grid">
+          <!-- Always create space for exactly 4 images -->
+          <div class="image-item" v-for="(n, index) in 4" :key="index">
+            <!-- Show image and label if product exists, otherwise leave space -->
+            <template v-if="category.items[n]">
+              <!-- Link to ProductDetail using dynamic id -->
+              <router-link :to="`/productdetail/${category.items[n].id}`">
+                <!-- Show first image if exists, otherwise placeholder -->
+                <img
+                  v-if="
+                    category.items[n].images && category.items[n].images.length
+                  "
+                  :src="category.items[n].images[0]"
+                  :alt="category.items[n].name"
+                />
+                <img
+                  v-else
+                  :src="require('@/assets/medical.jpeg')"
+                  :alt="category.items[n].name"
+                  class="placeholder-image"
+                />
+              </router-link>
 
-        <p>{{ category.products }} Products</p>
-      </div>
-    </div>
-
-    <button class="view-all-btn" @click="category">View All Categories</button>
-  </section>
-  <div class="best-sellers-container">
-    <h1 class="section-heading">Best Sellers</h1>
-    <div class="nav-links">
-      <a href="/products" class="nav-sale">On Sale</a>
-
-      <a href="/products" class="show-products">Show All Products</a>
-    </div>
-
-    <div class="product-grid">
-      <div class="product-card" @click="goToProduct(products.id)">
-        <div class="image-container">
-          <img :src="products.image" :alt="products.title" />
-          <span class="discount-badge">{{ products.discount }} OFF</span>
+              <p class="image-label">
+                {{ category.items[n].name || "Unnamed Product" }}
+              </p>
+            </template>
+            <!-- If no product, just empty space -->
+          </div>
         </div>
 
-        <div class="product-details">
-          <h2 class="product-title">{{ products.title }}</h2>
-
-          <div class="rating">
-            <span class="star">⭐</span>
-            <span class="rating-value">{{ products.rating }}</span>
-          </div>
-
-          <div class="price-container">
-            <span class="current-price">{{ products.price }}</span>
-            <span class="old-price">{{ products.oldprice }}</span>
-          </div>
-
-          <button class="add-to-cart-button" @click.stop="addToCart(products)">
-            Add to Cart
-          </button>
+        <div class="seedetail">
+          <router-link to="/products">
+            See More <span class="arrow">&#8594;</span>
+          </router-link>
         </div>
       </div>
     </div>
@@ -102,6 +99,8 @@
   </div>
 </template>
 <script>
+import products from "@/data/products.json";
+
 export default {
   setup() {
     const category = () => {
@@ -118,15 +117,6 @@ export default {
 
   data() {
     return {
-      products: {
-        id: 1,
-        title: "Traction Bed Pro X1",
-        image: "https://via.placeholder.com/300",
-        rating: 4.5,
-        price: "Rs. 45,000",
-        oldprice: "Rs. 55,000",
-        discount: "20%",
-      },
       brands: [
         { name: "BTL" },
         { name: "Enraf Nonius" },
@@ -136,16 +126,7 @@ export default {
         { name: "Storz Medical" },
       ],
       activeCategory: 0,
-      categories: [
-        { name: "Traction Systems", discount: "40%", products: 24 },
-        { name: "TENS/EMS Units", discount: "35%", products: 18 },
-        { name: "Ultrasound Therapy", discount: "30%", products: 15 },
-        { name: "Infra-Red Therapy", discount: "45%", products: 12 },
-        { name: "Rehabilitation", discount: "38%", products: 28 },
-        { name: "Sports Recovery", discount: "42%", products: 21 },
-        { name: "Orthopedic Care", discount: "33%", products: 19 },
-        { name: "Diagnostic Tools", discount: "25%", products: 14 },
-      ],
+      categories: [], // Will be populated in created() hook
     };
   },
   methods: {
@@ -163,71 +144,143 @@ export default {
       console.log("Selected category:", this.categories[index].name);
     },
   },
+  created() {
+    // Group products by type
+    const grouped = {};
+
+    products.forEach((product) => {
+      if (!grouped[product.type]) grouped[product.type] = [];
+      grouped[product.type].push(product);
+    });
+
+    // Convert to array format for v-for and limit to 8 categories for 2 rows
+    this.categories = Object.keys(grouped)
+      .map((typeName) => ({
+        title: typeName,
+        items: grouped[typeName],
+      }))
+      .slice(0, 8);
+  },
 };
 </script>
 <style>
-.featured-categories {
-  margin-top: 40px;
-  padding: 0 20px;
+.seedetail {
+  text-align: left; /* Align to left */
+  border-top: 1px solid #add8e6; /* Light blue top border */
+  padding-top: 10px; /* Space between border and text */
+  margin-top: 10px; /* Space above the border if needed */
 }
 
-.featured-categories h2 {
-  font-weight: 700;
-  font-size: 30px;
-  color: #333;
-  margin-top: 40px;
-  text-align: left;
+.seedetail a {
+  text-decoration: none; /* Remove underline */
+  font-size: 18px; /* Increase font size */
+  color: #007bff; /* Optional link color */
+  display: inline-flex; /* For arrow alignment */
+  align-items: center;
+  gap: 5px; /* Space between text and arrow */
+}
+
+.seedetail a:hover {
+  color: #0056b3; /* Darker on hover */
+}
+
+.seedetail .arrow {
+  font-size: 20px; /* Bigger arrow */
+}
+
+.container {
+  padding: 20px;
+  background: #f5f7fa;
+  max-width: 1300px;
   margin: 0 auto;
-  max-width: 1320px;
 }
 
-.categories-grid {
-  padding: 20px 80px 30px 80px;
+.card-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 20px;
 }
 
 .category-card {
-  position: relative;
   background: #ffffff;
-  border-radius: 14px;
-  padding: 40px 20px;
+  border-radius: 8px;
+  padding: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  height: 480px;
+  border: 1px solid #e5e7eb;
+  transition: all 0.3s ease;
+}
+
+.card-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.image-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 10px;
+}
+
+.image-item {
   text-align: center;
-  border: 1px solid #eeeeee;
   min-height: 170px;
-}
-.nav-links {
-  background-color: white;
-  max-width: 1320px;
-  margin: 3px auto;
-  
   display: flex;
-  justify-content: space-between;
-  height: 60px;
-  border-radius: 2px;
-
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  flex-direction: column;
+  justify-content: flex-start;
+  background-color: #f8f9fa;
+  border-radius: 6px;
+  padding: 10px;
 }
 
-.show-products {
-  margin: 10px;
-  text-decoration: none;
-  color:  #7ed9b0;
-  padding: 0.5rem 0.5rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  border: 1px solid  #7ed9b0;
-  border-radius: 10px;
+.image-item img,
+.placeholder-image {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 6px;
 }
 
-.nav-sale {
-  text-decoration: none;
-  color:#6fc6f5 ;
-  padding: 1rem 1rem;
-  border: 1px solid transparent;
-  transition: all 0.3s ease;
+.no-image {
+  width: 100%;
+  height: 150px;
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f7ff 100%);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6fc6f5;
+  font-size: 14px;
+  font-weight: 500;
 }
+
+.image-label {
+  font-size: 12px;
+  margin-top: 6px;
+  color: #333;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .card-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .show-products:hover {
   border-radius: 4px;
   background-color: rgba(255, 255, 255, 0.1);
@@ -262,7 +315,7 @@ export default {
   position: absolute;
   top: 18px;
   right: 18px;
-  background-color:#6fc6f5 ;
+  background-color: #6fc6f5;
   color: #ffffff;
   font-size: 13px;
   font-weight: 700;
@@ -274,7 +327,6 @@ export default {
   display: block;
   margin: 10px auto 0;
   background: #7ed9b0;
-;
   color: #ffffff;
   border: none;
   padding: 14px 36px;
@@ -296,7 +348,7 @@ export default {
   color: #333;
 
   text-align: left;
-  padding: 0.5rem 0.5rem;
+  padding: 2rem 0.5rem 0 0.5rem;
   margin: 0 auto;
   max-width: 1320px;
 }
@@ -409,7 +461,7 @@ export default {
 }
 
 .add-to-cart-button:hover {
-  transform:scaleX(1.01);
+  transform: scaleX(1.01);
 }
 .brands-section {
   padding: 60px 20px;
@@ -496,7 +548,7 @@ export default {
 .app-button {
   text-decoration: none;
   background-color: white;
-  color:  #6fc6f5;
+  color: #6fc6f5;
   border: none;
   border-radius: 4px;
   padding: 10px 25px;
@@ -571,17 +623,17 @@ export default {
 }
 
 .btn-primary {
-  background-color:  #6fc6f5;
+  background-color: #6fc6f5;
   color: white;
-  border-color:  #6fc6f5;
+  border-color: #6fc6f5;
   text-decoration: none;
 }
 
 .btn-primary:hover {
   background-color: #6fc6f5;
-  border-color:  #6fc6f5;
-  text-decoration:none;
-  color:white;
+  border-color: #6fc6f5;
+  text-decoration: none;
+  color: white;
 }
 
 .btn-secondary {
@@ -599,61 +651,149 @@ export default {
 .btn-secondary:hover {
   background-color: #7ed9b0;
   color: white;
-  text-decoration:none;
+  text-decoration: none;
 }
 /* Mobile phones */
 @media (max-width: 480px) {
-  .categories-grid {
-    grid-template-columns: 1fr;
+  .section-heading {
+    font-size: 24px;
+    padding: 1rem 0.5rem 0 0.5rem;
+  }
+
+  .container {
     padding: 10px;
-    gap: 10px;
+  }
+
+  .card-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
   }
 
   .category-card {
-    padding: 30px 15px;
+    padding: 20px 15px;
+    height: auto;
+    min-height: 400px;
   }
 
-  .product-grid {
-    grid-template-columns: 1fr;
-    padding: 0 10px 20px 10px;
+  .card-title {
+    font-size: 18px;
+    margin-bottom: 10px;
   }
 
-  .product-card {
+  .image-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 8px;
+  }
+
+  .image-item {
+    min-height: 120px;
+    padding: 8px;
+  }
+
+  .image-item img,
+  .placeholder-image {
+    height: 100px;
+  }
+
+  .image-label {
+    font-size: 11px;
+  }
+
+  .seedetail {
+    padding-top: 8px;
+    margin-top: 8px;
+  }
+
+  .seedetail a {
+    font-size: 16px;
+  }
+
+  .seedetail .arrow {
+    font-size: 18px;
+  }
+
+  .brands-section {
+    padding: 40px 10px;
+  }
+
+  .section-title {
+    font-size: 24px;
     margin-bottom: 20px;
   }
 
   .brands-container {
-    flex-direction: column;
+    gap: 15px;
     padding: 0 10px;
   }
 
   .brand-card {
-    flex-basis: 100%;
-    margin-bottom: 10px;
-  }
-
-  .main-heading,
-  .main-heading-s {
-    font-size: 24px;
-  }
-
-  .sub-text,
-  .sub-text-s {
-    font-size: 13px;
-  }
-
-  .buttons-container,
-  .buttons-group {
-    flex-direction: column;
-    gap: 10px;
+    padding: 15px;
+    font-size: 12px;
   }
 
   .app-banner {
-    padding: 20px 5%;
+    flex-direction: column;
+    text-align: center;
+    padding: 30px 5%;
+    height: auto;
+  }
+
+  .content-left {
+    max-width: 100%;
+    margin-bottom: 20px;
+  }
+
+  .main-heading {
+    font-size: 28px;
+  }
+
+  .sub-text {
+    font-size: 14px;
+  }
+
+  .buttons-container {
+    justify-content: center;
+    gap: 10px;
+  }
+
+  .app-button {
+    padding: 8px 20px;
+    font-size: 14px;
+  }
+
+  .content-right {
+    margin-top: 20px;
+  }
+
+  .available-text {
+    font-size: 12px;
   }
 
   .daraz-link {
     font-size: 16px;
+  }
+
+  .banner-section {
+    padding: 60px 10px;
+  }
+
+  .main-heading-s {
+    font-size: 28px;
+  }
+
+  .sub-text-s {
+    font-size: 14px;
+    margin-bottom: 25px;
+  }
+
+  .buttons-group {
+    gap: 10px;
+  }
+
+  .btn {
+    padding: 10px 20px;
+    font-size: 14px;
   }
 }
 </style>

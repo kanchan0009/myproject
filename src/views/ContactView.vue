@@ -12,7 +12,7 @@
           margin: 0;
           font-size: 56px;
           font-weight: 800;
-          color: #111111;
+          color: white;
           font-family: Arial, Helvetica, sans-serif;
         "
       >
@@ -23,9 +23,8 @@
         style="
           margin-top: 20px;
           font-size: 20px;
-          color: #6b6b6b;
-          max-width: 900px;
-          line-height: 1.6;
+          
+          color:white;
           font-family: Arial, Helvetica, sans-serif;
         "
       >

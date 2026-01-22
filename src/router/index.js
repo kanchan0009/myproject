@@ -16,19 +16,19 @@ const routes = [
         name: "Categories",
         component: () => import("@/views/CategoryView.vue"),
       },
-      {
-        path: "/categories/:categoryId",
-        name: "CategoryDetail",
-        component: () => import("@/views/CategoryView.vue"),
-        props: true,
-      },
+      // {
+      //   path: "/categories/:categoryId",
+      //   name: "CategoryDetail",
+      //   component: () => import("@/views/CategoryView.vue"),
+      //   props: true,
+      // },
       {
         path: "/products",
         name: "Products",
         component: () => import("@/views/ProductView.vue"),
       },
       {
-        path: "/products/:productId",
+        path: "/productdetail/:productId",
         name: "ProductDetail",
         component: () => import("@/views/ProductDetail.vue"),
         props: true,

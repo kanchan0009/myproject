@@ -1,8 +1,8 @@
 <template>
   <div class="app-layout">
-    <Navbar />
+    <Navbar ref="navbarRef" />
 
-    <BreadCrumbs />
+    <CategorySection v-if="$route.name !== 'ProductDetail'" />
 
     <!-- Page Content -->
     <main class="main-content">
@@ -72,15 +72,19 @@
 </template>
 
 <script>
+import { provide, ref } from "vue";
 import Navbar from "@/components/NavSection.vue";
-import BreadCrumbs from "@/components/Navigation/BreadSection.vue";
+import CategorySection from "@/components/Navigation/CategorySection.vue";
+
 export default {
   name: "MainLayout",
   components: {
     Navbar,
-    BreadCrumbs,
+    CategorySection,
   },
   setup() {
+    const navbarRef = ref(null);
+
     const categories = () => {
       window.location.href = "/categories";
     };
@@ -93,11 +97,35 @@ export default {
     const contact = () => {
       window.location.href = "/contact";
     };
+
+    // Provide addToCart method to child components
+    const addToCart = (product, quantity = 1) => {
+      // Get navbar component reference and call its addToCart method
+      const navbar = navbarRef.value;
+      if (navbar && navbar.addToCart) {
+        navbar.addToCart(product, quantity);
+      }
+    };
+
+    // Provide showToast method to child components
+    const showToast = (message, type = "success") => {
+      // Get navbar component reference and call its showToast method
+      const navbar = navbarRef.value;
+      if (navbar && navbar.showToast) {
+        navbar.showToast(message, type);
+      }
+    };
+
+    provide("addToCart", addToCart);
+    provide("showToast", showToast);
+
     return {
+      navbarRef,
       categories,
       products,
       about,
       contact,
+      addToCart,
     };
   },
 };
@@ -158,7 +186,7 @@ export default {
 }
 
 .links-column ul li a:hover {
-  color:#7ed9b0;
+  color: #7ed9b0;
 }
 
 /* Contact Column */
@@ -166,7 +194,7 @@ export default {
   font-size: 18px;
   color: #7ed9b0;
   margin-bottom: 20px;
-  margin-right:230px;
+  margin-right: 230px;
 }
 
 .contact-info {
@@ -201,7 +229,7 @@ export default {
 .legal-links {
   display: flex;
   gap: 10px;
-  width:100px;
+  width: 100px;
 }
 
 .legal-links a {
@@ -214,7 +242,6 @@ export default {
 .legal-links a:hover {
   color: #6fc6f5;
 }
-
 
 /* Responsive Footer */
 @media (max-width: 992px) {
@@ -241,6 +268,72 @@ export default {
 @media (max-width: 768px) {
   .main-content {
     padding: 0 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .footer-container {
+    padding: 30px 15px 15px;
+  }
+
+  .footer-grid {
+    gap: 25px;
+  }
+
+  .brand-column .logo {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .brand-column .tagline {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .links-column h3 {
+    font-size: 16px;
+    margin-bottom: 15px;
+  }
+
+  .links-column ul li {
+    margin-bottom: 10px;
+  }
+
+  .links-column ul li a {
+    font-size: 14px;
+  }
+
+  .contact-column h3 {
+    font-size: 16px;
+    margin-bottom: 15px;
+    margin-right: 0;
+  }
+
+  .contact-info {
+    margin-bottom: 12px;
+    font-size: 14px;
+  }
+
+  .contact-info i {
+    margin-right: 10px;
+    font-size: 15px;
+    width: 18px;
+  }
+
+  .footer-bottom {
+    padding-top: 15px;
+  }
+
+  .copyright {
+    font-size: 13px;
+  }
+
+  .legal-links {
+    gap: 8px;
+  }
+
+  .legal-links a {
+    font-size: 13px;
   }
 }
 </style>

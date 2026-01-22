@@ -1,24 +1,5 @@
 <template>
   <div class="product">
-    <!-- Header Section -->
-    <div style="background: #7ed9b0; padding: 50px 40px">
-      <div style="max-width: 1200px; margin: 0 auto">
-        <h1
-          style="
-            margin: 0 0 10px 0;
-            font-size: 32px;
-            font-weight: 700;
-            color: white;
-          "
-        >
-          Products
-        </h1>
-        <p style="margin: 0; font-size: 16px; color: white">
-          Showing {{ products.length }} of {{ products.length }} products
-        </p>
-      </div>
-    </div>
-
     <div
       style="
         max-width: 1700px;
@@ -83,23 +64,31 @@
           "
         >
           <div style="font-weight: 600; margin-bottom: 12px">Brand</div>
-          <div v-for="brand in brands" :key="brand" style="margin-bottom: 8px">
-            <label
-              style="
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                cursor: pointer;
-              "
+          <div
+            style="max-height: 180px; overflow-y: scroll; padding-right: 10px"
+          >
+            <div
+              v-for="brand in brands"
+              :key="brand"
+              style="margin-bottom: 10px"
             >
-              <input
-                type="checkbox"
-                :value="brand"
-                v-model="selectedBrands"
-                style="width: 16px; height: 16px"
-              />
-              <span>{{ brand }}</span>
-            </label>
+              <label
+                style="
+                  display: flex;
+                  align-items: center;
+                  gap: 10px;
+                  cursor: pointer;
+                "
+              >
+                <input
+                  type="checkbox"
+                  :value="brand"
+                  v-model="selectedBrands"
+                  style="width: 16px; height: 16px"
+                />
+                <span>{{ brand }}</span>
+              </label>
+            </div>
           </div>
         </div>
 
@@ -138,40 +127,73 @@
         </div>
       </aside>
 
-      <!-- Products Grid -->
-      <div class="products-grid">
+      <!-- Products by Category -->
+      <div class="products-by-category">
         <div
-          v-for="product in filteredProducts"
-          :key="product.id"
-          class="product-card"
+          v-for="category in groupedProducts"
+          :key="category.type"
+          class="category-section"
         >
-          <div class="product-image">
-            <img :src="product.images[0]" alt="" />
-          </div>
+          <h2 class="category-heading">{{ category.type }}</h2>
+          <div class="products-grid">
+            <div
+              v-for="product in category.products.slice(
+                0,
+                getExpandedState(category.type) ? category.products.length : 4,
+              )"
+              :key="product.id"
+              class="product-card"
+            >
+              <div class="product-image">
+                <img
+                  :src="
+                    product.images && product.images[0]
+                      ? product.images[0]
+                      : '/assets/medical.jpeg'
+                  "
+                  alt=""
+                />
+              </div>
 
-          <div class="product-details">
-            <div class="product-brand">{{ product.brand }}</div>
-            <b class="product-name">{{ product.name }}</b>
-            <div class="product-price">
-              NPR {{ product.price.toLocaleString() }}
-            </div>
+              <div class="product-details">
+                <div class="product-brand">{{ product.brand }}</div>
+                <b class="product-name">{{ product.name }}</b>
+                <div class="product-price">
+                  NPR {{ product.price.toLocaleString() }}
+                </div>
 
-            <div class="product-actions">
-              <button class="add-button">
-                <i class="fa-solid fa-cart-shopping"></i> Add
-              </button>
-              <!-- View Details Button -->
-              <router-link
-                :to="{
-                  name: 'ProductDetail',
-                  params: { productId: product.id },
-                }"
-                class="view-button"
-              >
-                <i class="fa-regular fa-eye"></i>
-              </router-link>
+                <div class="product-actions">
+                  <button class="add-button" @click="handleAddToCart(product)">
+                    <i class="fa-solid fa-cart-shopping"></i> Add
+                  </button>
+                  <!-- View Details Button -->
+                  <router-link
+                    :to="{
+                      name: 'ProductDetail',
+                      params: { productId: product.id },
+                    }"
+                    class="view-button"
+                  >
+                    <i class="fa-regular fa-eye"></i>
+                  </router-link>
+                </div>
+              </div>
             </div>
           </div>
+          <button
+            v-if="category.products.length > 4"
+            class="show-more-btn"
+            @click="toggleCategory(category.type)"
+          >
+            {{ expandedCategories[category.type] ? "Show Less" : "Show More" }}
+            <i
+              :class="
+                expandedCategories[category.type]
+                  ? 'fa-solid fa-chevron-up'
+                  : 'fa-solid fa-chevron-down'
+              "
+            ></i>
+          </button>
         </div>
       </div>
     </div>
@@ -179,128 +201,50 @@
 </template>
 
 <script>
+import { reactive, inject } from "vue";
+import products from "@/data/products.json";
+
 export default {
   data() {
+    const types = [...new Set(products.map((p) => p.type))];
+    const expandedCategories = reactive({});
+    types.forEach((type) => {
+      expandedCategories[type] = false;
+    });
     return {
       sortOption: "featured",
       minPrice: 0,
       maxPrice: 100000,
       selectedBrands: [],
       selectedTypes: [],
-      brands: [
-        "Dynatron",
-        "Enraf-Nonius",
-        "Physiomed",
-        "Chattanooga",
-        "BTL",
-        "Zimmer",
-      ],
-      types: [
-        "Ultrasound",
-        "TENS",
-        "Traction",
-        "Heat Therapy",
-        "Balance",
-        "Support",
-        "Massage",
-        "Accessories",
-      ],
-
-      products: [
-        {
-          id: 1,
-          name: "Advanced Traction Machine",
-          brand: "Dynatron",
-          description:
-            "High-end spinal decompression therapy system with digital controls",
-          price: 85000,
-          type: "Traction",
-          inStock: true,
-          rating: 4.8,
-          reviews: 24,
-          images: [
-            "/images/traction-machine/main.jpg",
-            "/images/traction-machine/1.jpg",
-            "/images/traction-machine/2.jpg",
-          ],
-          features: [
-            "Digital control system",
-            "Spinal decompression therapy",
-            "Clinic-grade equipment",
-          ],
-        },
-        {
-          id: 2,
-          name: "Ultrasound Therapy",
-          brand: "Enraf-Nonius",
-          description: "Advanced ultrasound therapy device for pain relief",
-          price: 45000,
-          type: "Ultrasound",
-          inStock: true,
-          rating: 4.6,
-          reviews: 18,
-          images: ["/images/ultrasound/main.jpg"],
-          features: ["Pain relief", "Deep tissue therapy"],
-        },
-        {
-          id: 3,
-          name: "Muscle Stimulator",
-          brand: "Physiomed",
-          description: "Advanced electrotherapy device for muscle stimulation",
-          price: 38000,
-          type: "TENS",
-          inStock: true,
-          rating: 4.5,
-          reviews: 15,
-          images: ["/images/muscle-stimulator/main.jpg"],
-          features: ["Electrotherapy", "Muscle recovery"],
-        },
-        {
-          id: 4,
-          name: "Balance Board",
-          brand: "Chattanooga",
-          description:
-            "Professional-grade balance board designed for rehabilitation and physical therapy",
-          price: 12000,
-          type: "Balance",
-          inStock: true,
-          rating: 4.4,
-          reviews: 10,
-          images: ["/images/balance-board/main.jpg"],
-          features: ["Balance training", "Rehabilitation"],
-        },
-        {
-          id: 5,
-          name: "IRR Lamp with Stand",
-          brand: "BTL",
-          description: "Infrared Radiation Therapy Lamp with adjustable stand",
-          price: 18500,
-          type: "Heat Therapy",
-          inStock: true,
-          rating: 4.3,
-          reviews: 12,
-          images: ["/images/irr-lamp/main.jpg"],
-          features: ["Infrared therapy", "Adjustable stand"],
-        },
-        {
-          id: 6,
-          name: "Traction Bed",
-          brand: "Zimmer",
-          description: "Advanced traction bed for physiotherapy",
-          price: 95000,
-          type: "Traction",
-          inStock: true,
-          rating: 4.7,
-          reviews: 20,
-          images: ["/images/traction-bed/main.jpg"],
-          features: ["Physiotherapy bed", "Heavy-duty build"],
-        },
-      ],
+      brands: [...new Set(products.map((p) => p.brand))],
+      types: types,
+      products: products,
+      expandedCategories: expandedCategories,
+      searchQuery: "",
     };
+  },
+
+  setup() {
+    const addToCart = inject("addToCart");
+    const showToast = inject("showToast");
+    return { addToCart, showToast };
   },
   computed: {
     filteredProducts() {
       let filtered = this.products;
+
+      // Search Filter
+      if (this.searchQuery.trim()) {
+        const query = this.searchQuery.toLowerCase().trim();
+        filtered = filtered.filter(
+          (p) =>
+            p.name.toLowerCase().includes(query) ||
+            p.brand.toLowerCase().includes(query) ||
+            p.type.toLowerCase().includes(query) ||
+            (p.description && p.description.toLowerCase().includes(query)),
+        );
+      }
 
       // Brand Filter
       if (this.selectedBrands.length > 0) {
@@ -333,10 +277,56 @@ export default {
 
       return filtered;
     },
+    groupedProducts() {
+      const groups = {};
+      this.filteredProducts.forEach((product) => {
+        if (!groups[product.type]) {
+          groups[product.type] = [];
+        }
+        groups[product.type].push(product);
+      });
+      return Object.keys(groups)
+        .map((type) => ({
+          type,
+          products: groups[type],
+        }))
+        .slice(0, 5);
+    },
+  },
+  mounted() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const type = urlParams.get("type");
+    if (type) {
+      this.selectedTypes = [type];
+    }
+    const search = urlParams.get("search");
+    if (search) {
+      this.searchQuery = search;
+    }
+  },
+  watch: {
+    $route(to) {
+      const search = to.query.search;
+      if (search) {
+        this.searchQuery = search;
+      } else {
+        this.searchQuery = "";
+      }
+    },
   },
   methods: {
     applyFilters() {
       // Trigger computed reactivity
+    },
+    toggleCategory(type) {
+      this.expandedCategories[type] = !this.expandedCategories[type];
+    },
+    getExpandedState(type) {
+      return this.expandedCategories[type] || false;
+    },
+    handleAddToCart(product) {
+      this.addToCart(product);
+      this.showToast("Product added to cart!", "success");
     },
   },
 };
@@ -378,9 +368,9 @@ export default {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #6fc6f5; 
+  background: #6fc6f5;
   cursor: pointer;
-  margin-top: -6px; 
+  margin-top: -6px;
 }
 .price-values {
   display: flex;
@@ -388,38 +378,81 @@ export default {
   margin-top: 10px;
   font-size: 14px;
 }
-.products-grid {
+.products-by-category {
   flex: 0.9;
+}
+.category-section {
+  margin-bottom: 30px;
+}
+.category-heading {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 20px;
+  border-bottom: 3px solid #7ed9b0;
+  padding-bottom: 10px;
+}
+.products-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-} 
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.show-more-btn {
+  background: #6fc6f5;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 25px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 auto;
+  box-shadow: 0 4px 15px rgba(111, 198, 245, 0.3);
+}
+.show-more-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(111, 198, 245, 0.4);
+}
+.show-more-btn i {
+  transition: transform 0.3s ease;
+}
 .product-card {
   border: 1px solid #ddd;
   border-radius: 12px;
   overflow: hidden;
   background: #fff;
-  text-align:left;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  height: 320px;
+  display: flex;
+  flex-direction: column;
 }
+
 .product-card:hover {
-  transform: scaleX(1.01);
-  transition: all 0.2s ease-in;
-  box-shadow: 2px 2px 2px rgb(247, 245, 245);
-} 
+  transform: translateY(-5px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
 .product-image {
-  background: #eee;
-  height: 200px;
+  background: #f8f9fa;
+  height: 250px;
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 .product-image img {
-  max-width: 100%;
-  max-height: 100%;
+  max-width: 90%;
+  max-height: 90%;
   object-fit: contain;
-} 
+}
 .product-details {
-  padding: 15px;
+  padding: 20px;
 }
 .product-brand {
   color: #7ed9b0;
@@ -432,7 +465,7 @@ export default {
   color: #7ed9b0;
   font-weight: bold;
   margin-top: 5px;
-} 
+}
 .product-actions {
   display: flex;
   gap: 10px;
@@ -457,10 +490,10 @@ export default {
   cursor: pointer;
   border: 1px solid #ddd;
   background: #fff;
-  display:flex;
+  display: flex;
   align-items: center;
-  justify-content:center;
-  color:black;
+  justify-content: center;
+  color: black;
 }
 /* Tablet screens */
 @media (max-width: 1024px) {
@@ -515,42 +548,192 @@ export default {
 @media (max-width: 480px) {
   div[style*="display: flex; gap: 30px;"] {
     flex-direction: column;
-    padding: 0 10px;
+    padding: 0 15px;
+    gap: 20px;
   }
 
   aside {
+    width: 100%;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  aside > div {
+    margin-bottom: 25px;
+  }
+
+  aside > div:last-child {
+    margin-bottom: 0;
+  }
+
+  .price-range-container {
     padding: 15px;
+    margin-bottom: 25px;
+  }
+
+  .price-slider {
+    height: 8px;
+    border-radius: 4px;
+  }
+
+  .price-slider::-webkit-slider-thumb {
+    width: 18px;
+    height: 18px;
+    margin-top: -5px;
+  }
+
+  .price-values {
+    font-size: 12px;
+    margin-top: 8px;
+  }
+
+  .products-by-category {
+    flex: 1;
+  }
+
+  .category-section {
+    margin-bottom: 25px;
+  }
+
+  .category-heading {
+    font-size: 22px;
+    margin-bottom: 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #7ed9b0;
+  }
+
+  .products-grid {
+    grid-template-columns: 1fr;
+    gap: 15px;
+    margin-bottom: 15px;
+  }
+
+  .product-card {
+    height: auto;
+    min-height: 280px;
+    border-radius: 10px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+  }
+
+  .product-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
   }
 
   .product-image {
-    height: 150px;
+    height: 180px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  }
+
+  .product-image img {
+    max-width: 85%;
+    max-height: 85%;
   }
 
   .product-details {
-    padding: 8px;
+    padding: 15px;
+  }
+
+  .product-brand {
+    font-size: 12px;
+    color: #6c757d;
+    margin-bottom: 5px;
   }
 
   .product-name {
-    font-size: 14px;
+    font-size: 16px;
+    margin: 5px 0;
+    line-height: 1.3;
   }
 
   .product-price {
-    font-size: 14px;
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 8px;
+    color: #28a745;
   }
 
   .product-actions {
-    gap: 5px;
+    gap: 8px;
+    margin-top: 15px;
   }
 
-  .add-button,
-  .view-button {
+  .add-button {
+    flex: 1;
+    padding: 10px;
+    border-radius: 6px;
     font-size: 14px;
-    padding: 6px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #6fc6f5 0%, #4a90e2 100%);
+    box-shadow: 0 2px 8px rgba(111, 198, 245, 0.3);
   }
 
-  select,
+  .add-button:hover {
+    background: linear-gradient(135deg, #5bb8f5 0%, #3a7bd5 100%);
+  }
+
+  .view-button {
+    width: 45px;
+    height: 35px;
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    background: #fff;
+    color: #6c757d;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .view-button:hover {
+    background: #f8f9fa;
+    border-color: #adb5bd;
+  }
+
+  .show-more-btn {
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 20px;
+    margin-top: 10px;
+  }
+
+  select {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    font-size: 14px;
+    background: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+
   input[type="range"] {
     width: 100%;
+  }
+
+  /* Improve filter sections */
+  aside div[style*="border: 1px solid #e5e5e5"] {
+    border: 1px solid #dee2e6;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+
+  /* Better spacing for filter labels */
+  label {
+    font-size: 14px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* Scrollable areas */
+  div[style*="max-height: 180px"] {
+    max-height: 150px;
+    border-radius: 6px;
+    background: #f8f9fa;
+    padding: 10px;
   }
 }
 </style>

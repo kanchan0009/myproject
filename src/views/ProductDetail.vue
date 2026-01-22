@@ -3,23 +3,14 @@
     <!-- Left Side: Image Area  -->
     <div class="product-image-area">
       <div class="main-image-placeholder">
-        <img v-if="mainImage" :src="mainImage" :alt="product.name" />
-        <div v-else class="image-icon">🖼️</div>
+        <div class="image-icon">🖼️</div>
       </div>
-
       <div class="thumbnail-placeholders">
-        <div
-          v-for="(img, index) in product.images"
-          :key="index"
-          class="thumbnail"
-          @click="mainImage = img"
-        >
-          <img :src="img" :alt="product.name + ' thumbnail'" />
-        </div>
+        <div class="thumbnail"></div>
+        <div class="thumbnail"></div>
+        <div class="thumbnail"></div>
       </div>
     </div>
-
-    <!-- Right Side: Product Details -->
     <div class="product-detail">
       <div class="product-content-area">
         <h1 class="product-title">{{ product.name }}</h1>
@@ -91,8 +82,6 @@
           🛒 Add to Cart
         </button>
       </div>
-
-      <!-- Feature list -->
       <div class="feature-list">
         <div
           v-for="(f, i) in product.additionalFeatures"
@@ -107,94 +96,137 @@
         </div>
       </div>
     </div>
-
-    <!-- Specifications -->
-    <h2>Specifications</h2>
-    <div class="spec-card">
-      <div class="spec-grid">
-        <div
-          v-for="(value, key) in product.specifications"
-          :key="key"
-          class="spec-item"
-        >
-          <div class="spec-label">{{ key }}</div>
-          <div class="spec-value">{{ value }}</div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Related Products -->
-    <h2>Related Products</h2>
-    <div class="products">
-      <div
-        v-for="related in product.relatedProducts"
-        :key="related.id"
-        class="card"
-      >
-        <div class="card-img">
-          <img
-            v-if="related.images && related.images[0]"
-            :src="related.images[0]"
-            :alt="related.name"
-          />
-        </div>
-        <div class="card-body">
-          <div class="card-title">{{ related.name }}</div>
-          <div class="card-price">NPR {{ related.price.toLocaleString() }}</div>
-        </div>
-      </div>
-    </div>
   </div>
 
   <div v-else class="not-found">
     <p>Product not found</p>
   </div>
+
+  <h2 v-if="product">Specifications</h2>
+
+  <div v-if="product" class="spec-card">
+    <div class="spec-grid">
+      <div
+        v-for="(value, key) in product.specifications"
+        :key="key"
+        class="spec-item"
+      >
+        <div class="spec-label">{{ key }}</div>
+        <div class="spec-value">{{ value }}</div>
+      </div>
+    </div>
+  </div>
+  <h2 v-if="product">Related Products</h2>
+
+  <div v-if="product" class="products">
+    <div
+      v-for="related in relatedProducts"
+      :key="related.id"
+      class="card"
+      @click="$router.push(`/productdetail/${related.id}`)"
+    >
+      <div class="card-img"></div>
+      <div class="card-body">
+        <div class="card-title">{{ related.name }}</div>
+        <div class="card-price">NPR {{ related.price.toLocaleString() }}</div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import products from "@/data/products";
+import { watch, inject } from "vue";
+import products from "@/data/products.json";
 
 export default {
   name: "ProductDetail",
 
   data() {
     return {
-      product: null,
-      quantity: 1,
-      mainImage: "",
+      product: null, // Holds the product object
+      quantity: 1, // Quantity for cart
+      mainImage: "", // Main image displayed
     };
   },
 
-  created() {
-    const productId = Number(this.$route.params.productId);
-    this.product = products.find((p) => p.id === productId);
+  setup() {
+    const addToCart = inject("addToCart");
+    return { addToCart };
+  },
 
-    if (this.product && this.product.images?.length) {
+  created() {
+    // Get productId from route params
+    const productId = Number(this.$route.params.productId);
+
+    // Find the product in the JSON
+    this.product = products.find((p) => p.id === productId) || null;
+
+    // If product exists and has images, set mainImage
+    if (
+      this.product &&
+      Array.isArray(this.product.images) &&
+      this.product.images.length
+    ) {
       this.mainImage = this.product.images[0];
     }
   },
 
+  mounted() {
+    // Watch for route changes to update product when navigating to related products
+    watch(
+      () => this.$route.params.productId,
+      (newId) => {
+        const productId = Number(newId);
+        this.product = products.find((p) => p.id === productId) || null;
+        if (
+          this.product &&
+          Array.isArray(this.product.images) &&
+          this.product.images.length
+        ) {
+          this.mainImage = this.product.images[0];
+        }
+        // Reset quantity to 1 for new product
+        this.quantity = 1;
+      },
+    );
+  },
+
+  computed: {
+    relatedProducts() {
+      if (!this.product) return [];
+      return products
+        .filter(
+          (p) =>
+            p.id !== this.product.id &&
+            (p.type === this.product.type || p.brand === this.product.brand),
+        )
+        .slice(0, 4);
+    },
+  },
+
   methods: {
+    // Increment or decrement quantity
     updateQuantity(change) {
-      this.quantity = Math.max(1, this.quantity + change);
+      const newQuantity = this.quantity + change;
+      this.quantity = newQuantity < 1 ? 1 : newQuantity;
     },
 
+    // Add product to cart
     addToCart() {
-      alert(`Added ${this.quantity} of ${this.product.name} to cart`);
+      if (!this.product) return;
+
+      alert(`Added ${this.quantity} of "${this.product.name}" to cart`);
+    },
+
+    // Change main image when thumbnail is clicked
+    setMainImage(imageUrl) {
+      this.mainImage = imageUrl;
     },
   },
 };
 </script>
 
 <style scoped>
-  * {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: white;
-}
-
 .product-detail-page {
   display: flex;
   max-width: 1700px;
@@ -210,7 +242,6 @@ export default {
   display: flex;
   flex-direction: column;
   gap: 15px;
-  width: 50%;
 }
 
 .main-image-placeholder {
@@ -241,26 +272,27 @@ export default {
   cursor: pointer;
 }
 .product-detail {
-  max-width: 50%;
+  flex: 1;
 }
 
 .product-title {
   font-size: 28px;
   color: #2c3e50;
   margin: 0 0 10px 0;
+  text-align: left;
 }
 
 .status-bar {
   margin-bottom: 20px;
   font-size: 18px;
   color: #666;
+  text-align: left;
 }
 
 .stock-status {
   color: #388e3c;
   font-weight: bold;
   margin-left: 15px;
-
 }
 
 .price-section {
@@ -268,7 +300,6 @@ export default {
   padding: 15px;
   border-radius: 8px;
   margin-bottom: 20px;
-  
 }
 .price-badge {
   display: flex;
@@ -302,14 +333,15 @@ export default {
   color: #555;
   /* line-height: 1.4; */
   margin-bottom: 20px;
+  text-align: left;
 }
 
 .features-text {
-
   font-size: 18px;
   color: #2c3e50;
   margin-bottom: 10px;
-
+  text-align: left;
+  margin-left: -150px;
 }
 
 .features-list {
@@ -317,10 +349,12 @@ export default {
   padding: 0;
   margin-bottom: 30px;
   color: #555;
+  text-align: left;
 }
 
 .features-list li {
   margin-bottom: 5px;
+  text-align: left;
 }
 
 .quantity-section-container {
@@ -328,6 +362,7 @@ export default {
   align-items: center;
   gap: 20px;
   margin-bottom: 20px;
+  text-align: left;
 }
 
 .quantity-label {
@@ -378,8 +413,8 @@ export default {
 }
 
 .add-to-cart-button {
-    width:100%;
-   text-align:center;
+  width: 100%;
+  text-align: center;
   background-color: #388e3c;
   color: white;
   padding: 12px 30px;
@@ -400,7 +435,7 @@ export default {
 
 h2 {
   padding-left: 150px;
-  margin: 50px  20px ;
+  margin: 50px 20px;
   font-size: 28px;
   font-weight: 700;
 }
@@ -418,26 +453,24 @@ h2 {
   display: grid;
   grid-template-columns: 1fr 1fr;
   column-gap: 60px;
-   background-color: #f0f0f0;
-  
-  
+  background-color: #f0f0f0;
 }
 
 .spec-item {
   padding: 20px 0;
   border-bottom: 1px solid #b4b3b3;
-   background-color: #f0f0f0;
+  background-color: #f0f0f0;
 }
 
 .spec-label {
-     background-color: #f0f0f0;
+  background-color: #f0f0f0;
   font-size: 14px;
   color: #666;
   margin-bottom: 6px;
 }
 
 .spec-value {
-     background-color: #f0f0f0;
+  background-color: #f0f0f0;
   font-size: 18px;
   font-weight: 700;
   color: #000;
@@ -490,7 +523,7 @@ h2 {
   color: #1a9e28;
 }
 .feature-list {
-    margin-top:40px;
+  margin-top: 40px;
   max-width: 900px;
   display: flex;
   flex-direction: column;
@@ -506,7 +539,6 @@ h2 {
   border-radius: 14px;
   background: #fff;
 }
-
 
 .icon {
   width: 20px;
@@ -532,5 +564,231 @@ h2 {
   color: #555;
 }
 
+/* Mobile Responsiveness */
+@media (max-width: 1024px) {
+  .product-detail-page {
+    padding: 80px 100px 0px 100px;
+    gap: 25px;
+  }
 
+  .products {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .spec-grid {
+    column-gap: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-detail-page {
+    flex-direction: column;
+    padding: 60px 20px 0px 20px;
+    gap: 20px;
+  }
+
+  .product-image-area {
+    order: 1;
+  }
+
+  .product-detail {
+    order: 2;
+  }
+
+  .thumbnail-placeholders {
+    justify-content: center;
+  }
+
+  .thumbnail {
+    width: 120px;
+    height: 60px;
+  }
+
+  .product-title {
+    font-size: 24px;
+  }
+
+  .current-price {
+    font-size: 28px;
+  }
+
+  .old-price {
+    font-size: 16px;
+  }
+
+  .features-text {
+    margin-left: 0;
+  }
+
+  .quantity-section-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .products {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .spec-grid {
+    grid-template-columns: 1fr;
+    column-gap: 0;
+  }
+
+  h2 {
+    padding-left: 20px;
+    margin: 40px 20px 20px 20px;
+    font-size: 24px;
+  }
+
+  .spec-card {
+    padding: 20px;
+  }
+
+  .feature-list {
+    margin-top: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .product-detail-page {
+    padding: 40px 15px 0px 15px;
+  }
+
+  .main-image-placeholder {
+    aspect-ratio: 4/3;
+  }
+
+  .thumbnail-placeholders {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .thumbnail {
+    width: 100px;
+    height: 50px;
+  }
+
+  .product-title {
+    font-size: 20px;
+  }
+
+  .status-bar {
+    font-size: 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+  }
+
+  .stock-status {
+    margin-left: 0;
+  }
+
+  .price-section {
+    padding: 12px;
+  }
+
+  .current-price {
+    font-size: 24px;
+  }
+
+  .old-price {
+    font-size: 14px;
+  }
+
+  .discount-percent {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+
+  .product-description {
+    font-size: 14px;
+  }
+
+  .features-list {
+    margin-bottom: 20px;
+  }
+
+  .quantity-control-wrapper {
+    border-radius: 6px;
+  }
+
+  .quantity-button {
+    padding: 6px 10px;
+    font-size: 16px;
+  }
+
+  .quantity-input {
+    width: 35px;
+    padding: 6px 0;
+    font-size: 14px;
+  }
+
+  .add-to-cart-button {
+    padding: 10px 20px;
+    font-size: 14px;
+  }
+
+  h2 {
+    padding-left: 15px;
+    margin: 30px 15px 15px 15px;
+    font-size: 20px;
+  }
+
+  .spec-card {
+    padding: 15px;
+    border-radius: 12px;
+  }
+
+  .spec-item {
+    padding: 15px 0;
+  }
+
+  .spec-label {
+    font-size: 13px;
+  }
+
+  .spec-value {
+    font-size: 16px;
+  }
+
+  .products {
+    gap: 15px;
+  }
+
+  .card {
+    border-radius: 12px;
+  }
+
+  .card-body {
+    padding: 15px 20px;
+  }
+
+  .card-title {
+    font-size: 16px;
+  }
+
+  .card-price {
+    font-size: 18px;
+  }
+
+  .feature-list {
+    gap: 10px;
+    margin-top: 20px;
+  }
+
+  .feature-item {
+    padding: 12px 16px;
+    gap: 12px;
+  }
+
+  .feature-title {
+    font-size: 14px;
+  }
+
+  .feature-desc {
+    font-size: 12px;
+  }
+}
 </style>
