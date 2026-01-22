@@ -77,7 +77,7 @@
         <button
           type="button"
           class="add-to-cart-button"
-          @click="addToCart(product, quantity)"
+          @click="handleAddToCart(product, quantity)"
         >
           🛒 Add to Cart
         </button>
@@ -150,8 +150,8 @@ export default {
   },
 
   setup() {
-    const addToCart = inject("addToCart");
-    return { addToCart };
+    const cartState = inject("cartState");
+    return { cartState };
   },
 
   created() {
@@ -212,10 +212,17 @@ export default {
     },
 
     // Add product to cart
-    addToCart() {
-      if (!this.product) return;
+    handleAddToCart(product, quantity) {
+      if (!product) return;
 
-      alert(`Added ${this.quantity} of "${this.product.name}" to cart`);
+      // Call the global addToCart function
+      this.cartState.addToCart(product, quantity);
+
+      // Show toast notification
+      this.cartState.showToast(
+        `Added ${quantity} of "${product.name}" to cart!`,
+        "success",
+      );
     },
 
     // Change main image when thumbnail is clicked

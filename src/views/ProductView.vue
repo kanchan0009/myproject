@@ -226,9 +226,8 @@ export default {
   },
 
   setup() {
-    const addToCart = inject("addToCart");
-    const showToast = inject("showToast");
-    return { addToCart, showToast };
+    const cartState = inject("cartState");
+    return { cartState };
   },
   computed: {
     filteredProducts() {

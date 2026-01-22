@@ -120,18 +120,24 @@ export default defineComponent({
   cursor: pointer;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease-in-out;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 320px;
 }
 
 .category-image {
   height: 180px;
-  background: #ccc;
+  background: #f0f0f0;
   position: relative;
+  flex-shrink: 0;
 }
 
 .category-image img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  display: block;
 }
 
 .count-badge {
@@ -187,7 +193,7 @@ export default defineComponent({
   text-align: center;
   border-radius: 8px;
   text-decoration: none;
-  font-size:medium;
+  font-size: medium;
 }
 .container {
   padding: 48px 56px;

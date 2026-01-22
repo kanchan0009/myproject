@@ -27,7 +27,7 @@
                 />
                 <img
                   v-else
-                  :src="require('@/assets/medical.jpeg')"
+                  src="/assets/medical.jpeg"
                   :alt="category.items[n].name"
                   class="placeholder-image"
                 />
@@ -99,10 +99,13 @@
   </div>
 </template>
 <script>
+import { inject } from "vue";
 import products from "@/data/products.json";
 
 export default {
   setup() {
+    const cartState = inject("cartState");
+
     const category = () => {
       window.location.href = "/categories";
     };
@@ -110,6 +113,7 @@ export default {
       window.location.href = "/products";
     };
     return {
+      cartState,
       category,
       products,
     };
@@ -133,8 +137,9 @@ export default {
     goToProduct(id) {
       this.$router.push(`/products/${id}`);
     },
-    addToCart(product) {
-      console.log("Added to cart:", product.title);
+    handleAddToCart(product) {
+      this.cartState.addToCart(product);
+      this.cartState.showToast(`Added "${product.name}" to cart!`, "success");
     },
     selectBrand(brand) {
       console.log("Selected Brand:", brand.name);
@@ -191,7 +196,7 @@ export default {
 .container {
   padding: 20px;
   background: #f5f7fa;
-  max-width: 1300px;
+  max-width: 1380px;
   margin: 0 auto;
 }
 
@@ -206,9 +211,11 @@ export default {
   border-radius: 8px;
   padding: 15px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  height: 480px;
+  min-height: 400px;
   border: 1px solid #e5e7eb;
   transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
 }
 
 .card-title {
@@ -222,23 +229,25 @@ export default {
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: repeat(2, 1fr);
   gap: 10px;
+  flex: 1;
 }
 
 .image-item {
   text-align: center;
-  min-height: 170px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: space-between;
   background-color: #f8f9fa;
   border-radius: 6px;
-  padding: 10px;
+  padding: 8px;
+  flex: 1;
+  min-height: 140px;
 }
 
 .image-item img,
 .placeholder-image {
   width: 100%;
-  height: 150px;
+  height: 120px;
   object-fit: cover;
   border-radius: 6px;
 }
@@ -348,7 +357,7 @@ export default {
   color: #333;
 
   text-align: left;
-  padding: 2rem 0.5rem 0 0.5rem;
+  padding: 2rem 0.5rem 1rem 0.5rem;
   margin: 0 auto;
   max-width: 1320px;
 }

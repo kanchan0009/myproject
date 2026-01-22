@@ -104,6 +104,8 @@ export default {
       const navbar = navbarRef.value;
       if (navbar && navbar.addToCart) {
         navbar.addToCart(product, quantity);
+      } else {
+        console.warn("Navbar not available for addToCart");
       }
     };
 

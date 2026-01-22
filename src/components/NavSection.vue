@@ -142,7 +142,7 @@
 </template>
 
 <script>
-import { ref, computed } from "vue";
+import { ref, computed, inject } from "vue";
 import { useRouter } from "vue-router";
 import CartModal from "@/components/CartModal.vue";
 import ToastNotification from "@/components/ToastNotification.vue";
@@ -154,12 +154,12 @@ export default {
     ToastNotification,
   },
   setup() {
+    const cartState = inject("cartState");
     const router = useRouter();
     const isMobileMenuOpen = ref(false);
     const showCategoriesDesktop = ref(false);
     const showCategoriesMobile = ref(false);
     const isCartOpen = ref(false);
-    const cartItems = ref([]);
     const toastMessage = ref("");
     const toastType = ref("success");
     const searchQuery = ref("");
@@ -187,11 +187,11 @@ export default {
     };
 
     const updateCart = (newItems) => {
-      cartItems.value = newItems;
+      cartState.items = newItems;
     };
 
     const cartItemCount = computed(() => {
-      return cartItems.value.reduce((total, item) => total + item.quantity, 0);
+      return cartState.items.reduce((total, item) => total + item.quantity, 0);
     });
 
     // Show toast notification
@@ -279,23 +279,7 @@ export default {
 
     // Add to cart method (can be called from other components)
     const addToCart = (product, quantity = 1) => {
-      const existingItemIndex = cartItems.value.findIndex(
-        (item) => item.id === product.id,
-      );
-
-      if (existingItemIndex > -1) {
-        cartItems.value[existingItemIndex].quantity += quantity;
-      } else {
-        cartItems.value.push({
-          id: product.id,
-          name: product.name,
-          price: product.price,
-          image: product.images
-            ? product.images[0]
-            : require("@/assets/medical.jpeg"),
-          quantity: quantity,
-        });
-      }
+      cartState.addToCart(product, quantity);
     };
 
     return {
@@ -303,7 +287,7 @@ export default {
       showCategoriesDesktop,
       showCategoriesMobile,
       isCartOpen,
-      cartItems,
+      cartItems: cartState.items,
       toastMessage,
       toastType,
       searchQuery,
@@ -322,6 +306,15 @@ export default {
       handleSearch,
       addToCart,
     };
+
+    // Set the toast function in cartState
+    cartState.setToastFunction(showToast);
+
+    // Expose methods to parent
+    defineExpose({
+      addToCart,
+      showToast,
+    });
   },
   data() {
     return {};
