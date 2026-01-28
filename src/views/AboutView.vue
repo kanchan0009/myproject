@@ -931,7 +931,7 @@ export default {
 
 @media (max-width: 480px) {
   .intro-section {
-    padding: 20px 15px;
+    padding: 15px 15px;
   }
 
   .intro-title {
@@ -968,7 +968,7 @@ export default {
   .values-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 6px;
+    gap: 3px;
   }
 
   .team-grid {
@@ -986,23 +986,27 @@ export default {
     padding: 12px;
     min-height: 120px;
   }
+  .value-section{
+    max-width:100%;
+  }
   .value-card{
     min-height:100px;
+    width:200px;
     padding:8px;
   }
 
   .value-icon {
-    width: 28px;
-    height: 28px;
-    margin-bottom: 8px;
+    width: 18px;
+    height: 15px;
+    margin-bottom: 4px;
   }
 
   .value-title {
-    font-size: 14px;
+    font-size: 12px;
   }
 
   .value-description {
-    font-size: 11px;
+    font-size: 8px;
   }
 
   .team-image {

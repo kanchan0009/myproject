@@ -657,7 +657,7 @@ export default {
   }
 
   .product-details {
-    padding: 10px;
+    padding: 5px;
   }
 
   .product-brand {
