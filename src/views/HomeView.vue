@@ -682,6 +682,8 @@ export default {
 
   .container {
     padding: 10px;
+    max-width: 100%;
+    margin: 0;
   }
 
   .card-grid {
