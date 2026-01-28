@@ -11,38 +11,34 @@
   <!-- Side Menu -->
   <aside class="side-menu" :class="{ open: isOpen }">
     <div class="menu-content">
-      <div
-        class="category-section"
-        v-for="(category, index) in categories"
-        :key="index"
-        @mouseenter="showSubmenu(index)"
-        @mouseleave="hideSubmenu"
-      >
-        <router-link
-          :to="`/products?type=${category.title}`"
-          class="category-link"
-          @click="closeMenu"
+      <div class="categories-list">
+        <div
+          class="category-section"
+          v-for="(category, index) in categories"
+          :key="index"
+          @mouseenter="showSubmenu(index)"
+          @mouseleave="hideSubmenu"
         >
-          {{ category.title }}
-        </router-link>
-
-        <!-- Submenu for products -->
-        <div v-if="activeCategory === index" class="submenu">
-          <div
-            v-for="(product, productIndex) in category.items"
-            :key="productIndex"
-            class="submenu-item"
+          <router-link
+            :to="`/products?type=${category.title}`"
+            class="category-link"
+            @click="closeMenu"
           >
-            <router-link
-              :to="`/productdetail/${product.id}`"
-              class="submenu-link"
-              @click="closeMenu"
-            >
-              {{ product.name }}
-            </router-link>
-          </div>
+            {{ category.title }}
+          </router-link>
         </div>
       </div>
+
+      <!-- Subcategory View for products -->
+      <SubcategoryView
+        v-if="activeCategory !== null"
+        :category-name="categories[activeCategory].title"
+        :products="categories[activeCategory].items"
+        :style="subcategoryStyle"
+        class="subcategory-container"
+        @mouseenter="onSubcategoryEnter"
+        @mouseleave="onSubcategoryLeave"
+      />
     </div>
 
     <div class="menu-footer">
@@ -54,14 +50,19 @@
 </template>
 <script>
 import products from "@/data/products.json";
+import SubcategoryView from "@/views/SubcategoryView.vue";
 
 export default {
   name: "Navbar",
+  components: {
+    SubcategoryView,
+  },
   data() {
     return {
       isOpen: false,
       categories: [],
       activeCategory: null,
+      hideTimeout: null,
     };
   },
   created() {
@@ -82,6 +83,20 @@ export default {
       items: grouped[typeName],
     }));
   },
+  computed: {
+    subcategoryStyle() {
+      if (this.activeCategory === null) return {};
+      // Position beside the active category
+      const categoryHeight = 32; // approximate height of category-section
+      const top = this.activeCategory * categoryHeight + 8; // 8px padding
+      return {
+        position: "absolute",
+        top: `${top}px`,
+        left: "100%",
+        zIndex: 1000,
+      };
+    },
+  },
   methods: {
     toggleMenu() {
       this.isOpen = !this.isOpen;
@@ -90,6 +105,10 @@ export default {
     closeMenu() {
       this.isOpen = false;
       document.body.classList.remove("menu-open");
+      if (this.hideTimeout) {
+        clearTimeout(this.hideTimeout);
+      }
+      this.activeCategory = null;
     },
     menuItemClick() {
       this.closeMenu();
@@ -99,7 +118,22 @@ export default {
       this.activeCategory = index;
     },
     hideSubmenu() {
-      this.activeCategory = null;
+      if (this.hideTimeout) {
+        clearTimeout(this.hideTimeout);
+      }
+      this.hideTimeout = setTimeout(() => {
+        this.activeCategory = null;
+      }, 1000);
+    },
+    onSubcategoryEnter() {
+      if (this.hideTimeout) {
+        clearTimeout(this.hideTimeout);
+      }
+    },
+    onSubcategoryLeave() {
+      this.hideTimeout = setTimeout(() => {
+        this.activeCategory = null;
+      }, 100);
     },
   },
 };
@@ -177,6 +211,7 @@ body.menu-open {
   display: block;
   padding: 6px 0;
   cursor: pointer;
+  text-align: left;
 }
 
 .category-link:hover {
@@ -228,7 +263,7 @@ body.menu-open {
 
 .see-all-btn {
   width: 100%;
-  background: linear-gradient(135deg, #6fc6f5 0%, #7ed9b0 100%);
+  background: linear-gradient(135deg, #6fc6f5 0%,#086239 100%);
   border: none;
   padding: 12px;
   font-size: 14px;
@@ -243,7 +278,7 @@ body.menu-open {
 }
 
 .see-all-btn:hover {
-  background: linear-gradient(135deg, #5bb8e5 0%, #6bc9a0 100%);
+  background: linear-gradient(135deg, #5bb8e5 0%, #086239 100%);
   transform: translateY(-1px);
   box-shadow: 0 2px 8px rgba(111, 198, 245, 0.4);
 }

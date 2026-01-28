@@ -1,174 +1,77 @@
 <template>
   <div class="about">
-    <section
-      style="
-        width: 100%;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        background: #eef7f6;
-        padding: 60px;
-        box-sizing: border-box;
-      "
-    >
-      <div style="padding-right: 40px">
-        <h1
-          style="
-            margin: 0 0 20px 0;
-            font-size: 48px;
-            font-weight: 700;
-            color: #000;
-          "
-        >
-          About <span style="color: #7ed9b0">PhysioNepals</span>
+    <section class="intro-section">
+      <div class="intro-text">
+        <h1 class="intro-title">
+          About <span class="highlight">PhysioNepals</span>
         </h1>
 
-        <p
-          style="
-            margin: 0 0 20px 0;
-            font-size: 18px;
-            line-height: 1.6;
-            color: #555;
-          "
-        >
+        <p class="intro-description">
           We are a dedicated team of professionals committed to providing
           world-class physiotherapy equipment and rehabilitation solutions to
           clinics and healthcare facilities across Nepal.
         </p>
 
-        <p style="margin: 0; font-size: 18px; line-height: 1.6; color: #555">
+        <p class="intro-description">
           Since our establishment, we have helped over 500 clinics transform
           their rehabilitation services with quality equipment and professional
           support.
         </p>
       </div>
 
-      <div
-        style="
-          background: #eee;
-          border-radius: 20px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          min-height: 300px;
-        "
-      ></div>
+      <div class="intro-image"></div>
     </section>
-    <div
-      style="
-        width: 100%;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        background: linear-gradient(
-          120deg,
-          #6fc6f5 0%,
-          #6fc6f5 45%,
-          #7ed9b0 55%,
-          #7ed9b0 100%
-        );
-        padding: 50px 80px;
-        box-sizing: border-box;
-      "
-    >
-      <div style="text-align: center; color: #fff; flex: 1">
-        <div style="font-size: 48px; font-weight: 700">500+</div>
-        <div style="font-size: 18px">Clinics Served</div>
+    <section class="stats-section">
+      <div class="stats-container">
+        <div class="stat-item">
+          <div class="stat-number">500+</div>
+          <div class="stat-label">Clinics Served</div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-number">2000+</div>
+          <div class="stat-label">Equipment Installed</div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-number">15+</div>
+          <div class="stat-label">Years Experience</div>
+        </div>
+
+        <div class="stat-item">
+          <div class="stat-number">24/7</div>
+          <div class="stat-label">Customer Support</div>
+        </div>
       </div>
+    </section>
+    <section class="story-section">
+      <h2 class="section-title">Our Story</h2>
 
-      <div style="text-align: center; color: #fff; flex: 1">
-        <div style="font-size: 48px; font-weight: 700">2000+</div>
-        <div style="font-size: 18px">Equipment Installed</div>
-      </div>
+      <div class="story-content">
+        <div class="story-text">
+          <h3 class="story-subtitle">From Passion to Purpose</h3>
 
-      <div style="text-align: center; color: #fff; flex: 1">
-        <div style="font-size: 48px; font-weight: 700">15+</div>
-        <div style="font-size: 18px">Years Experience</div>
-      </div>
-
-      <div style="text-align: center; color: #fff; flex: 1">
-        <div style="font-size: 48px; font-weight: 700">24/7</div>
-        <div style="font-size: 18px">Customer Support</div>
-      </div>
-    </div>
-    <div style="width: 100%; padding: 80px; box-sizing: border-box">
-      <h2
-        style="
-          text-align: center;
-          font-size: 42px;
-          font-weight: 700;
-          margin: 0 0 60px 0;
-        "
-      >
-        Our Story
-      </h2>
-
-      <div
-        style="
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 60px;
-          align-items: flex-start;
-        "
-      >
-        <div>
-          <h3 style="font-size: 28px; font-weight: 700; margin: 0 0 20px 0">
-            From Passion to Purpose
-          </h3>
-
-          <p
-            style="
-              font-size: 16px;
-              line-height: 1.7;
-              margin: 0 0 20px 0;
-              color: #555;
-            "
-          >
+          <p class="story-paragraph">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
-            ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
           </p>
 
-          <p
-            style="
-              font-size: 16px;
-              line-height: 1.7;
-              margin: 0 0 20px 0;
-              color: #555;
-            "
-          >
+          <p class="story-paragraph">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
             ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat. Duis aute irure dolor in
-            reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-            pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-            culpa qui officia deserunt mollit anim id est laborum.
           </p>
 
-          <p style="font-size: 16px; line-height: 1.7; margin: 0; color: #555">
+          <p class="story-paragraph">
             Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
             eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim
             ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-            aliquip ex ea commodo consequat.
           </p>
         </div>
 
-        <div
-          style="
-            background: #eee;
-            border-radius: 24px;
-            min-height: 420px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          "
-        ></div>
+        <div class="story-image"></div>
       </div>
-    </div>
+    </section>
     <div class="values-section">
       <!-- Section Title -->
       <h2 class="value-title">Our Values</h2>
@@ -227,7 +130,6 @@
           <div
             class="testimonial-rating"
             :class="{ 'gradient-text': testimonial.gradient }"
-            :style="{ color: testimonial.color }"
           >
             {{ testimonial.rating }}
           </div>
@@ -245,62 +147,42 @@
       </div>
     </div>
 
-    <div style="background: #f6fbfa; padding: 80px 40px">
-      <div style="max-width: 1200px; margin: 0 auto; display: flex; gap: 40px">
-        <div
-          style="
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 14px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            flex: 1;
-          "
-        >
-          <h2 style="margin: 0 0 20px 0; font-size: 26px; color: #000">
-            Our Mission
-          </h2>
+    <section class="mission-vision-section">
+      <div class="mission-vision-container">
+        <div class="mission-card">
+          <h2 class="card-title">Our Mission</h2>
 
-          <p style="margin: 0 0 20px 0; color: #555; line-height: 1.7">
+          <p class="card-text">
             To provide accessible, high-quality physiotherapy equipment and
             professional support services to healthcare facilities across Nepal,
             enabling them to deliver world-class rehabilitation care to their
             patients.
           </p>
 
-          <p style="margin: 0; color: #555; line-height: 1.7">
+          <p class="card-text">
             We are committed to being the trusted partner for all physiotherapy
             and rehabilitation equipment needs, supporting the growth and
             success of healthcare providers at every step.
           </p>
         </div>
 
-        <div
-          style="
-            background: #ffffff;
-            padding: 40px;
-            border-radius: 14px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            flex: 1;
-          "
-        >
-          <h2 style="margin: 0 0 20px 0; font-size: 26px; color: #000">
-            Our Vision
-          </h2>
+        <div class="vision-card">
+          <h2 class="card-title">Our Vision</h2>
 
-          <p style="margin: 0 0 20px 0; color: #555; line-height: 1.7">
+          <p class="card-text">
             To transform physiotherapy and rehabilitation services in Nepal by
             making cutting-edge technology and equipment accessible to every
             clinic and healthcare facility.
           </p>
 
-          <p style="margin: 0; color: #555; line-height: 1.7">
+          <p class="card-text">
             We envision a future where advanced rehabilitation care is not a
             luxury but a standard service available across Nepal, improving the
             quality of life for thousands of patients.
           </p>
         </div>
       </div>
-    </div>
+    </section>
     <div class="mission-section">
       <h1 class="mission-title">Join Us in Our Mission</h1>
       <p class="mission-text">
@@ -400,7 +282,7 @@ export default {
             "We prioritize quality in every product, ensuring international standards and durability.",
           iconWidth: "18px",
           iconHeight: "18px",
-          iconBorder: "3px solid #7ed9b0",
+          iconBorder: "3px solid var(--secondary-color)",
           iconRadius: "50%",
         },
         {
@@ -409,7 +291,7 @@ export default {
             "Your success is our success. We provide comprehensive support throughout your journey.",
           iconWidth: "22px",
           iconHeight: "14px",
-          iconBorder: "2px solid #7ed9b0",
+          iconBorder: "2px solid var(--secondary-color)",
           iconRadius: "8px",
         },
         {
@@ -427,7 +309,7 @@ export default {
             "We are committed to delivering excellence in products, service, and support.",
           iconWidth: "14px",
           iconHeight: "18px",
-          iconBorder: "2px solid #7ed9b0",
+          iconBorder: "2px solid var(--secondary-color)",
           iconRadius: "4px",
         },
       ],
@@ -435,24 +317,277 @@ export default {
   },
 };
 </script>
-<style>
-/* Section container */
+<style scoped>
+/* Global Variables */
+:root {
+  --primary-color: #6fc6f5;
+  --secondary-color: #7ed9b0;
+  --light-background: #f9f9f9;
+  --text-color: #555;
+  --heading-color: #111;
+  --white: #ffffff;
+  --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --transition: all 0.3s ease;
+}
+
+/* Intro Section */
+.intro-section {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  background: var(--light-background);
+  padding: 60px;
+  box-sizing: border-box;
+  gap: 40px;
+}
+
+.intro-text {
+  padding-right: 40px;
+}
+
+.intro-title {
+  margin: 0 0 20px 0;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--heading-color);
+}
+
+.highlight {
+  color: var(--secondary-color);
+}
+
+.intro-description {
+  margin: 0 0 20px 0;
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--text-color);
+}
+
+.intro-image {
+  background: #eee;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 300px;
+  transition: var(--transition);
+}
+
+.intro-image:hover {
+  transform: scale(1.02);
+}
+
+/* Stats Section */
+.stats-section {
+  width: 100%;
+  padding: 50px 80px;
+  box-sizing: border-box;
+  background: linear-gradient(
+    120deg,
+    #6fc6f5 0%,
+    #6fc6f5 45%,
+    #7ed9b0 55%,
+    #086239 100%
+  );
+}
+
+.stats-container {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 50px 80px;
+  box-sizing: border-box;
+}
+
+.stat-item {
+  text-align: center;
+  color: var(--white);
+  flex: 1;
+  transition: var(--transition);
+}
+
+.stat-item:hover {
+  transform: translateY(-5px);
+}
+
+.stat-number {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.stat-label {
+  font-size: 18px;
+  color: white;
+}
+
+/* Story Section */
+.story-section {
+  width: 100%;
+  padding: 80px;
+  box-sizing: border-box;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 42px;
+  font-weight: 700;
+  margin: 0 0 60px 0;
+  color: var(--heading-color);
+}
+
+.story-content {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 60px;
+  align-items: flex-start;
+}
+
+.story-subtitle {
+  font-size: 28px;
+  font-weight: 700;
+  margin: 0 0 20px 0;
+  color: var(--heading-color);
+}
+
+.story-paragraph {
+  font-size: 16px;
+  line-height: 1.7;
+  margin: 0 0 20px 0;
+  color: var(--text-color);
+}
+
+.story-image {
+  background: #eee;
+  border-radius: 24px;
+  min-height: 420px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition);
+}
+
+.story-image:hover {
+  transform: scale(1.02);
+}
+
+/* Mission Vision Section */
+.mission-vision-section {
+  background: #f6fbfa;
+  padding: 80px 40px;
+}
+
+.mission-vision-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  gap: 40px;
+}
+
+.mission-card,
+.vision-card {
+  background: var(--white);
+  padding: 40px;
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  flex: 1;
+  transition: var(--transition);
+}
+
+.mission-card:hover,
+.vision-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.card-title {
+  margin: 0 0 20px 0;
+  font-size: 26px;
+  color: var(--heading-color);
+}
+
+.card-text {
+  margin: 0 0 20px 0;
+  color: var(--text-color);
+  line-height: 1.7;
+}
+
+/* Values Section */
+.values-section {
+  padding: 0 40px 40px 40px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.value-title {
+  text-align: center;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--heading-color);
+  margin: 0 0 40px 0;
+}
+
+.values-grid {
+  display: flex;
+  justify-content: space-around;
+  align-items: flex-start;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.value-card {
+  background: var(--white);
+  width: 260px;
+  padding: 28px 24px;
+  border-radius: 12px;
+  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+  transition: var(--transition);
+}
+
+.value-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow);
+}
+
+.value-icon {
+  width: 44px;
+  height: 44px;
+  background: #e7f6ec;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.icon-inner {
+  display: block;
+}
+
+.value-title {
+  margin: 0 0 12px 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--heading-color);
+}
+
+.value-description {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--text-color);
+}
+
+/* Team Section */
 .section-container {
   margin: 0;
   padding: 0 40px 40px 40px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
-/* Section title */
-.section-title {
-  margin: 0 0 40px 0;
-  text-align: center;
-  font-size: 32px;
-  font-weight: 700;
-  color: #111;
-}
-
-/* Team grid */
 .team-grid {
   display: flex;
   justify-content: space-around;
@@ -460,22 +595,25 @@ export default {
   flex-wrap: wrap;
 }
 
-/* Team card */
 .team-card {
   width: 260px;
-  background: #fff;
+  background: var(--white);
   border-radius: 14px;
   box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
   overflow: hidden;
+  transition: var(--transition);
 }
 
-/* Team image placeholder */
+.team-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow);
+}
+
 .team-image {
   height: 180px;
   background: #f0f0f0;
 }
 
-/* Team info */
 .team-info {
   padding: 22px;
 }
@@ -484,23 +622,24 @@ export default {
   margin: 0 0 6px 0;
   font-size: 18px;
   font-weight: 700;
-  color: #111;
+  color: var(--heading-color);
 }
 
 .team-role {
   margin: 0 0 10px 0;
   font-size: 14px;
   font-weight: 600;
-  color: #6fc6f5;
+  color: var(--primary-color);
 }
 
 .team-description {
   margin: 0;
   font-size: 14px;
   line-height: 1.6;
-  color: #555;
+  color: var(--text-color);
 }
 
+/* Testimonials Section */
 .sec-container {
   max-width: 1200px;
   margin: auto;
@@ -512,7 +651,7 @@ export default {
   text-align: center;
   font-size: 32px;
   margin-bottom: 40px;
-  color: #111;
+  color: var(--heading-color);
 }
 
 .testimonial-grid {
@@ -522,27 +661,38 @@ export default {
 }
 
 .testimonial-card {
-  background: #ffffff;
+  background: var(--white);
   padding: 30px;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: var(--transition);
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow);
 }
 
 .testimonial-rating {
   font-size: 20px;
   margin-bottom: 15px;
-  color: #6fc6f5;
+  color: var(--primary-color);
 }
 
 .gradient-text {
-  background: linear-gradient(120deg, #6fc6f5, #7ed9b0);
+  background: linear-gradient(
+    120deg,
+    var(--primary-color),
+    var(--secondary-color)
+  );
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  color: var(--primary-color);
 }
 
 .testimonial-text {
-  color: #555;
+  color: var(--text-color);
   line-height: 1.6;
   margin-bottom: 25px;
 }
@@ -568,94 +718,27 @@ export default {
   font-size: 14px;
   color: #777;
 }
-.values-section {
-  padding: 0 40px 40px 40px;
-  font-family: Arial, Helvetica, sans-serif;
-}
 
-/* Section title */
-.value-title {
-  text-align: center;
-  font-size: 32px;
-  font-weight: 700;
-  color: #111;
-  margin: 0 0 40px 0;
-}
-
-/* Values grid */
-.values-grid {
-  display: flex;
-  justify-content: space-around;
-  align-items: flex-start;
-  gap: 24px;
-  flex-wrap: wrap;
-}
-
-/* Individual value card */
-.value-card {
-  background: #ffffff;
-  width: 260px;
-  padding: 28px 24px;
-  border-radius: 12px;
-  box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.06);
-  margin-bottom: 20px; /* spacing for smaller screens */
-}
-
-/* Icon wrapper */
-.value-icon {
-  width: 44px;
-  height: 44px;
-  background: #e7f6ec;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 20px;
-}
-
-/* Inner icon (dynamic size & border) */
-.icon-inner {
-  display: block;
-}
-
-/* Value title */
-.value-title {
-  margin: 0 0 12px 0;
-  font-size: 18px;
-  font-weight: 700;
-  color: #111;
-}
-
-/* Value description */
-.value-description {
-  margin: 0;
-  font-size: 14px;
-  line-height: 1.6;
-  color: #555;
-}
-/* Hero Section Container with Gradient Background */
+/* Mission Section */
 .mission-section {
-  --bg-gradient: linear-gradient(
+  background: linear-gradient(
     120deg,
     #6fc6f5 0%,
     #6fc6f5 45%,
     #7ed9b0 55%,
     #7ed9b0 100%
   );
-  background: var(--bg-gradient);
   padding: 90px 20px;
   text-align: center;
 }
 
-/* Title */
 .mission-title {
   margin: 0 0 20px 0;
-  color: #ffffff;
+  color: var(--white);
   font-size: 38px;
   font-weight: 700;
 }
 
-/* Description Text */
 .mission-text {
   margin: 0 auto 40px auto;
   max-width: 800px;
@@ -664,7 +747,6 @@ export default {
   line-height: 1.6;
 }
 
-/* Buttons Container */
 .mission-buttons {
   display: flex;
   justify-content: center;
@@ -672,7 +754,6 @@ export default {
   flex-wrap: wrap;
 }
 
-/* Shared Button Styles */
 .btn {
   padding: 14px 30px;
   border-radius: 8px;
@@ -681,59 +762,52 @@ export default {
   text-decoration: none;
   display: inline-block;
   cursor: pointer;
-  transition: 0.3s all ease;
+  transition: var(--transition);
 }
 
 .btn-primary {
   background: transparent;
-  color: #ffffff;
-  border: 2px solid #ffffff;
+  color: var(--white);
+  border: 2px solid var(--white);
 }
 
 .btn-primary:hover {
-  transform: scale(1.02);
-  transition: all 0.2s ease-in;
-  text-decoration: none;
-  color: white;
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .btn-outline {
   background: transparent;
-  color: #ffffff;
-  border: 2px solid #ffffff;
+  color: var(--white);
+  border: 2px solid var(--white);
 }
 
 .btn-outline:hover {
-  transform: scale(1.02);
-  transition: all 0.2s ease-in;
-  text-decoration: none;
-  color: white;
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.1);
 }
-/* Mobile Responsiveness */
+
+/* Responsive Design */
 @media (max-width: 1024px) {
-  .about > section {
+  .intro-section {
     padding: 40px;
     grid-template-columns: 1fr;
     gap: 40px;
   }
 
-  .about > section > div {
+  .intro-text {
     padding-right: 0;
   }
 
-  .about > div {
+  .stats-section {
     padding: 35px 60px;
   }
 
-  .about > div > div {
+  .stat-number {
     font-size: 36px;
   }
 
-  .about > div > div:nth-child(2) {
-    font-size: 16px;
-  }
-
-  .about > div > div:nth-child(3) {
+  .stat-label {
     font-size: 16px;
   }
 
@@ -754,46 +828,46 @@ export default {
   .testimonial-card {
     width: 100%;
   }
+
+  .mission-vision-container {
+    flex-direction: column;
+  }
 }
 
 @media (max-width: 768px) {
-  .about > section {
+  .intro-section {
     padding: 30px 20px;
   }
 
-  h1 {
+  .intro-title {
     font-size: 40px;
   }
 
-  p {
+  .intro-description {
     font-size: 16px;
   }
 
-  .about > div {
+  .stats-section {
     padding: 30px 40px;
     flex-direction: column;
     text-align: center;
   }
 
-  .about > div > div {
+  .stat-number {
     font-size: 32px;
   }
 
-  .about > div > div:nth-child(2),
-  .about > div > div:nth-child(3) {
+  .stat-label {
     font-size: 14px;
   }
 
-  .about > div > div:nth-child(4) {
-    font-size: 14px;
+  .story-section {
+    padding: 40px 20px;
   }
 
-  .about > div > div:nth-child(5) {
-    font-size: 14px;
-  }
-
-  .about > div > div:nth-child(6) {
-    font-size: 14px;
+  .story-content {
+    grid-template-columns: 1fr;
+    gap: 30px;
   }
 
   .section-container,
@@ -856,31 +930,27 @@ export default {
 }
 
 @media (max-width: 480px) {
-  .about > section {
+  .intro-section {
     padding: 20px 15px;
   }
 
-  h1 {
+  .intro-title {
     font-size: 28px;
   }
 
-  p {
+  .intro-description {
     font-size: 14px;
   }
 
-  .about > div {
+  .stats-section {
     padding: 25px 20px;
   }
 
-  .about > div > div {
+  .stat-number {
     font-size: 24px;
   }
 
-  .about > div > div:nth-child(2),
-  .about > div > div:nth-child(3),
-  .about > div > div:nth-child(4),
-  .about > div > div:nth-child(5),
-  .about > div > div:nth-child(6) {
+  .stat-label {
     font-size: 12px;
   }
 
@@ -895,7 +965,12 @@ export default {
     font-size: 20px;
   }
 
-  .values-grid,
+  .values-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+
   .team-grid {
     grid-template-columns: 1fr;
     gap: 15px;
@@ -906,15 +981,28 @@ export default {
   }
 
   .team-info,
-  .testimonial-card,
-  .value-card {
-    padding: 16px;
+  .testimonial-card
+   {
+    padding: 12px;
+    min-height: 120px;
+  }
+  .value-card{
+    min-height:100px;
+    padding:8px;
   }
 
   .value-icon {
-    width: 36px;
-    height: 36px;
-    margin-bottom: 16px;
+    width: 28px;
+    height: 28px;
+    margin-bottom: 8px;
+  }
+
+  .value-title {
+    font-size: 14px;
+  }
+
+  .value-description {
+    font-size: 11px;
   }
 
   .team-image {
@@ -955,20 +1043,51 @@ export default {
 
   .mission-title {
     font-size: 22px;
+    color:white;
   }
 
   .mission-text {
     font-size: 14px;
   }
+.mission-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
 
-  .mission-buttons {
-    flex-direction: column;
-    gap: 10px;
-  }
+.btn {
+  padding: 14px 30px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  cursor: pointer;
+  transition: var(--transition);
+}
 
-  .btn {
-    padding: 10px 18px;
-    font-size: 13px;
-  }
+.btn-primary {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.btn-primary:hover {
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.btn-outline {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.btn-outline:hover {
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.1);
+}
+  
 }
 </style>

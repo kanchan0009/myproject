@@ -171,22 +171,22 @@ export default {
 <style>
 .seedetail {
   text-align: left; /* Align to left */
-  border-top: 1px solid #add8e6; /* Light blue top border */
+  border-top: 1px solid var(--primary-color); /* Theme primary color top border */
   padding-top: 10px; /* Space between border and text */
   margin-top: 10px; /* Space above the border if needed */
 }
 
 .seedetail a {
   text-decoration: none; /* Remove underline */
-  font-size: 18px; /* Increase font size */
-  color: #007bff; /* Optional link color */
+  font-size: medium; /* Small font size */
+  color: var(--text-color); /* Theme text color */
   display: inline-flex; /* For arrow alignment */
   align-items: center;
   gap: 5px; /* Space between text and arrow */
 }
 
 .seedetail a:hover {
-  color: #0056b3; /* Darker on hover */
+  color: var(--accent-color); /* Theme accent color on hover */
 }
 
 .seedetail .arrow {
@@ -203,7 +203,7 @@ export default {
 .card-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+  gap: 10px;
 }
 
 .category-card {
@@ -211,7 +211,7 @@ export default {
   border-radius: 8px;
   padding: 15px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  min-height: 400px;
+  min-height: 300px;
   border: 1px solid #e5e7eb;
   transition: all 0.3s ease;
   display: flex;
@@ -286,7 +286,14 @@ export default {
 
 @media (max-width: 600px) {
   .card-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  .category-card {
+    padding: 15px 10px;
+    height: auto;
+    min-height: 100px;
   }
 }
 
@@ -304,7 +311,7 @@ export default {
 .category-card h3 {
   font-size: 20px;
   font-weight: 600;
-  color: #111111;
+  color: var(--text-color);
   margin-bottom: 10px;
   margin-top: 5px;
 }
@@ -324,8 +331,8 @@ export default {
   position: absolute;
   top: 18px;
   right: 18px;
-  background-color: #6fc6f5;
-  color: #ffffff;
+  background-color: var(--primary-color);
+  color: var(--background-color);
   font-size: 13px;
   font-weight: 700;
   padding: 6px 12px;
@@ -457,9 +464,13 @@ export default {
 
 .add-to-cart-button {
   width: 100%;
-  background: radial-gradient(circle, #7ed9b0 0%, #6fc6f5 70%);
+  background: radial-gradient(
+    circle,
+    var(--secondary-color) 0%,
+    var(--primary-color) 70%
+  );
 
-  color: white;
+  color: var(--background-color);
   padding: 10px 0;
   border: none;
   border-radius: 5px;
@@ -480,7 +491,7 @@ export default {
 .section-title {
   font-size: 28px;
   font-weight: bold;
-  color: #2c3e50;
+  color: var(--text-color);
   margin-bottom: 30px;
 }
 
@@ -539,7 +550,7 @@ export default {
   font-size: 32px;
   font-weight: bold;
   margin: 0 0 10px 0;
-  color: white;
+  color: var(--background-color);
 }
 
 .sub-text {
@@ -556,8 +567,8 @@ export default {
 
 .app-button {
   text-decoration: none;
-  background-color: white;
-  color: #6fc6f5;
+  background-color: var(--background-color);
+  color: var(--primary-color);
   border: none;
   border-radius: 4px;
   padding: 10px 25px;
@@ -568,8 +579,8 @@ export default {
 }
 
 .app-button:hover {
-  background-color: #f0f0f0;
-  color: #004c7a;
+  background-color: var(--light-background);
+  color: var(--accent-color);
 }
 
 .content-right {
@@ -583,7 +594,7 @@ export default {
 }
 
 .daraz-link {
-  color: white;
+  color: var(--background-color);
   font-size: 18px;
   font-weight: bold;
   text-decoration: none;
@@ -609,7 +620,7 @@ export default {
 
 .sub-text-s {
   font-size: 16px;
-  color: black;
+  color: var(--text-color);
   margin-bottom: 30px;
   line-height: 1.5;
 }
@@ -632,9 +643,9 @@ export default {
 }
 
 .btn-primary {
-  background-color: #6fc6f5;
-  color: white;
-  border-color: #6fc6f5;
+  background-color: var(--primary-color);
+  color: var(--background-color);
+  border-color: var(--primary-color);
   text-decoration: none;
 }
 
@@ -648,8 +659,8 @@ export default {
 .btn-secondary {
   text-decoration: none;
   background-color: transparent;
-  color: #7ed9b0;
-  border-color: #7ed9b0;
+  color: var(--secondary-color);
+  border-color: var(--secondary-color);
   font-size: medium;
 }
 
@@ -658,8 +669,8 @@ export default {
 }
 
 .btn-secondary:hover {
-  background-color: #7ed9b0;
-  color: white;
+  background-color: var(--secondary-color);
+  color: var(--background-color);
   text-decoration: none;
 }
 /* Mobile phones */
@@ -674,14 +685,14 @@ export default {
   }
 
   .card-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 
   .category-card {
-    padding: 20px 15px;
+    padding: 15px 10px;
     height: auto;
-    min-height: 400px;
+    min-height: 100px;
   }
 
   .card-title {
@@ -692,17 +703,17 @@ export default {
   .image-grid {
     grid-template-columns: repeat(2, 1fr);
     grid-template-rows: repeat(2, 1fr);
-    gap: 8px;
+    gap: 4px;
   }
 
   .image-item {
-    min-height: 120px;
-    padding: 8px;
+    min-height: 80px;
+    padding: 4px;
   }
 
   .image-item img,
   .placeholder-image {
-    height: 100px;
+    height: 70px;
   }
 
   .image-label {

@@ -1,27 +1,16 @@
 <template>
   <div class="product">
-    <div
-      style="
-        max-width: 1700px;
-        margin: 40px auto;
-        display: flex;
-        gap: 30px;
-        padding: 0 20px;
-      "
-    >
+    <div class="product-container">
       <!-- ASIDE FILTER SECTION -->
-      <aside style="width: 300px">
+      <aside class="filter-aside">
         <!-- Sort By -->
-        <div
-          style="
-            border: 1px solid #e5e5e5;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-          "
-        >
-          <div style="font-weight: 600; margin-bottom: 12px">Sort By</div>
-          <select v-model="sortOption" @change="applyFilters">
+        <div class="filter-section">
+          <div class="filter-title">Sort By</div>
+          <select
+            v-model="sortOption"
+            @change="applyFilters"
+            class="filter-select"
+          >
             <option value="featured">Featured</option>
             <option value="low">Price: Low to High</option>
             <option value="high">Price: High to Low</option>
@@ -55,36 +44,16 @@
         </div>
 
         <!-- Brand Filter -->
-        <div
-          style="
-            border: 1px solid #e5e5e5;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-          "
-        >
-          <div style="font-weight: 600; margin-bottom: 12px">Brand</div>
-          <div
-            style="max-height: 180px; overflow-y: scroll; padding-right: 10px"
-          >
-            <div
-              v-for="brand in brands"
-              :key="brand"
-              style="margin-bottom: 10px"
-            >
-              <label
-                style="
-                  display: flex;
-                  align-items: center;
-                  gap: 10px;
-                  cursor: pointer;
-                "
-              >
+        <div class="filter-section">
+          <div class="filter-title">Brand</div>
+          <div class="filter-scroll">
+            <div v-for="brand in brands" :key="brand" class="filter-item">
+              <label class="filter-label">
                 <input
                   type="checkbox"
                   :value="brand"
                   v-model="selectedBrands"
-                  style="width: 16px; height: 16px"
+                  class="filter-checkbox"
                 />
                 <span>{{ brand }}</span>
               </label>
@@ -93,32 +62,16 @@
         </div>
 
         <!-- Type Filter -->
-        <div
-          style="
-            border: 1px solid #e5e5e5;
-            border-radius: 12px;
-            padding: 20px;
-            margin-bottom: 20px;
-          "
-        >
-          <div style="font-weight: 600; margin-bottom: 12px">Type</div>
-          <div
-            style="max-height: 180px; overflow-y: scroll; padding-right: 10px"
-          >
-            <div v-for="type in types" :key="type" style="margin-bottom: 10px">
-              <label
-                style="
-                  display: flex;
-                  align-items: center;
-                  gap: 10px;
-                  cursor: pointer;
-                "
-              >
+        <div class="filter-section">
+          <div class="filter-title">Type</div>
+          <div class="filter-scroll">
+            <div v-for="type in types" :key="type" class="filter-item">
+              <label class="filter-label">
                 <input
                   type="checkbox"
                   :value="type"
                   v-model="selectedTypes"
-                  style="width: 16px; height: 16px"
+                  class="filter-checkbox"
                 />
                 <span>{{ type }}</span>
               </label>
@@ -130,16 +83,18 @@
       <!-- Products by Category -->
       <div class="products-by-category">
         <div
-          v-for="category in groupedProducts"
+          v-for="category in groupedProducts.slice(0, 5)"
           :key="category.type"
           class="category-section"
         >
           <h2 class="category-heading">{{ category.type }}</h2>
           <div class="products-grid">
             <div
-              v-for="product in category.products.slice(
+              v-for="product in (category.products || []).slice(
                 0,
-                getExpandedState(category.type) ? category.products.length : 4,
+                getExpandedState(category.type)
+                  ? (category.products || []).length
+                  : 5,
               )"
               :key="product.id"
               class="product-card"
@@ -181,7 +136,7 @@
             </div>
           </div>
           <button
-            v-if="category.products.length > 4"
+            v-if="category.products && category.products.length > 4"
             class="show-more-btn"
             @click="toggleCategory(category.type)"
           >
@@ -195,18 +150,28 @@
             ></i>
           </button>
         </div>
+        <router-link
+          v-if="groupedProducts.length > 5"
+          to="/categories"
+          class="show-more-categories-btn"
+        >
+          View All Categories
+          <i class="fa-solid fa-arrow-right"></i>
+        </router-link>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { reactive, inject } from "vue";
+import { reactive } from "vue";
 import products from "@/data/products.json";
 
 export default {
+  inject: ["cartState"],
   data() {
-    const types = [...new Set(products.map((p) => p.type))];
+    const safeProducts = products || [];
+    const types = [...new Set(safeProducts.map((p) => p.type))];
     const expandedCategories = reactive({});
     types.forEach((type) => {
       expandedCategories[type] = false;
@@ -214,23 +179,20 @@ export default {
     return {
       sortOption: "featured",
       minPrice: 0,
-      maxPrice: 100000,
+      maxPrice: 1000000,
       selectedBrands: [],
       selectedTypes: [],
-      brands: [...new Set(products.map((p) => p.brand))],
+      brands: [...new Set(safeProducts.map((p) => p.brand))],
       types: types,
-      products: products,
+      products: safeProducts,
       expandedCategories: expandedCategories,
       searchQuery: "",
+      showAllCategories: false,
     };
-  },
-
-  setup() {
-    const cartState = inject("cartState");
-    return { cartState };
   },
   computed: {
     filteredProducts() {
+      if (!this.products || !this.products.length) return [];
       let filtered = this.products;
 
       // Search Filter
@@ -277,6 +239,7 @@ export default {
       return filtered;
     },
     groupedProducts() {
+      if (!this.filteredProducts.length) return [];
       const groups = {};
       this.filteredProducts.forEach((product) => {
         if (!groups[product.type]) {
@@ -289,7 +252,9 @@ export default {
           type,
           products: groups[type],
         }))
-        .slice(0, 5);
+        .filter(
+          (category) => category.products && category.products.length > 0,
+        );
     },
   },
   mounted() {
@@ -324,14 +289,21 @@ export default {
       return this.expandedCategories[type] || false;
     },
     handleAddToCart(product) {
-      this.addToCart(product);
-      this.showToast("Product added to cart!", "success");
+      this.cartState.addToCart(product);
+      this.cartState.showToast("Product added to cart!", "success");
     },
   },
 };
 </script>
 
 <style scoped>
+.product-container {
+  max-width: 1700px;
+  margin: 40px auto;
+  display: flex;
+  gap: 30px;
+  padding: 0 20px;
+}
 .price-range-container {
   border: 1px solid #e5e5e5;
   border-radius: 12px;
@@ -394,7 +366,7 @@ export default {
 .products-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
+  gap: 8px;
   margin-bottom: 20px;
 }
 .show-more-btn {
@@ -420,6 +392,30 @@ export default {
 .show-more-btn i {
   transition: transform 0.3s ease;
 }
+.show-more-categories-btn {
+  background: #6fc6f5;
+  text-decoration: none;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 20px auto 0;
+  box-shadow: 0 4px 15px rgba(111, 198, 245, 0.3);
+}
+.show-more-categories-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(111, 198, 245, 0.4);
+}
+.show-more-categories-btn i {
+  transition: transform 0.3s ease;
+}
 .product-card {
   border: 1px solid #ddd;
   border-radius: 12px;
@@ -428,7 +424,7 @@ export default {
   text-align: left;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  height: 320px;
+  min-height: 320px;
   display: flex;
   flex-direction: column;
 }
@@ -451,24 +447,26 @@ export default {
   object-fit: contain;
 }
 .product-details {
-  padding: 20px;
+  padding: 15px;
+  font-size: medium;
 }
 .product-brand {
   color: #7ed9b0;
+  margin-bottom: 2px;
 }
 .product-name {
   display: block;
-  margin: 5px 0;
+  margin: 2px 0;
 }
 .product-price {
   color: #7ed9b0;
   font-weight: bold;
-  margin-top: 5px;
+  margin-top: 2px;
 }
 .product-actions {
   display: flex;
   gap: 10px;
-  margin-top: 10px;
+  margin-top: 8px;
 }
 .add-button {
   flex: 1;
@@ -494,6 +492,25 @@ export default {
   justify-content: center;
   color: black;
 }
+.filter-section {
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.filter-title {
+  font-size: medium;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.filter-scroll {
+  max-height: 200px;
+  overflow-y: scroll;
+  text-align: left;
+}
+
 /* Tablet screens */
 @media (max-width: 1024px) {
   .products-grid {
@@ -506,86 +523,93 @@ export default {
 
 /* Small tablets / large phones */
 @media (max-width: 768px) {
-  /* Stack sidebar above products */
+  /* Keep sidebar and products side by side */
   div[style*="display: flex; gap: 30px;"] {
-    flex-direction: column;
+    flex-direction: row;
+    gap: 10px;
+    padding: 0 10px;
   }
 
   aside {
-    width: 100%;
-    order: 1; /* Sidebar on top */
-    margin-bottom: 20px;
+    width: 150px;
+    flex-shrink: 0;
+  }
+
+  .products-by-category {
+    flex: 1;
   }
 
   .products-grid {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
   }
 
   .product-card {
-    text-align: center;
+    min-height: 250px;
+  }
+
+  .product-image {
+    height: 150px;
   }
 
   .product-details {
     padding: 10px;
-  }
-
-  .product-image {
-    height: 180px;
-  }
-
-  .product-actions {
-    flex-direction: column;
-  }
-
-  .add-button,
-  .view-button {
-    width: 100%;
   }
 }
 
 /* Mobile phones */
 @media (max-width: 480px) {
   div[style*="display: flex; gap: 30px;"] {
-    flex-direction: column;
-    padding: 0 15px;
-    gap: 20px;
+    flex-direction: row;
+    padding: 0 5px;
+    gap: 5px;
+    max-width: 100%;
+    margin: 15px auto;
   }
 
   aside {
-    width: 100%;
-    padding: 20px;
+    width: 100px;
+    flex-shrink: 0;
+    padding: 6px;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   }
 
   aside > div {
-    margin-bottom: 25px;
+    margin-bottom: 20px;
+    border: 0.2px solid #e5e5e5;
+    border-radius: 8px;
   }
 
   aside > div:last-child {
     margin-bottom: 0;
   }
 
+  .filter-section:first-child {
+    background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+    border: 1px solid #b0c4de;
+  }
+
   .price-range-container {
-    padding: 15px;
-    margin-bottom: 25px;
+    padding: 10px;
+    margin-bottom: 15px;
   }
 
   .price-slider {
-    height: 8px;
-    border-radius: 4px;
+    height: 6px;
+    border-radius: 3px;
   }
 
   .price-slider::-webkit-slider-thumb {
-    width: 18px;
-    height: 18px;
+    width: 16px;
+    height: 16px;
     margin-top: -5px;
   }
 
   .price-values {
-    font-size: 12px;
-    margin-top: 8px;
+    font-size: 11px;
+    margin-top: 6px;
   }
 
   .products-by-category {
@@ -593,37 +617,37 @@ export default {
   }
 
   .category-section {
-    margin-bottom: 25px;
+    margin-bottom: 15px;
   }
 
   .category-heading {
-    font-size: 22px;
-    margin-bottom: 15px;
-    padding-bottom: 8px;
+    font-size: 18px;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
     border-bottom: 2px solid #7ed9b0;
   }
 
   .products-grid {
-    grid-template-columns: 1fr;
-    gap: 15px;
-    margin-bottom: 15px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 10px;
   }
 
   .product-card {
-    height: auto;
-    min-height: 280px;
-    border-radius: 10px;
+    height:200px;
+    min-height: 160px;
+    border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
   }
 
   .product-card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-2px);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
   }
 
   .product-image {
-    height: 180px;
+    height: 120px;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   }
 
@@ -633,41 +657,42 @@ export default {
   }
 
   .product-details {
-    padding: 15px;
+    padding: 10px;
   }
 
   .product-brand {
-    font-size: 12px;
+    font-size: 11px;
     color: #6c757d;
-    margin-bottom: 5px;
+    margin-bottom: 3px;
   }
 
   .product-name {
-    font-size: 16px;
-    margin: 5px 0;
-    line-height: 1.3;
+    font-size: 10px;
+    margin: 3px 0;
+    line-height: 1.2;
   }
 
   .product-price {
-    font-size: 16px;
+    font-size: 14px;
     font-weight: 700;
-    margin-top: 8px;
+    margin-top: 5px;
     color: #28a745;
   }
 
   .product-actions {
-    gap: 8px;
-    margin-top: 15px;
+    gap: 6px;
+    margin-top: 10px;
   }
 
   .add-button {
     flex: 1;
-    padding: 10px;
-    border-radius: 6px;
-    font-size: 14px;
-    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 400;
     background: linear-gradient(135deg, #6fc6f5 0%, #4a90e2 100%);
     box-shadow: 0 2px 8px rgba(111, 198, 245, 0.3);
+    white-space: nowrap;
   }
 
   .add-button:hover {
@@ -675,9 +700,9 @@ export default {
   }
 
   .view-button {
-    width: 45px;
-    height: 35px;
-    border-radius: 6px;
+    width: 35px;
+    height: 28px;
+    border-radius: 5px;
     border: 1px solid #dee2e6;
     background: #fff;
     color: #6c757d;
@@ -690,18 +715,18 @@ export default {
   }
 
   .show-more-btn {
-    padding: 10px 20px;
-    font-size: 14px;
-    border-radius: 20px;
-    margin-top: 10px;
+    padding: 8px 16px;
+    font-size: 12px;
+    border-radius: 16px;
+    margin-top: 8px;
   }
 
   select {
     width: 100%;
-    padding: 10px;
+    padding: 8px;
     border: 1px solid #dee2e6;
-    border-radius: 6px;
-    font-size: 14px;
+    border-radius: 5px;
+    font-size: 12px;
     background: #fff;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
@@ -713,26 +738,25 @@ export default {
   /* Improve filter sections */
   aside div[style*="border: 1px solid #e5e5e5"] {
     border: 1px solid #dee2e6;
-    border-radius: 10px;
     background: #fff;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   }
 
   /* Better spacing for filter labels */
   label {
-    font-size: 14px;
-    margin-bottom: 8px;
+    font-size: 12px;
+    margin-bottom: 6px;
     display: flex;
-    align-items: center;
-    gap: 8px;
+    text-align: left;
   }
 
   /* Scrollable areas */
-  div[style*="max-height: 180px"] {
+  .filter-scroll {
     max-height: 150px;
-    border-radius: 6px;
+    overflow-y: scroll;
+    overflow-x: hidden;
     background: #f8f9fa;
-    padding: 10px;
+    text-align: left;
   }
 }
 </style>

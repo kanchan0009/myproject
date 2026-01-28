@@ -1,12 +1,5 @@
 <template>
-  <nav>
-    <router-link to="/"></router-link> 
-    <router-link to="/about"></router-link>
-    <router-link to="/contact"></router-link>
-    <router-link to="/products"></router-link>
-    <router-link to="/categories"></router-link>
-  </nav>
-  <router-view/>
+  <router-view />
 </template>
 
 <style>
@@ -29,7 +22,6 @@ body {
   color: #000;
 }
 
-
 nav a {
   font-weight: bold;
   color: #2c3e50;
@@ -38,9 +30,8 @@ nav a {
 nav a.router-link-exact-active {
   color: #42b983;
 }
-a:hover{
+a:hover {
   text-decoration: underline;
-  color:#42b983;
+  color: #42b983;
 }
-
 </style>

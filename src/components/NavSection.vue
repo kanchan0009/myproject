@@ -16,7 +16,7 @@
   <header class="main-header">
     <div class="logo-section">
       <div class="logo-icon">
-        <img :src="require('@/assets/img.png')" alt="Logo" />
+        <img :src="require('@/assets/logoimg physio.jpeg')" alt="Logo" />
       </div>
       <span class="logo-text">PhysioNepal</span>
     </div>
@@ -54,7 +54,7 @@
       </div>
     </div>
 
-    <div class="cart-icon" @click="toggleCart">
+    <div class="cart-icon" @click="goToCart">
       <i class="fas fa-shopping-cart"></i>
       <span v-if="cartItemCount > 0" class="cart-count">{{
         cartItemCount
@@ -65,14 +65,15 @@
   <!-- Navbar -->
   <nav class="navbar">
     <div class="nav-container">
-      <ul :class="['nav-menu', { active: isMobileMenuOpen }]">
+      <ul class="nav-menu">
         <li class="nav-item">
           <router-link
             to="/"
             class="nav-link"
             :class="{ active: $route.path === '/' }"
           >
-            Home
+            <i class="fas fa-home nav-icon"></i>
+            <span class="nav-text">Home</span>
           </router-link>
         </li>
 
@@ -82,7 +83,8 @@
             class="nav-link"
             :class="{ active: $route.path.includes('/categories') }"
           >
-            Categories
+            <i class="fas fa-th-large nav-icon"></i>
+            <span class="nav-text">Categories</span>
           </router-link>
         </li>
 
@@ -92,7 +94,8 @@
             class="nav-link"
             :class="{ active: $route.path.includes('/products') }"
           >
-            Products
+            <i class="fas fa-box nav-icon"></i>
+            <span class="nav-text">Products</span>
           </router-link>
         </li>
 
@@ -102,7 +105,8 @@
             class="nav-link"
             :class="{ active: $route.path === '/about' }"
           >
-            About Us
+            <i class="fas fa-info-circle nav-icon"></i>
+            <span class="nav-text">About Us</span>
           </router-link>
         </li>
 
@@ -112,25 +116,13 @@
             class="nav-link"
             :class="{ active: $route.path === '/contact' }"
           >
-            Contact
+            <i class="fas fa-envelope nav-icon"></i>
+            <span class="nav-text">Contact</span>
           </router-link>
         </li>
       </ul>
-
-      <!-- Hamburger Button -->
-      <button class="mobile-toggle" @click="toggleMobileMenu">
-        <span class="hamburger"></span>
-      </button>
     </div>
   </nav>
-
-  <!-- Cart Modal -->
-  <CartModal
-    :is-open="isCartOpen"
-    :cart-items="cartItems"
-    @close="closeCart"
-    @update-cart="updateCart"
-  />
 
   <!-- Toast Notification -->
   <ToastNotification
@@ -142,24 +134,21 @@
 </template>
 
 <script>
-import { ref, computed, inject } from "vue";
+import { ref, computed, inject, defineExpose } from "vue";
 import { useRouter } from "vue-router";
-import CartModal from "@/components/CartModal.vue";
 import ToastNotification from "@/components/ToastNotification.vue";
 
 export default {
   name: "Navbar",
   components: {
-    CartModal,
     ToastNotification,
   },
   setup() {
     const cartState = inject("cartState");
     const router = useRouter();
-    const isMobileMenuOpen = ref(false);
     const showCategoriesDesktop = ref(false);
     const showCategoriesMobile = ref(false);
-    const isCartOpen = ref(false);
+    const isMobileMenuOpen = ref(false);
     const toastMessage = ref("");
     const toastType = ref("success");
     const searchQuery = ref("");
@@ -178,16 +167,8 @@ export default {
       }
     };
 
-    const toggleCart = () => {
-      isCartOpen.value = !isCartOpen.value;
-    };
-
-    const closeCart = () => {
-      isCartOpen.value = false;
-    };
-
-    const updateCart = (newItems) => {
-      cartState.items = newItems;
+    const goToCart = () => {
+      router.push("/cart");
     };
 
     const cartItemCount = computed(() => {
@@ -208,12 +189,7 @@ export default {
       const query = searchQuery.value.trim().toLowerCase();
       if (query.length > 0) {
         filteredSuggestions.value = products
-          .filter(
-            (product) =>
-              product.name.toLowerCase().includes(query) ||
-              product.brand.toLowerCase().includes(query) ||
-              product.type.toLowerCase().includes(query),
-          )
+          .filter((product) => product.name.toLowerCase().startsWith(query))
           .slice(0, 8); // Limit to 8 suggestions
       } else {
         filteredSuggestions.value = [];
@@ -282,31 +258,6 @@ export default {
       cartState.addToCart(product, quantity);
     };
 
-    return {
-      isMobileMenuOpen,
-      showCategoriesDesktop,
-      showCategoriesMobile,
-      isCartOpen,
-      cartItems: cartState.items,
-      toastMessage,
-      toastType,
-      searchQuery,
-      showSuggestions,
-      filteredSuggestions,
-      toggleMobileMenu,
-      toggleCategoriesMobile,
-      toggleCart,
-      closeCart,
-      updateCart,
-      cartItemCount,
-      showToast,
-      updateSuggestions,
-      hideSuggestions,
-      selectSuggestion,
-      handleSearch,
-      addToCart,
-    };
-
     // Set the toast function in cartState
     cartState.setToastFunction(showToast);
 
@@ -315,6 +266,27 @@ export default {
       addToCart,
       showToast,
     });
+
+    return {
+      isMobileMenuOpen,
+      showCategoriesDesktop,
+      showCategoriesMobile,
+      cartItems: cartState.items,
+      toastMessage,
+      toastType,
+      searchQuery,
+      showSuggestions,
+      filteredSuggestions,
+      toggleCategoriesMobile,
+      goToCart,
+      cartItemCount,
+      showToast,
+      updateSuggestions,
+      hideSuggestions,
+      selectSuggestion,
+      handleSearch,
+      addToCart,
+    };
   },
   data() {
     return {};
@@ -330,7 +302,7 @@ export default {
     #6fc6f5 0%,
     #6fc6f5 45%,
     #7ed9b0 55%,
-    #7ed9b0 100%
+    #086239 100%
   );
   display: flex;
   justify-content: space-between;
@@ -362,7 +334,7 @@ export default {
 .logo-section {
   display: flex;
   align-items: center; /* vertically center icon and text */
-  gap: 10px; /* space between logo and text */
+  gap: 5px; /* space between logo and text */
 }
 
 .logo-icon {
@@ -524,6 +496,10 @@ export default {
   position: relative;
   transition: color 0.3s ease;
   letter-spacing: 0.5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
 }
 .nav-link:hover {
   color: #2c3e50;
@@ -542,6 +518,16 @@ export default {
   background-color: grey;
 }
 
+.nav-text {
+  font-size: 16px;
+  margin-top: 2px;
+
+}
+
+.nav-icon {
+  display: none;
+}
+
 /* Vue Transitions */
 .fade-enter-active,
 .fade-leave-active {
@@ -551,38 +537,6 @@ export default {
 .fade-leave-to {
   opacity: 0;
   transform: translateY(-10px);
-}
-
-/* Hamburger */
-.mobile-toggle {
-  display: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
-}
-.hamburger {
-  display: block;
-  width: 25px;
-  height: 3px;
-  background-color: #333;
-  position: relative;
-  transition: all 0.3s;
-}
-.hamburger::before,
-.hamburger::after {
-  content: "";
-  position: absolute;
-  width: 25px;
-  height: 3px;
-  background-color: #333;
-  transition: all 0.3s;
-}
-.hamburger::before {
-  top: -8px;
-}
-.hamburger::after {
-  bottom: -8px;
 }
 
 /* Mobile Responsiveness */
@@ -602,7 +556,7 @@ export default {
   }
 
   .logo-icon {
-    width: 80px;
+    width: 60px;
     height: 55px;
   }
 
@@ -646,90 +600,65 @@ export default {
   }
 
   .nav-menu {
-    position: fixed;
-    top: 60px;
-    left: 0;
-    right: 0;
-    background-color: white;
-    flex-direction: column;
-    gap: 0;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transform: translateY(-100%);
-    transition: transform 0.3s ease;
-    z-index: 999;
-  }
-
-  .nav-menu.active {
-    transform: translateY(0);
-  }
-
-  .nav-item {
-    border-bottom: 1px solid #f0f0f0;
+    gap: 15px;
   }
 
   .nav-link {
-    padding: 15px 20px;
-    width: 100%;
-    display: block;
-    font-size: 15px;
+    font-size: 14px;
   }
 
-  .mobile-toggle {
-    display: block;
+  .nav-link i {
+    font-size: 18px;
   }
 
-  .hamburger {
-    width: 22px;
-    height: 2px;
+  .nav-text {
+    font-size: 10px;
   }
 
-  .hamburger::before {
-    top: -6px;
-  }
-
-  .hamburger::after {
-    bottom: -6px;
+  .nav-icon {
+    display: inline-block;
   }
 }
 
 @media (max-width: 480px) {
   .top-bar {
-    padding: 10px 3%;
-    font-size: 13px;
-    flex-direction: column;
-    gap: 8px;
-    text-align: center;
+    padding: 8px 3%;
+    font-size: 12px;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 5px;
   }
 
   .top-link {
-    font-size: 13px;
+    font-size: 12px;
   }
 
   .main-header {
     padding: 6px 3%;
     height: 55px;
-    flex-direction: column;
-    gap: 8px;
+    flex-direction: row;
+    justify-content: space-evenly;
+    align-items: center;
   }
 
   .logo-section {
-    gap: 8px;
+    gap: 2px;
   }
 
   .logo-icon {
-    width: 70px;
-    height: 50px;
+    width: 40px;
+    height: 45px;
   }
 
   .logo-text {
-    font-size: 1em;
+    font-size: 0.9em;
   }
 
   .search-container {
-    margin: 0;
-    max-width: none;
-    order: 3;
-    width: 100%;
+    margin: 0 10px;
+    flex: 1;
+    min-width: 150px;
   }
 
   .search-form {
@@ -737,12 +666,12 @@ export default {
   }
 
   .search-form input {
-    padding: 10px 12px;
-    font-size: 14px;
+    padding: 8px 10px;
+    font-size: 13px;
   }
 
   .search-form button {
-    padding: 10px 12px;
+    padding: 8px 10px;
   }
 
   .suggestions-dropdown {
@@ -752,10 +681,6 @@ export default {
   .suggestion-item {
     padding: 8px 10px;
     font-size: 12px;
-  }
-
-  .cart-icon {
-    order: 2;
   }
 
   .cart-icon i {
@@ -772,29 +697,33 @@ export default {
 
   .nav-container {
     padding: 0 10px;
-    height: 45px;
+    height: 65px;
   }
 
   .nav-menu {
-    top: 55px;
+    gap: 5px;
+    justify-content: space-between;
   }
 
   .nav-link {
-    padding: 12px 15px;
-    font-size: 14px;
+    padding: 6px 0;
+    font-size: 11px;
   }
 
-  .hamburger {
-    width: 20px;
-    height: 2px;
+  .nav-link i {
+    font-size: 16px;
+    color:#55c894;
+  }
+  .nav-text:hover{
+    color:#55c894;
   }
 
-  .hamburger::before {
-    top: -5px;
+  .nav-text {
+    font-size: 12px;
   }
 
-  .hamburger::after {
-    bottom: -5px;
+  .mobile-toggle {
+    display: none;
   }
 }
 </style>

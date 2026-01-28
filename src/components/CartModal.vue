@@ -210,7 +210,7 @@ export default {
   border: none;
   font-size: 20px;
   cursor: pointer;
-  color: #ff4444;
+  color: #6fc6f5;
   padding: 5px;
 }
 

@@ -1,7 +1,7 @@
 <template>
   <div class="product-categories">
     <div style="background: #7ed9b0; padding: 50px 40px">
-      <div style="max-width: 1200px; margin: 0 auto">
+      <div style="max-width: 1200px; margin: 0 auto ;min-height:50px">
         <h1
           style="
             margin: 0 0 10px 0;
@@ -153,6 +153,7 @@ export default defineComponent({
 
 .category-content {
   padding: 20px;
+  flex: 1;
 }
 
 .category-title {
@@ -287,7 +288,34 @@ p {
 /* Mobile phones */
 @media (max-width: 480px) {
   .category-container {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 30px 0;
+    padding: 0;
+  }
+  .category-card {
+    min-height: 130px;
+  }
+  .category-image {
+    height: 80px;
+  }
+  .category-content {
+    padding: 10px;
+  }
+  .category-title {
+    font-size: 12px;
+  }
+  .category-desc {
+    font-size: 12px;
+  }
+  .view-btn {
+    padding: 8px;
+    font-size: 10px;
+    margin-bottom: 3px;
+  }
+  .count-badge {
+    font-size: 12px;
+    padding: 4px 8px;
   }
   .brands {
     grid-template-columns: 1fr;
@@ -296,18 +324,21 @@ p {
   h2 {
     font-size: 24px;
   }
-  .category-title {
-    font-size: 18px;
-  }
-  .category-desc {
-    font-size: 13px;
-  }
   .contact-section {
     padding: 50px 10px;
   }
   .contact-button {
     width: 100%;
     padding: 14px;
+  }
+  .brands{
+
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .barnd-card{
+    height:50px;
+    font-size: 10px;
+    
   }
 }
 </style>

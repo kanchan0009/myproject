@@ -43,20 +43,13 @@
         </div>
 
         <!-- Column 4: Contact Us -->
-        <div class="contact-column">
+        <div class="links-column">
           <h3>Contact Us</h3>
-          <div class="contact-info">
-            <i class="fas fa-phone"></i>
-            <span>+977-01-234567</span>
-          </div>
-          <div class="contact-info">
-            <i class="fas fa-envelope"></i>
-            <span>kiranthapa@physionepal.com.np</span>
-          </div>
-          <div class="contact-info">
-            <i class="fas fa-map-marker-alt"></i>
-            <span>Gaidakot - 04, Nawalparasi</span>
-          </div>
+          <ul>
+            <li><a href="#"><i class="fas fa-phone"></i>+977-01-234567</a></li>
+            <li><a href="#"><i class="fas fa-envelope"></i>kiranthapa@physionepal.com.np</a></li>
+            <li><a href="#"><i class="fas fa-map-marker-alt"></i>Gaidakot - 04, Nawalparasi</a></li> 
+          </ul>
         </div>
       </div>
 
@@ -190,28 +183,8 @@ export default {
 .links-column ul li a:hover {
   color: #7ed9b0;
 }
-
-/* Contact Column */
-.contact-column h3 {
-  font-size: 18px;
+.contact-column ul li a:hover {
   color: #7ed9b0;
-  margin-bottom: 20px;
-  margin-right: 230px;
-}
-
-.contact-info {
-  display: flex;
-  align-items: flex-start;
-  margin-bottom: 15px;
-  color: black;
-  font-size: 15px;
-}
-
-.contact-info i {
-  margin-right: 12px;
-  color: rgb(50, 48, 48);
-  font-size: 16px;
-  width: 20px;
 }
 
 /* Footer Bottom */
@@ -303,23 +276,6 @@ export default {
 
   .links-column ul li a {
     font-size: 14px;
-  }
-
-  .contact-column h3 {
-    font-size: 16px;
-    margin-bottom: 15px;
-    margin-right: 0;
-  }
-
-  .contact-info {
-    margin-bottom: 12px;
-    font-size: 14px;
-  }
-
-  .contact-info i {
-    margin-right: 10px;
-    font-size: 15px;
-    width: 18px;
   }
 
   .footer-bottom {
