@@ -944,6 +944,8 @@ export default {
 
   .stats-section {
     padding: 25px 20px;
+    display:flex;
+    justify-content: space-evenly;
   }
 
   .stat-number {
@@ -1092,6 +1094,11 @@ export default {
   transform: scale(1.05);
   background: rgba(255, 255, 255, 0.1);
 }
-  
+.mission-card{
+  border:1px solid rgb(238, 236, 236)
+}
+  .mission-card:hover{
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
 }
 </style>

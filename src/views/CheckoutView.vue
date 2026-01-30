@@ -184,6 +184,7 @@
 <script>
 import { inject, computed, ref, onMounted, nextTick, watch } from "vue";
 import { useRouter } from "vue-router";
+import axios from "axios";
 import InvoiceContactInfo from "@/components/InvoiceContactInfo.vue";
 import ToastNotification from "@/components/ToastNotification.vue";
 
@@ -197,39 +198,31 @@ export default {
     const cartState = inject("cartState");
     const router = useRouter();
 
-    // Use global cart state
-    const cartItems = computed(() => cartState.items);
+    /* ---------------- CART ---------------- */
 
-    // Calculate totals
-    const totalItems = computed(() => {
-      return cartItems.value.reduce((total, item) => total + item.quantity, 0);
-    });
+    const cartItems = computed(() => cartState.items || []);
 
-    const itemsTotal = computed(() => {
-      return cartItems.value.reduce(
-        (total, item) => total + item.price * item.quantity,
-        0,
-      );
-    });
+    const totalItems = computed(() =>
+      cartItems.value.reduce((t, i) => t + i.quantity, 0)
+    );
 
-    const deliveryFee = computed(() => {
-      return itemsTotal.value > 5000 ? 0 : 200;
-    });
+    const itemsTotal = computed(() =>
+      cartItems.value.reduce((t, i) => t + i.price * i.quantity, 0)
+    );
 
-    const grandTotal = computed(() => {
-      return itemsTotal.value + deliveryFee.value;
-    });
+    const deliveryFee = computed(() => (itemsTotal.value > 5000 ? 0 : 200));
 
-    const proceedToPay = () => {
-      router.push("/payment");
-    };
+    const grandTotal = computed(() => itemsTotal.value + deliveryFee.value);
 
-    // Reactive data
+    /* ---------------- STATE ---------------- */
+
     const address = ref({});
     const invoiceContact = ref({});
     const packageInfo = ref({});
     const isEditingAddress = ref(false);
     const showSideMenu = ref(false);
+    const loading = ref(false);
+
     const editAddress = ref({
       name: "",
       phone: "",
@@ -237,9 +230,12 @@ export default {
       fullAddress: "",
       pickupInfo: "",
     });
+
     const toastMessage = ref("");
     const toastType = ref("success");
     const toast = ref(null);
+
+    /* ---------------- ADDRESS ---------------- */
 
     const editShippingAddress = () => {
       isEditingAddress.value = true;
@@ -247,7 +243,6 @@ export default {
     };
 
     const saveShippingAddress = () => {
-      // Validation
       if (!editAddress.value.name.trim()) {
         toastMessage.value = "Full Name is required.";
         toastType.value = "error";
@@ -266,7 +261,6 @@ export default {
 
       address.value = { ...editAddress.value };
       isEditingAddress.value = false;
-      // Here you could save to localStorage or send to server
       toastMessage.value = "Address updated successfully!";
       toastType.value = "success";
     };
@@ -275,19 +269,60 @@ export default {
       isEditingAddress.value = false;
     };
 
-    const openSideMenu = () => {
-      showSideMenu.value = true;
+    /* ---------------- ORDER API ---------------- */
+
+    const proceedToPay = async () => {
+      if (!cartItems.value.length) {
+        toastMessage.value = "Your cart is empty";
+        toastType.value = "error";
+        return;
+      }
+
+      loading.value = true;
+
+      try {
+        const payload = {
+          shipping_full_name: address.value.name,
+          shipping_phone: address.value.phone,
+          shipping_address: address.value.fullAddress,
+          notes: "",
+          items: cartItems.value.map((item) => ({
+            product: item.id, // MUST be backend product ID
+            quantity: item.quantity,
+          })),
+        };
+
+        await axios.post(
+          "http://127.0.0.1:8000/api/orders/",
+          payload
+        );
+
+        toastMessage.value = "Order placed successfully!";
+        toastType.value = "success";
+
+        // OPTIONAL: clear cart
+        cartState.items = [];
+
+        router.push("/payment");
+      } catch (err) {
+        console.error("Order failed:", err.response?.data || err);
+        toastMessage.value = "Failed to place order";
+        toastType.value = "error";
+      } finally {
+        loading.value = false;
+      }
     };
 
-    const closeSideMenu = () => {
-      showSideMenu.value = false;
-    };
+    /* ---------------- UI HELPERS ---------------- */
+
+    const openSideMenu = () => (showSideMenu.value = true);
+    const closeSideMenu = () => (showSideMenu.value = false);
 
     const saveInvoiceContact = (field, value) => {
       invoiceContact.value[field] = value;
       localStorage.setItem(
         "invoiceContact",
-        JSON.stringify(invoiceContact.value),
+        JSON.stringify(invoiceContact.value)
       );
     };
 
@@ -295,33 +330,26 @@ export default {
       toastMessage.value = "";
     };
 
+    /* ---------------- INIT ---------------- */
+
     onMounted(() => {
-      // Load static address and package info
       fetch("/data/checkout.json")
         .then((res) => res.json())
         .then((data) => {
-          address.value = data.address;
-          packageInfo.value = data.package;
-          editAddress.value = { ...data.address };
+          address.value = data.address || {};
+          packageInfo.value = data.package || {};
+          editAddress.value = { ...address.value };
 
-          // Load invoice contact from localStorage or use default from JSON
-          const savedInvoiceContact = localStorage.getItem("invoiceContact");
-          if (savedInvoiceContact) {
-            invoiceContact.value = JSON.parse(savedInvoiceContact);
-          } else {
-            invoiceContact.value = data.invoiceContact || {};
-          }
+          const saved = localStorage.getItem("invoiceContact");
+          invoiceContact.value = saved
+            ? JSON.parse(saved)
+            : data.invoiceContact || {};
         });
     });
 
-    // Watch for toast message changes to show the toast
-    watch(toastMessage, (newMessage) => {
-      if (newMessage) {
-        nextTick(() => {
-          if (toast.value) {
-            toast.value.show();
-          }
-        });
+    watch(toastMessage, (msg) => {
+      if (msg) {
+        nextTick(() => toast.value?.show());
       }
     });
 
@@ -347,6 +375,7 @@ export default {
       toastType,
       toast,
       onToastClose,
+      loading,
     };
   },
 };

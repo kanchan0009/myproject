@@ -2,6 +2,51 @@
   <router-view />
 </template>
 
+<script>
+import { provide, ref, onMounted } from "vue";
+import api from "@/api/axios";
+
+export default {
+  setup() {
+    const isAuthenticated = ref(false);
+
+    const checkAuth = () => {
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+        isAuthenticated.value = true;
+      } else {
+        isAuthenticated.value = false;
+      }
+    };
+
+    const login = (token) => {
+      localStorage.setItem("authToken", token);
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+      isAuthenticated.value = true;
+    };
+
+    const logout = () => {
+      localStorage.removeItem("authToken");
+      delete api.defaults.headers.common["Authorization"];
+      isAuthenticated.value = false;
+    };
+
+    onMounted(checkAuth);
+
+    provide("auth", {
+      isAuthenticated,
+      login,
+      logout,
+    });
+
+    return {
+      isAuthenticated,
+    };
+  },
+};
+</script>
+
 <style>
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
@@ -14,12 +59,14 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  
 }
 
 body {
   font-family: Arial, Helvetica, sans-serif;
   background-color: #fff;
   color: #000;
+  overflow-x: hidden;
 }
 
 nav a {

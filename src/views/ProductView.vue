@@ -1,5 +1,6 @@
 <template>
   <div class="product">
+    <div v-if="error" class="error-message">{{ error }}</div>
     <div class="product-container">
       <!-- ASIDE FILTER SECTION -->
       <aside class="filter-aside">
@@ -42,48 +43,12 @@
             >
           </div>
         </div>
-
-        <!-- Brand Filter -->
-        <div class="filter-section">
-          <div class="filter-title">Brand</div>
-          <div class="filter-scroll">
-            <div v-for="brand in brands" :key="brand" class="filter-item">
-              <label class="filter-label">
-                <input
-                  type="checkbox"
-                  :value="brand"
-                  v-model="selectedBrands"
-                  class="filter-checkbox"
-                />
-                <span>{{ brand }}</span>
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <!-- Type Filter -->
-        <div class="filter-section">
-          <div class="filter-title">Type</div>
-          <div class="filter-scroll">
-            <div v-for="type in types" :key="type" class="filter-item">
-              <label class="filter-label">
-                <input
-                  type="checkbox"
-                  :value="type"
-                  v-model="selectedTypes"
-                  class="filter-checkbox"
-                />
-                <span>{{ type }}</span>
-              </label>
-            </div>
-          </div>
-        </div>
       </aside>
 
       <!-- Products by Category -->
       <div class="products-by-category">
         <div
-          v-for="category in groupedProducts.slice(0, 5)"
+          v-for="category in groupedProducts"
           :key="category.type"
           class="category-section"
         >
@@ -100,18 +65,13 @@
               class="product-card"
             >
               <div class="product-image">
-                <img
-                  :src="
-                    product.images && product.images[0]
-                      ? product.images[0]
-                      : '/assets/medical.jpeg'
-                  "
-                  alt=""
-                />
+                <img :src="product.image" />
               </div>
 
               <div class="product-details">
-                <div class="product-brand">{{ product.brand }}</div>
+                <div class="product-brand" v-if="product.brand">
+                  {{ product.brand }}
+                </div>
                 <b class="product-name">{{ product.name }}</b>
                 <div class="product-price">
                   NPR {{ product.price.toLocaleString() }}
@@ -162,135 +122,280 @@
     </div>
   </div>
 </template>
-
 <script>
-import { reactive } from "vue";
-import products from "@/data/products.json";
+import api from "@/api/axios";
 
 export default {
-  inject: ["cartState"],
   data() {
-    const safeProducts = products || [];
-    const types = [...new Set(safeProducts.map((p) => p.type))];
-    const expandedCategories = reactive({});
-    types.forEach((type) => {
-      expandedCategories[type] = false;
-    });
     return {
       sortOption: "featured",
       minPrice: 0,
       maxPrice: 1000000,
       selectedBrands: [],
+      selectedCategories: [],
       selectedTypes: [],
-      brands: [...new Set(safeProducts.map((p) => p.brand))],
-      types: types,
-      products: safeProducts,
-      expandedCategories: expandedCategories,
+      brands: [],
+      types: [],
+      categories: [],
+      products: [],
+      expandedCategories: {},
       searchQuery: "",
-      showAllCategories: false,
+      loading: true,
+      error: null,
+      selectedCategoryFromQuery: null,
     };
   },
+
   computed: {
     filteredProducts() {
-      if (!this.products || !this.products.length) return [];
-      let filtered = this.products;
+      let filtered = [...this.products];
 
-      // Search Filter
-      if (this.searchQuery.trim()) {
-        const query = this.searchQuery.toLowerCase().trim();
+      if (this.selectedCategoryFromQuery) {
         filtered = filtered.filter(
-          (p) =>
-            p.name.toLowerCase().includes(query) ||
-            p.brand.toLowerCase().includes(query) ||
-            p.type.toLowerCase().includes(query) ||
-            (p.description && p.description.toLowerCase().includes(query)),
+          (p) => p.category.id == this.selectedCategoryFromQuery,
         );
       }
 
-      // Brand Filter
-      if (this.selectedBrands.length > 0) {
+      if (this.searchQuery) {
+        const q = this.searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (p) =>
+            p.name.toLowerCase().includes(q) ||
+            p.brand?.toLowerCase().includes(q) ||
+            p.type?.toLowerCase().includes(q) ||
+            p.category?.name.toLowerCase().includes(q),
+        );
+      }
+
+      if (this.selectedBrands.length) {
         filtered = filtered.filter((p) =>
           this.selectedBrands.includes(p.brand),
         );
       }
 
-      // Type Filter
-      if (this.selectedTypes.length > 0) {
+      if (this.selectedCategories.length) {
+        filtered = filtered.filter((p) =>
+          this.selectedCategories.includes(p.category.name),
+        );
+      }
+
+      if (this.selectedTypes.length) {
         filtered = filtered.filter((p) => this.selectedTypes.includes(p.type));
       }
 
-      // Price Filter
       filtered = filtered.filter(
         (p) => p.price >= this.minPrice && p.price <= this.maxPrice,
       );
 
-      // Sorting
       if (this.sortOption === "low") filtered.sort((a, b) => a.price - b.price);
-      else if (this.sortOption === "high")
+      if (this.sortOption === "high")
         filtered.sort((a, b) => b.price - a.price);
-      else if (this.sortOption === "highest") {
-        const maxPriceProduct = filtered.reduce(
-          (prev, curr) => (curr.price > prev.price ? curr : prev),
-          filtered[0],
-        );
-        filtered = [maxPriceProduct];
-      }
 
       return filtered;
     },
+
     groupedProducts() {
-      if (!this.filteredProducts.length) return [];
       const groups = {};
       this.filteredProducts.forEach((product) => {
-        if (!groups[product.type]) {
-          groups[product.type] = [];
-        }
-        groups[product.type].push(product);
+        const key = product.category.name;
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(product);
       });
-      return Object.keys(groups)
-        .map((type) => ({
-          type,
-          products: groups[type],
-        }))
-        .filter(
-          (category) => category.products && category.products.length > 0,
-        );
+
+      return Object.keys(groups).map((category) => ({
+        type: category,
+        products: groups[category],
+      }));
     },
   },
+
   mounted() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const type = urlParams.get("type");
-    if (type) {
-      this.selectedTypes = [type];
-    }
-    const search = urlParams.get("search");
-    if (search) {
-      this.searchQuery = search;
-    }
+    this.checkQueryParams();
+    this.fetchProducts();
   },
+
   watch: {
-    $route(to) {
-      const search = to.query.search;
-      if (search) {
-        this.searchQuery = search;
+    "$route.query.category"(newCategory) {
+      if (newCategory) {
+        this.selectedCategoryFromQuery = newCategory.trim();
       } else {
-        this.searchQuery = "";
+        this.selectedCategoryFromQuery = null;
       }
+      this.fetchProducts();
     },
   },
+
   methods: {
-    applyFilters() {
-      // Trigger computed reactivity
+    getExpandedState(type) {
+      return !!this.expandedCategories[type];
     },
+
     toggleCategory(type) {
       this.expandedCategories[type] = !this.expandedCategories[type];
     },
-    getExpandedState(type) {
-      return this.expandedCategories[type] || false;
+
+    async handleAddToCart(product) {
+      try {
+        await api.post("/api/cart/", {
+          product_id: product.id,
+          quantity: 1,
+        });
+        alert("Product added to cart!");
+      } catch (err) {
+        console.error("STATUS:", err.response?.status);
+        console.error("DATA:", err.response?.data);
+        alert("Failed to add product to cart");
+      }
     },
-    handleAddToCart(product) {
-      this.cartState.addToCart(product);
-      this.cartState.showToast("Product added to cart!", "success");
+
+    checkQueryParams() {
+      const category = this.$route.query.category;
+      if (category) {
+        this.selectedCategoryFromQuery = category.trim();
+      }
+    },
+
+    async fetchProducts() {
+      try {
+        this.loading = true;
+        let allProducts = [];
+        let url = "/api/products/";
+
+        if (this.selectedCategoryFromQuery) {
+          url += `?category=${encodeURIComponent(
+            this.selectedCategoryFromQuery,
+          )}`;
+        }
+
+        // Fetch all pages as before
+        while (url) {
+          const res = await api.get(url);
+          const results = res.data.results || res.data;
+          if (Array.isArray(results)) {
+            allProducts = allProducts.concat(results);
+          }
+
+          if (res.data.next) {
+            const nextUrl = new URL(res.data.next);
+            url = nextUrl.pathname + nextUrl.search;
+          } else {
+            url = null;
+          }
+        }
+
+        const typeMap = {
+          TRA: "Traction",
+          DIA: "Diagnostic",
+          ELE: "Electrical",
+          ULT: "Ultrasound",
+          EXE: "Exercise",
+          MON: "Monitoring",
+          SUR: "Surgical",
+          IMG: "Imaging",
+          RES: "Respiratory",
+          LAB: "Laboratory",
+          REH: "Rehabilitation",
+          FUR: "Furniture",
+          DEN: "Dental",
+          EME: "Emergency",
+          INF: "Infusion",
+          STE: "Sterilization",
+          CON: "Consumables",
+          ORT: "Orthopedic",
+          MOB: "Mobility",
+        };
+
+        const brandMap = {
+          DYN: "Dynamic",
+          "3ML": "3ml",
+          OMR: "Omron",
+          WEL: "Wellness",
+          ACC: "Accessories",
+          ZIM: "Zimmer",
+          CHA: "Chair",
+          ENR: "Enr",
+          PHY: "Physio",
+          BTL: "Bottle",
+          SWM: "Swim",
+          MAS: "Mass",
+          FST: "Fast",
+          CAR: "Car",
+          PEC: "Pec",
+          TUT: "Tutorial",
+          BBD: "Blood Bag Device",
+          ANS: "Anesthesia",
+          DON: "Donor",
+          INV: "Inventory",
+          MED: "Medical",
+          OLY: "Olympus",
+          EPP: "Eppendorf",
+          PHI: "Philips",
+          HIL: "Hill",
+        };
+
+        const mappedProducts = allProducts.map((p) => {
+          const skuParts = (p.sku || "").split("-");
+          const typeCode = skuParts[0] || "UNKNOWN";
+          const brandCode = skuParts[1] || "UNKNOWN";
+
+          const type = typeMap[typeCode] || typeCode;
+          const brand = brandMap[brandCode] || brandCode;
+
+          return {
+            ...p,
+            price: Number(p.price),
+            image:
+              p.images && p.images.length
+                ? p.images[0].image
+                : "/assets/medical.jpeg",
+            type,
+            brand,
+          };
+        });
+
+        const groupedByCategory = {};
+        mappedProducts.forEach((p) => {
+          const catName = p.category.name;
+          if (!groupedByCategory[catName]) groupedByCategory[catName] = [];
+          // Only push first 5 products
+          if (groupedByCategory[catName].length < 5) {
+            groupedByCategory[catName].push(p);
+          }
+        });
+
+        // Flatten grouped products back into array
+        this.products = Object.values(groupedByCategory).flat();
+
+        // Keep types, brands, categories as before
+        this.types = [
+          ...new Set(
+            mappedProducts
+              .map((p) => p.type)
+              .filter(Boolean)
+              .filter((t) => t !== "UNKNOWN"),
+          ),
+        ];
+        this.brands = [
+          ...new Set(
+            mappedProducts
+              .map((p) => p.brand)
+              .filter(Boolean)
+              .filter((b) => b !== "UNKNOWN"),
+          ),
+        ];
+        this.categories = [
+          ...new Set(mappedProducts.map((p) => p.category.name)),
+        ];
+
+        this.categories.forEach((cat) => {
+          this.expandedCategories[cat] = false;
+        });
+      } catch (err) {
+        console.error(err);
+        this.error = "Failed to load products";
+      } finally {
+        this.loading = false;
+      }
     },
   },
 };
@@ -585,11 +690,14 @@ export default {
   aside > div:last-child {
     margin-bottom: 0;
   }
+  .filter-aside {
+    display: none;
+  }
 
-  .filter-section:first-child {
+  /* .filter-section:first-child {
     background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
     border: 1px solid #b0c4de;
-  }
+  } */
 
   .price-range-container {
     padding: 10px;
@@ -629,13 +737,14 @@ export default {
 
   .products-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
+    gap: 5px;
     margin-bottom: 10px;
   }
 
   .product-card {
-    height:200px;
-    min-height: 160px;
+    height: 180px;
+    min-height: 200px;
+    width: 180px;
     border-radius: 8px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
     transition: all 0.3s ease;
@@ -647,12 +756,12 @@ export default {
   }
 
   .product-image {
-    height: 120px;
+    height: 100px;
     background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
   }
 
   .product-image img {
-    max-width: 85%;
+    max-width: 90%;
     max-height: 85%;
   }
 

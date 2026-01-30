@@ -137,7 +137,7 @@ label {
 }
 
 label span {
-  color: red;
+ color:rgb(28, 164, 28);
 }
 
 input,

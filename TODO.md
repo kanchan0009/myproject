@@ -1,5 +1,9 @@
-- [x] Change .category-container to grid-template-columns: repeat(3, 1fr) in mobile;
-- [x] Reduce min-height of .category-card in mobile;
-- [x] Reduce height of .category-image in mobile;
-- [x] Adjust gap in .category-container for mobile;
-- [x] Decrease button size and font size for "View Products" in mobile;
+# TODO for CategoryView Grid Update
+
+## Completed Tasks
+
+- [x] Add media query for screens above 768px to ensure 4 category cards per row on desktop
+
+## Pending Tasks
+
+- [ ] Test the CategoryView on desktop to confirm 4 cards per row display correctly

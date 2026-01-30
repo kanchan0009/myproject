@@ -1,15 +1,8 @@
 <template>
   <div class="product-categories">
     <div style="background: #7ed9b0; padding: 50px 40px">
-      <div style="max-width: 1200px; margin: 0 auto ;min-height:50px">
-        <h1
-          style="
-            margin: 0 0 10px 0;
-            font-size: 32px;
-            font-weight: 700;
-            color: white;
-          "
-        >
+      <div style="max-width: 100%; margin: 0 auto; min-height: 50px">
+        <h1 style="margin: 0; font-size: 32px; font-weight: 700; color: white">
           Product Categories
         </h1>
 
@@ -19,19 +12,38 @@
       </div>
     </div>
     <div class="category-container">
-      <div class="category-card" v-for="(card, index) in cards" :key="index">
-        <div class="category-image">
-          <img :src="card.image" />
-          <div class="count-badge">{{ card.count }}</div>
-        </div>
+      <div v-if="loading" class="loading">Loading categories...</div>
+      <div v-else-if="error" class="error">{{ error }}</div>
+      <div v-else-if="cards.length === 0" class="no-data">
+        No categories available.
+      </div>
+      <div v-else class="category-grid">
+        <div class="category-card" v-for="card in cards" :key="card.id">
+          <div class="category-image">
+            <img
+              :src="
+                card.image
+                  ? `http://127.0.0.1:8000${card.image}`
+                  : '/assets/medical.jpeg'
+              "
+            />
 
-        <div class="category-content">
-          <div class="category-title">{{ card.title }}</div>
-          <div class="category-desc">{{ card.desc }}</div>
+            <div class="count-badge">{{ card.product_count || 0 }}</div>
+          </div>
 
-          <button class="view-btn" @click.stop="viewProducts(card.link)">
-            View Products
-          </button>
+          <div class="category-content">
+            <div class="category-title">
+              {{ card.name }}
+            </div>
+
+            <div class="category-desc">
+              {{ card.description || "Browse our products" }}
+            </div>
+
+            <button class="view-btn" @click.stop="viewProducts(card)">
+              View Products
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -53,60 +65,74 @@
   </div>
 </template>
 <script>
-import { defineComponent } from "vue";
-import products from "@/data/products.json";
+import axios from "axios";
 
-export default defineComponent({
-  name: "CategoryCards",
-
+export default {
   data() {
-    // Get unique types
-    const types = [...new Set(products.map((p) => p.type))];
-    const cards = types.map((type) => {
-      const typeProducts = products.filter((p) => p.type === type);
-      const firstProduct = typeProducts[0];
-      return {
-        title: type,
-        desc: `Equipment for ${type}`,
-        image: "/assets/medical.jpeg",
-        count: typeProducts.length,
-        link: `/products?type=${type}`,
-      };
-    });
-
-    // Get unique brands, first 4
-    const brands = [...new Set(products.map((p) => p.brand))].slice(0, 4);
-
     return {
-      cards,
-      brands,
+      cards: [],
+      loading: false,
+      error: null,
     };
+  },
+
+  mounted() {
+    this.fetchAllCategories();
   },
 
   methods: {
-    viewProducts(link) {
-      this.$router.push(link);
+    async fetchAllCategories() {
+      this.loading = true;
+      this.error = null;
+
+      let allCategories = [];
+      let url = "http://127.0.0.1:8000/api/categories/";
+
+      try {
+        while (url) {
+          const res = await axios.get(url);
+
+          if (Array.isArray(res?.data?.results)) {
+            allCategories = allCategories.concat(res.data.results);
+          }
+
+          url = res.data.next; // null when no more pages
+        }
+
+        this.cards = allCategories;
+      } catch (err) {
+        console.error("Category fetch error:", err);
+        this.error = "Failed to load all categories";
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    viewProducts(card) {
+      this.$router.push({
+        path: "/products",
+        query: { category: card.id },
+      });
+    },
+
+    contact() {
+      this.$router.push("/contact");
     },
   },
-  setup() {
-    const contact = () => {
-      window.location.href = "/contact";
-    };
-    return {
-      contact,
-    };
-  },
-});
+};
 </script>
 
 <style scoped>
 .category-container {
   max-width: 1700px;
   margin: 30px;
+  padding: 0 20px;
+}
+
+.category-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 24px;
-  padding: 0 20px;
 }
 .category-card:hover {
   transform: scale(1.02);
@@ -120,17 +146,12 @@ export default defineComponent({
   cursor: pointer;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease-in-out;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-height: 320px;
 }
 
 .category-image {
   height: 180px;
-  background: #f0f0f0;
   position: relative;
-  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .category-image img {
@@ -153,7 +174,8 @@ export default defineComponent({
 
 .category-content {
   padding: 20px;
-  flex: 1;
+  display: flex;
+  flex-direction: column;
 }
 
 .category-title {
@@ -163,6 +185,7 @@ export default defineComponent({
 }
 
 .category-desc {
+  flex-grow: 1;
   font-size: 14px;
   color: #555;
   margin-bottom: 16px;
@@ -276,8 +299,14 @@ p {
   transition: all 0.2s ease-in-out;
   box-shadow: inset 0 3px 6px white, 0 3px 6px white;
 }
+@media (min-width: 769px) {
+  .category-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
 @media (max-width: 768px) {
-  .category-container {
+  .category-grid {
     grid-template-columns: repeat(2, 1fr);
   }
   .brands {
@@ -287,13 +316,17 @@ p {
 
 /* Mobile phones */
 @media (max-width: 480px) {
-  .category-container {
+  .category-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
+  }
+  .category-container {
     margin: 30px 0;
     padding: 0;
   }
   .category-card {
+    position:relative;
+
     min-height: 130px;
   }
   .category-image {
@@ -309,6 +342,7 @@ p {
     font-size: 12px;
   }
   .view-btn {
+
     padding: 8px;
     font-size: 10px;
     margin-bottom: 3px;
@@ -331,14 +365,12 @@ p {
     width: 100%;
     padding: 14px;
   }
-  .brands{
-
+  .brands {
     grid-template-columns: repeat(2, 1fr);
   }
-  .barnd-card{
-    height:50px;
+  .barnd-card {
+    height: 50px;
     font-size: 10px;
-    
   }
 }
 </style>

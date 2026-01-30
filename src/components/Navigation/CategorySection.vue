@@ -20,7 +20,7 @@
           @mouseleave="hideSubmenu"
         >
           <router-link
-            :to="`/products?type=${category.title}`"
+            :to="`/products?category=${category.id}`"
             class="category-link"
             @click="closeMenu"
           >
@@ -49,7 +49,7 @@
   </aside>
 </template>
 <script>
-import products from "@/data/products.json";
+import axios from "axios";
 import SubcategoryView from "@/views/SubcategoryView.vue";
 
 export default {
@@ -57,87 +57,132 @@ export default {
   components: {
     SubcategoryView,
   },
+
   data() {
     return {
       isOpen: false,
       categories: [],
       activeCategory: null,
       hideTimeout: null,
+      loading: false,
+      error: null,
     };
   },
-  created() {
-    // Group products by type for navigation menu
-    const grouped = {};
 
-    products.forEach((product) => {
-      if (!grouped[product.type]) grouped[product.type] = [];
-      grouped[product.type].push({
-        id: product.id,
-        name: product.name,
-      });
-    });
-
-    // Convert to array format for v-for
-    this.categories = Object.keys(grouped).map((typeName) => ({
-      title: typeName,
-      items: grouped[typeName],
-    }));
+  async created() {
+    await this.fetchCategories();
   },
+
   computed: {
     subcategoryStyle() {
       if (this.activeCategory === null) return {};
-      // Position beside the active category
-      const categoryHeight = 32; // approximate height of category-section
-      const top = this.activeCategory * categoryHeight + 8; // 8px padding
+      const categoryHeight = 32;
       return {
         position: "absolute",
-        top: `${top}px`,
+        top: `${this.activeCategory * categoryHeight + 8}px`,
         left: "100%",
         zIndex: 1000,
       };
     },
   },
+
   methods: {
+    /* 🔹 Fetch all categories (paginated) */
+    async fetchCategories() {
+      this.loading = true;
+      this.categories = [];
+      let url = "http://127.0.0.1:8000/api/categories/";
+
+      try {
+        while (url) {
+          const res = await axios.get(url);
+
+          res.data.results.forEach((cat) => {
+            this.categories.push({
+              id: cat.id,
+              title: cat.name,
+              items: [], // products will load on hover
+              loaded: false,
+            });
+          });
+
+          url = res.data.next;
+        }
+      } catch (err) {
+        console.error("Category load error:", err);
+        this.error = "Failed to load categories";
+      } finally {
+        this.loading = false;
+      }
+    },
+
+    /*  Load products for hovered category */
+    async showSubmenu(index) {
+      this.activeCategory = index;
+      const category = this.categories[index];
+
+      if (category.loaded) return;
+
+      try {
+        const res = await axios.get(
+          `http://127.0.0.1:8000/api/products/?category=${category.id}`,
+        );
+
+        category.items = res.data.results.map((p) => ({
+          id: p.id,
+          name: p.name,
+        }));
+
+        category.loaded = true;
+      } catch (err) {
+        console.error("Product fetch error:", err);
+      }
+    },
+    hideSubmenu() {
+      
+      if (this.hideTimeout) clearTimeout(this.hideTimeout);
+
+    
+      this.hideTimeout = setTimeout(() => {
+        this.activeCategory = null;
+      }, 800); 
+    },
+
+    onSubcategoryEnter() {
+      
+      if (this.hideTimeout) {
+        clearTimeout(this.hideTimeout);
+        this.hideTimeout = null;
+      }
+    },
+
+    onSubcategoryLeave() {
+      
+      this.hideSubmenu();
+    },
+
     toggleMenu() {
       this.isOpen = !this.isOpen;
       document.body.classList.toggle("menu-open", this.isOpen);
+
+      
+      if (!this.isOpen) this.activeCategory = null;
     },
+
     closeMenu() {
       this.isOpen = false;
       document.body.classList.remove("menu-open");
-      if (this.hideTimeout) {
-        clearTimeout(this.hideTimeout);
-      }
       this.activeCategory = null;
-    },
-    menuItemClick() {
-      this.closeMenu();
-      document.body.classList.remove("menu-open");
-    },
-    showSubmenu(index) {
-      this.activeCategory = index;
-    },
-    hideSubmenu() {
+
       if (this.hideTimeout) {
         clearTimeout(this.hideTimeout);
+        this.hideTimeout = null;
       }
-      this.hideTimeout = setTimeout(() => {
-        this.activeCategory = null;
-      }, 1000);
-    },
-    onSubcategoryEnter() {
-      if (this.hideTimeout) {
-        clearTimeout(this.hideTimeout);
-      }
-    },
-    onSubcategoryLeave() {
-      this.hideTimeout = setTimeout(() => {
-        this.activeCategory = null;
-      }, 100);
     },
   },
 };
 </script>
+
 <style scoped>
 /* Navbar */
 .navbar {
@@ -263,7 +308,7 @@ body.menu-open {
 
 .see-all-btn {
   width: 100%;
-  background: linear-gradient(135deg, #6fc6f5 0%,#086239 100%);
+  background: linear-gradient(135deg, #6fc6f5 0%, #086239 100%);
   border: none;
   padding: 12px;
   font-size: 14px;

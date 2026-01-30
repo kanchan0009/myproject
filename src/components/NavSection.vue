@@ -54,11 +54,22 @@
       </div>
     </div>
 
+    <div class="wishlist-icon" @click="goToWishlist">
+      <i class="fas fa-heart"></i>
+      <span v-if="wishlistItemCount > 0" class="wishlist-count">{{
+        wishlistItemCount
+      }}</span>
+    </div>
+
     <div class="cart-icon" @click="goToCart">
       <i class="fas fa-shopping-cart"></i>
       <span v-if="cartItemCount > 0" class="cart-count">{{
         cartItemCount
       }}</span>
+    </div>
+
+    <div class="login-icon" @click="goToLogin">
+      <i class="fas fa-user"></i>
     </div>
   </header>
 
@@ -136,6 +147,7 @@
 <script>
 import { ref, computed, inject, defineExpose } from "vue";
 import { useRouter } from "vue-router";
+import axios from "axios";
 import ToastNotification from "@/components/ToastNotification.vue";
 
 export default {
@@ -145,6 +157,7 @@ export default {
   },
   setup() {
     const cartState = inject("cartState");
+    const wishlistState = inject("wishlistState");
     const router = useRouter();
     const showCategoriesDesktop = ref(false);
     const showCategoriesMobile = ref(false);
@@ -155,7 +168,7 @@ export default {
     const toastRef = ref(null);
     const showSuggestions = ref(false);
     const filteredSuggestions = ref([]);
-    const products = require("@/data/products.json");
+    const products = ref([]);
 
     const toggleMobileMenu = () => {
       isMobileMenuOpen.value = !isMobileMenuOpen.value;
@@ -171,8 +184,20 @@ export default {
       router.push("/cart");
     };
 
+    const goToWishlist = () => {
+      router.push("/wishlist");
+    };
+
+    const goToLogin = () => {
+      router.push("/login");
+    };
+
     const cartItemCount = computed(() => {
       return cartState.items.reduce((total, item) => total + item.quantity, 0);
+    });
+
+    const wishlistItemCount = computed(() => {
+      return wishlistState.items.length;
     });
 
     // Show toast notification
@@ -216,11 +241,11 @@ export default {
       if (searchQuery.value.trim()) {
         const query = searchQuery.value.trim().toLowerCase();
 
-        // Import products data
-        const products = require("@/data/products.json");
+        // Use fetched products data from API
+        const productsData = products.value;
 
         // Check for exact match (product name)
-        const exactMatch = products.find(
+        const exactMatch = productsData.find(
           (product) => product.name.toLowerCase() === query,
         );
 
@@ -231,7 +256,7 @@ export default {
         }
 
         // Check for alternatives (partial matches in name, brand, type, or description)
-        const alternatives = products.filter(
+        const alternatives = productsData.filter(
           (product) =>
             product.name.toLowerCase().includes(query) ||
             product.brand.toLowerCase().includes(query) ||
@@ -258,6 +283,20 @@ export default {
       cartState.addToCart(product, quantity);
     };
 
+    // Fetch products for search
+    const fetchProducts = async () => {
+      try {
+        const response = await axios.get("http://127.0.0.1:8000/api/products/");
+        products.value = response.data;
+      } catch (error) {
+        console.error("Error fetching products:", error);
+        products.value = []; // Set empty array on error
+      }
+    };
+
+    // Fetch products on mount
+    fetchProducts();
+
     // Set the toast function in cartState
     cartState.setToastFunction(showToast);
 
@@ -279,7 +318,10 @@ export default {
       filteredSuggestions,
       toggleCategoriesMobile,
       goToCart,
+      goToWishlist,
+      goToLogin,
       cartItemCount,
+      wishlistItemCount,
       showToast,
       updateSuggestions,
       hideSuggestions,
@@ -423,6 +465,40 @@ export default {
   border-bottom: none;
 }
 
+/* Wishlist Icon */
+.wishlist-icon {
+  position: relative;
+  cursor: pointer;
+
+}
+
+.wishlist-icon i {
+  font-size: 1.2em;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+.wishlist-icon:hover i {
+  color: #e91e63;
+}
+
+.wishlist-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #e91e63;
+  color: white;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: bold;
+  border: 2px solid white;
+}
+
 /* Cart Icon */
 .cart-icon {
   position: relative;
@@ -430,7 +506,7 @@ export default {
 }
 
 .cart-icon i {
-  font-size: 1.5em;
+  font-size: 1.2em;
   color: #333;
   transition: color 0.3s ease;
 }
@@ -454,6 +530,22 @@ export default {
   font-size: 12px;
   font-weight: bold;
   border: 2px solid white;
+}
+
+/* Login Icon */
+.login-icon {
+  position: relative;
+  cursor: pointer;
+}
+
+.login-icon i {
+  font-size: 1.2em;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+.login-icon:hover i {
+  color: #6fc6f5;
 }
 
 /* Navbar */
@@ -521,7 +613,6 @@ export default {
 .nav-text {
   font-size: 16px;
   margin-top: 2px;
-
 }
 
 .nav-icon {
@@ -712,10 +803,10 @@ export default {
 
   .nav-link i {
     font-size: 16px;
-    color:#55c894;
+    color: #55c894;
   }
-  .nav-text:hover{
-    color:#55c894;
+  .nav-text:hover {
+    color: #55c894;
   }
 
   .nav-text {

@@ -58,6 +58,21 @@ const routes = [
         name: "Payment",
         component: () => import("@/views/PaymentMethod.vue"),
       },
+      {
+        path: "/wishlist",
+        name: "Wishlist",
+        component: () => import("@/views/WishlistView.vue"),
+      },
+      {
+        path: "/login",
+        name: "Login",
+        component: () => import("@/views/LoginView.vue"),
+      },
+      {
+        path: "/register",
+        name: "Register",
+        component: () => import("@/views/RegisterView.vue"),
+      },
     ],
   },
 ];

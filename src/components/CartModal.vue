@@ -17,17 +17,23 @@
             :key="index"
             class="cart-item"
           >
-            <img :src="item.image" :alt="item.name" class="item-image" />
+            <img
+              :src="item.product.image"
+              :alt="item.product.name"
+              class="item-image"
+            />
             <div class="item-details">
-              <h4>{{ item.name }}</h4>
-              <p class="item-price">NPR {{ item.price.toLocaleString() }}</p>
+              <h4>{{ item.product.name }}</h4>
+              <p class="item-price">
+                NPR {{ item.product.price.toLocaleString() }}
+              </p>
               <div class="quantity-controls">
-                <button @click="updateQuantity(index, -1)">-</button>
+                <button @click="updateQuantity(item, -1)">-</button>
                 <span>{{ item.quantity }}</span>
-                <button @click="updateQuantity(index, 1)">+</button>
+                <button @click="updateQuantity(item, 1)">+</button>
               </div>
             </div>
-            <button class="remove-btn" @click="removeItem(index)">×</button>
+            <button class="remove-btn" @click="removeItem(item.id)">×</button>
           </div>
         </div>
 
@@ -43,48 +49,85 @@
 </template>
 
 <script>
+import axios from "axios";
+
 export default {
   name: "CartModal",
+
   props: {
     isOpen: {
       type: Boolean,
       default: false,
     },
-    cartItems: {
-      type: Array,
-      default: () => [],
-    },
   },
-  emits: ["close", "update-cart"],
+
+  data() {
+    return {
+      cartItems: [],
+      loading: false,
+    };
+  },
+
+  emits: ["close"],
+
   computed: {
     totalPrice() {
       return this.cartItems.reduce(
-        (total, item) => total + item.price * item.quantity,
+        (total, item) => total + item.product.price * item.quantity,
         0,
       );
     },
   },
+
+  watch: {
+    isOpen(val) {
+      if (val) {
+        this.fetchCartItems();
+      }
+    },
+  },
+
   methods: {
     closeCart() {
       this.$emit("close");
     },
-    updateQuantity(index, change) {
-      const newQuantity = this.cartItems[index].quantity + change;
-      if (newQuantity > 0) {
-        const updatedItems = [...this.cartItems];
-        updatedItems[index] = { ...updatedItems[index], quantity: newQuantity };
-        this.$emit("update-cart", updatedItems);
-      } else {
-        this.removeItem(index);
+
+    async fetchCartItems() {
+      this.loading = true;
+      try {
+        const res = await axios.get("http://127.0.0.1:8000/api/cart/");
+        this.cartItems = res.data.results || res.data;
+      } catch (err) {
+        console.error("Failed to load cart", err);
+      } finally {
+        this.loading = false;
       }
     },
-    removeItem(index) {
-      const updatedItems = this.cartItems.filter((_, i) => i !== index);
-      this.$emit("update-cart", updatedItems);
-    },
+
+    async updateQuantity(item, change) {
+  const newQty = item.quantity + change;
+  if (newQty <= 0) return this.removeItem(item.id);
+
+  try {
+    await api.patch(`/api/cart/${item.id}/`, { quantity: newQty });
+    item.quantity = newQty;
+  } catch (err) {
+    console.error("Failed to update quantity", err);
+  }
+},
+
+
+    async removeItem(cartItemId) {
+  try {
+    await api.delete(`/api/cart/${cartItemId}/`);
+    this.cartItems = this.cartItems.filter((i) => i.id !== cartItemId);
+  } catch (err) {
+    console.error("Failed to remove item", err);
+  }
+},
+
     checkout() {
       alert(`Checkout total: NPR ${this.totalPrice.toLocaleString()}`);
-      // Here you would typically redirect to checkout page
     },
   },
 };

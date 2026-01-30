@@ -1,5 +1,18 @@
 <template>
-  <div class="product-detail-page">
+  <div v-if="loading" class="loading-container">
+    <div class="loading-spinner">Loading product details...</div>
+  </div>
+  <div v-else-if="error" class="error-container">
+    <div class="error-message">{{ error }}</div>
+    <button @click="retryFetch" class="retry-button">Retry</button>
+  </div>
+  <div v-else-if="!product" class="not-found-container">
+    <div class="not-found-message">Product not found</div>
+    <button @click="$router.push('/products')" class="back-button">
+      Back to Products
+    </button>
+  </div>
+  <div v-else class="product-detail-page">
     <!-- Left Side: Image Area  -->
 
     <div class="product-image-area">
@@ -14,43 +27,46 @@
       </div>
       <div class="thumbnail-placeholders">
         <div
-          v-for="(image, index) in product.images"
+          v-for="(image, index) in product.images || []"
           :key="index"
           class="thumbnail"
-          @click="setMainImage(image)"
+          @click="setMainImage(image.image || image)"
         >
-          <img :src="image" alt="Thumbnail" class="thumbnail-image" />
+          <img
+            :src="image.image || image"
+            alt="Thumbnail"
+            class="thumbnail-image"
+          />
         </div>
       </div>
     </div>
+
     <div class="product-detail">
       <div class="product-content-area">
         <h1 class="product-title">{{ product.name }}</h1>
 
         <div class="status-bar">
-          <span class="rating"
-            >★ {{ product.rating }} ({{ product.reviews }} reviews)</span
+          <span class="stock-status" v-if="product.is_in_stock"
+            >✓ In Stock</span
           >
-          <span class="stock-status" v-if="product.inStock">✓ In Stock</span>
           <span class="stock-status" v-else>✗ Out of Stock</span>
         </div>
 
         <div class="price-section">
           <div class="price-badge">
-            <span class="current-price"
-              >NPR {{ product.price.toLocaleString() }}</span
-            >
-            <span v-if="product.oldPrice" class="old-price"
-              >NPR {{ product.oldPrice.toLocaleString() }}</span
-            >
-            <span v-if="product.discount" class="discount-percent"
-              >{{ product.discount }}% OFF</span
-            >
+            <span class="current-price">
+              NPR {{ product.final_price.toLocaleString() }}
+            </span>
+            <span v-if="Number(product.discount_price) > 0" class="old-price">
+              NPR {{ product.price.toLocaleString() }}
+            </span>
+            <span v-if="product.discount_percentage" class="discount-percent">
+              {{ product.discount_percentage }}% OFF
+            </span>
           </div>
         </div>
 
-        <p class="product-description">{{ product.description }}</p>
-
+        <p class="product-description">{{ product.short_description }}</p>
         <div class="quantity-section-container">
           <div class="quantity-label">Quantity:</div>
           <div class="quantity-control-wrapper">
@@ -77,22 +93,27 @@
           </div>
         </div>
 
-        <div class="features-box">
-          <h2 class="features-text">Key Features</h2>
-          <ul class="features-list">
-            <li v-for="(feature, index) in product.features" :key="index">
-              ✓ {{ feature }}
-            </li>
-          </ul>
-        </div>
+        <div class="button-container">
+          <button
+            type="button"
+            class="add-to-cart-button"
+            :class="{ 'out-of-stock': !product.is_in_stock }"
+            :disabled="!product.is_in_stock"
+            @click="handleAddToCart(product, quantity)"
+          >
+            🛒 {{ buttonText }}
+          </button>
 
-        <button
-          type="button"
-          class="add-to-cart-button"
-          @click="handleButtonClick(product, quantity)"
-        >
-          {{ buttonText }}
-        </button>
+          <button
+            type="button"
+            class="wishlist-button"
+            :class="{ 'out-of-stock': !product.is_in_stock }"
+            :disabled="!product.is_in_stock"
+            @click="addToWishlist(product)"
+          >
+            ❤️ Add to Wishlist
+          </button>
+        </div>
 
         <div class="feature-list">
           <div class="feature-item">
@@ -123,157 +144,183 @@
     </div>
   </div>
 
-  <h2>Specifications</h2>
+  <div v-if="product">
+    <h2>Specifications</h2>
 
-  <div class="spec-card">
-    <div class="spec-grid">
-      <div
-        v-for="(value, key) in product.specifications"
-        :key="key"
-        class="spec-item"
-      >
-        <div class="spec-label">{{ key }}</div>
-        <div class="spec-value">{{ value }}</div>
+    <div class="spec-card">
+      <div class="spec-grid">
+        <div
+          v-for="(value, key) in product.specifications"
+          :key="key"
+          class="spec-item"
+        >
+          <div class="spec-label">{{ key }}</div>
+          <div class="spec-value">{{ value }}</div>
+        </div>
       </div>
     </div>
-  </div>
-  <h2 v-if="product">Related Products</h2>
+    <h2>Related Products</h2>
 
-  <div v-if="product" class="products">
-    <div
-      v-for="related in relatedProducts"
-      :key="related.id"
-      class="card"
-      @click="$router.push(`/productdetail/${related.id}`)"
-    >
+    <div class="products">
       <div
-        class="card-img"
-        :style="{
-          backgroundImage: `url(${related.images[0]})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }"
-      ></div>
-      <div class="card-body">
-        <div class="card-title">{{ related.name }}</div>
-        <div class="card-price">NPR {{ related.price.toLocaleString() }}</div>
+        v-for="related in relatedProducts"
+        :key="related.id"
+        class="card"
+        @click="$router.push(`/productdetail/${related.id}`)"
+      >
+        <div
+          class="card-img"
+          :style="{
+            backgroundImage: `url(${
+              related.images && related.images.length
+                ? related.images[0]
+                : '/assets/medical.jpeg'
+            })`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }"
+        ></div>
+        <div class="card-body">
+          <div class="card-title">{{ related.name }}</div>
+          <div class="card-price">NPR {{ related.price.toLocaleString() }}</div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import { watch, inject } from "vue";
-import products from "@/data/products.json";
+import { watch } from "vue";
+import axios from "axios";
 
 export default {
   name: "ProductDetail",
 
   data() {
     return {
-      product: null, // Holds the product object
-      quantity: 1, // Quantity for cart
-      mainImage: "", // Main image displayed
-      fromCart: false, // Flag to check if user came from cart
+      products: [], 
+      product: null, 
+      mainImage: "", 
+      quantity: 1, 
+      loading: true,
+      error: null,
+      apiPage: 1, 
+      totalPages: 1,
     };
   },
 
-  setup() {
-    const cartState = inject("cartState");
-    return { cartState };
-  },
+  async mounted() {
+    await this.fetchProductById(this.$route.params.productId);
 
-  created() {
-    // Get productId from route params
-    const productId = Number(this.$route.params.productId);
-
-    // Find the product in the JSON
-    this.product = products.find((p) => p.id === productId) || null;
-
-    // Check if user came from cart
-    this.fromCart = this.$route.query.fromCart === "true";
-
-    // If product exists and has images, set mainImage
-    if (
-      this.product &&
-      Array.isArray(this.product.images) &&
-      this.product.images.length
-    ) {
-      this.mainImage = this.product.images[0];
-    }
-  },
-
-  mounted() {
-    // Watch for route changes to update product when navigating to related products
+    
     watch(
       () => this.$route.params.productId,
-      (newId) => {
-        const productId = Number(newId);
-        this.product = products.find((p) => p.id === productId) || null;
-        if (
-          this.product &&
-          Array.isArray(this.product.images) &&
-          this.product.images.length
-        ) {
-          this.mainImage = this.product.images[0];
-        }
-        // Reset quantity to 1 for new product
+      async (newId) => {
+        await this.fetchProductById(newId);
         this.quantity = 1;
-      },
+      }
     );
   },
 
-  computed: {
-    relatedProducts() {
-      if (!this.product) return [];
-      return products
-        .filter(
-          (p) =>
-            p.id !== this.product.id &&
-            (p.type === this.product.type || p.brand === this.product.brand),
-        )
-        .slice(0, 4);
-    },
-    buttonText() {
-      return this.fromCart ? "💰 Buy Now" : "🛒 Add to Cart";
-    },
-  },
-
   methods: {
-    // Increment or decrement quantity
-    updateQuantity(change) {
-      const newQuantity = this.quantity + change;
-      this.quantity = newQuantity < 1 ? 1 : newQuantity;
-    },
+    async fetchProductById(productId) {
+      try {
+        this.loading = true;
+        this.error = null;
 
-    // Handle button click (Buy Now or Add to Cart)
-    handleButtonClick(product, quantity) {
-      if (this.buttonText === "💰 Buy Now") {
-        // Navigate to checkout
-        this.$router.push("/checkout");
-      } else {
-        // Add to cart
-        this.handleAddToCart(product, quantity);
+        let found = false;
+        let page = 1;
+
+        while (!found) {
+          const res = await axios.get(
+            `http://127.0.0.1:8000/api/products/?page=${page}`
+          );
+
+          const results = res.data.results;
+          this.totalPages = Math.ceil(res.data.count / results.length);
+
+          const product = results.find(p => p.id == productId);
+          if (product) {
+            this.product = product;
+            found = true;
+            break;
+          }
+
+          page++;
+          if (page > this.totalPages) break; // stop if no more pages
+        }
+
+        if (!found) {
+          this.product = null;
+          this.error = "Product not found";
+        }
+
+        // Set main image
+        this.mainImage =
+          this.product?.primary_image ||
+          "/assets/medical.jpeg"; // fallback image
+      } catch (err) {
+        console.error("Error fetching product:", err);
+        this.error = "Failed to load product";
+        this.product = null;
+      } finally {
+        this.loading = false;
       }
     },
 
-    // Add product to cart
-    handleAddToCart(product, quantity) {
-      if (!product) return;
-
-      // Call the global addToCart function
-      this.cartState.addToCart(product, quantity);
-
-      // Show toast notification
-      this.cartState.showToast(
-        `Added ${quantity} of "${product.name}" to cart!`,
-        "success",
-      );
+    updateQuantity(change) {
+      const newQty = this.quantity + change;
+      this.quantity = newQty < 1 ? 1 : newQty;
     },
 
-    // Change main image when thumbnail is clicked
-    setMainImage(imageUrl) {
-      this.mainImage = imageUrl;
+    setMainImage(image) {
+      this.mainImage = image || "/assets/medical.jpeg";
+    },
+
+    async handleAddToCart(product, qty) {
+      try {
+        await axios.post("http://127.0.0.1:8000/api/cart/", {
+          product_id: product.id,
+          quantity: qty,
+        });
+        alert(`Added ${qty} of "${product.name}" to cart`);
+      } catch (err) {
+        console.error(err);
+        alert("Failed to add to cart");
+      }
+    },
+
+    async addToWishlist(product) {
+      try {
+        await axios.post("http://127.0.0.1:8000/api/wishlist/", {
+          product: product.id,
+        });
+        alert(`Added "${product.name}" to wishlist`);
+      } catch (err) {
+        console.error(err);
+        alert("Failed to add to wishlist");
+      }
+    },
+
+    retryFetch() {
+      this.error = null;
+      this.fetchProductById(this.$route.params.productId);
+    },
+  },
+
+  computed: {
+    buttonText() {
+      return this.product?.is_in_stock ? "Add to Cart" : "Out of Stock";
+    },
+    relatedProducts() {
+      if (!this.product) return [];
+      return this.products
+        .filter(
+          (p) =>
+            p.id !== this.product.id &&
+            p.category?.id === this.product.category?.id
+        )
+        .slice(0, 4);
     },
   },
 };
@@ -494,10 +541,16 @@ export default {
   outline: none;
 }
 
+.button-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
 .add-to-cart-button {
-  width: 100%;
+  flex: 1;
   text-align: center;
-  background-color: #388e3c;
+  background-color: #6fc6f5;
   color: white;
   padding: 12px 30px;
   border: none;
@@ -511,8 +564,39 @@ export default {
   transition: background-color 0.3s;
 }
 
-.add-to-cart-button:hover {
-  background-color: #2e7d32;
+.add-to-cart-button:hover:not(.out-of-stock) {
+  background-color: #5bb8f5;
+}
+
+.add-to-cart-button.out-of-stock {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.wishlist-button {
+  flex: 1;
+  text-align: center;
+  background-color: #6fc6f5;
+  color: white;
+  padding: 12px 30px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  transition: background-color 0.3s;
+}
+
+.wishlist-button:hover:not(.out-of-stock) {
+  background-color: #5bb8f5;
+}
+
+.wishlist-button.out-of-stock {
+  background-color: #ccc;
+  cursor: not-allowed;
 }
 
 h2 {
@@ -711,6 +795,66 @@ h2 {
 
   .spec-grid {
     column-gap: 30px;
+  }
+}
+@media (max-width: 480px) {
+  .add-to-cart-button,
+  .wishlist-button {
+    padding: 10px 20px;
+    font-size: 14px;
+    gap: 5px;
+  }
+
+  .add-to-cart-button span,
+  .wishlist-button span {
+    white-space: nowrap;
+  }
+
+  .button-container {
+    flex-direction: row;
+    gap: 10px;
+  }
+  .wishlist-button{
+    height:35px;
+    font-size:12px;
+    font-weight:bold;
+  }
+  .add-to-cart-button{
+    height:35px;
+    font-size:12px;
+    font-weight:bold;
+  }
+  .price-section{
+    height:50px;
+    padding:8px 8px;
+  }
+  .price-badge{
+  height: 30px;
+  display:flex;
+  flex-direction:row;
+  justify-content:space-evenly;
+
+  }
+  .current-price{
+    font-size:15px;
+  }
+  .old-price{
+    font-size:12px;
+  }
+  .discount-percent{
+    font-size:12px;
+    height:25px;
+    text-align:center;
+  }
+  .quantity-control-wrapper{
+    height:40px;
+  }
+  .feature-item{
+    height:54px;
+  }
+  .feature-title{
+    font-size:12px;
+    margin-bottom:0;
   }
 }
 </style>

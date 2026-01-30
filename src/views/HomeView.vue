@@ -1,126 +1,74 @@
 <template>
   <h1 class="section-heading">Products</h1>
 
-  <div class="container">
+  <div v-if="error" class="error-message">{{ error }}</div>
+  <div v-if="loading" class="loading">Loading products...</div>
+
+  <div v-else class="container">
     <div class="card-grid">
       <div
         class="category-card"
-        v-for="(category, index) in categories"
-        :key="index"
+        v-for="(category, catIndex) in categories"
+        :key="catIndex"
       >
         <h3 class="card-title">{{ category.title }}</h3>
 
         <div class="image-grid">
-          <!-- Always create space for exactly 4 images -->
-          <div class="image-item" v-for="(n, index) in 4" :key="index">
-            <!-- Show image and label if product exists, otherwise leave space -->
-            <template v-if="category.items[n]">
-              <!-- Link to ProductDetail using dynamic id -->
-              <router-link :to="`/productdetail/${category.items[n].id}`">
-                <!-- Show first image if exists, otherwise placeholder -->
+          <!-- exactly 4 slots -->
+          <div class="image-item" v-for="index in 4" :key="index">
+            <template v-if="category.items[index - 1]">
+              <router-link
+                :to="`/productdetail/${category.items[index - 1].id}`"
+              >
                 <img
-                  v-if="
-                    category.items[n].images && category.items[n].images.length
+                  :src="
+                    category.items[index - 1].images?.[0] ||
+                    '/assets/medical.jpeg'
                   "
-                  :src="category.items[n].images[0]"
-                  :alt="category.items[n].name"
+                  :alt="category.items[index - 1].name"
                 />
-                <img
-                  v-else
-                  src="/assets/medical.jpeg"
-                  :alt="category.items[n].name"
-                  class="placeholder-image"
-                />
+                <p class="image-label">
+                  {{ category.items[index - 1].name }}
+                </p>
               </router-link>
-
-              <p class="image-label">
-                {{ category.items[n].name || "Unnamed Product" }}
-              </p>
             </template>
-            <!-- If no product, just empty space -->
+
+            <template v-else>
+              <div class="no-image">No Product</div>
+            </template>
           </div>
         </div>
 
         <div class="seedetail">
           <router-link to="/products">
-            See More <span class="arrow">&#8594;</span>
+            See More <span class="arrow">→</span>
           </router-link>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- BRANDS -->
   <div class="brands-section">
     <h1 class="section-title">Trusted Brands</h1>
 
     <div class="brands-container">
-      <div
-        class="brand-card"
-        v-for="(brand, index) in brands"
-        :key="index"
-        @click="selectBrand(brand)"
-      >
+      <div class="brand-card" v-for="(brand, index) in brands" :key="index">
         {{ brand.name }}
       </div>
     </div>
   </div>
-  <div class="app-banner">
-    <div class="content-left">
-      <h1 class="main-heading">Shop on the Go</h1>
-      <p class="sub-text">
-        Download our mobile app for exclusive deals and faster checkout
-      </p>
-      <div class="buttons-container">
-        <router-link to="/" class="app-button" type="button"
-          >Android
-        </router-link>
-        <router-link to="/" class="app-button" type="button">ios </router-link>
-      </div>
-    </div>
-    <div class="content-right">
-      <p class="available-text">Also available on</p>
-      <a href="https://www.daraz.com.np" class="daraz-link">Daraz.np</a>
-    </div>
-  </div>
-  <div class="banner-section">
-    <h1 class="main-heading-s">Ready to Transform Your Practice?</h1>
-    <p class="sub-text-s">
-      Join hundreds of clinics that have upgraded their equipment with us. Get
-      expert guidance and premium products today.
-    </p>
-    <div class="buttons-group">
-      <router-link to="/contact" class="btn btn-primary"
-        >Schedule Consultation</router-link
-      >
-
-      <a class="btn btn-secondary" href="https://www.daraz.com.np/"
-        >Visit on Daraz<span>&rarr;</span></a
-      >
-    </div>
-  </div>
 </template>
+
 <script>
-import { inject } from "vue";
-import products from "@/data/products.json";
+import axios from "axios";
 
 export default {
-  setup() {
-    const cartState = inject("cartState");
-
-    const category = () => {
-      window.location.href = "/categories";
-    };
-    const products = () => {
-      window.location.href = "/products";
-    };
-    return {
-      cartState,
-      category,
-      products,
-    };
-  },
+  name: "Home",
 
   data() {
     return {
+      categories: [],
       brands: [
         { name: "BTL" },
         { name: "Enraf Nonius" },
@@ -129,46 +77,100 @@ export default {
         { name: "Chattanooga" },
         { name: "Storz Medical" },
       ],
-      activeCategory: 0,
-      categories: [], // Will be populated in created() hook
+      loading: false,
+      error: null,
+      categories: [],
     };
   },
+
   methods: {
-    goToProduct(id) {
-      this.$router.push(`/products/${id}`);
+    normalize(value) {
+      if (!value) return null;
+
+      return value
+        .toString()
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]/g, "");
     },
-    handleAddToCart(product) {
-      this.cartState.addToCart(product);
-      this.cartState.showToast(`Added "${product.name}" to cart!`, "success");
-    },
-    selectBrand(brand) {
-      console.log("Selected Brand:", brand.name);
-    },
-    selectCategory(index) {
-      this.activeCategory = index;
-      console.log("Selected category:", this.categories[index].name);
+
+    async fetchHomeData() {
+      this.loading = true;
+      this.error = null;
+
+      // Helper to fetch all pages from a paginated DRF endpoint
+      const fetchAllPages = async (url) => {
+        let results = [];
+        let nextUrl = url;
+
+        while (nextUrl) {
+          const res = await axios.get(nextUrl);
+          if (Array.isArray(res.data)) {
+            // If API is not paginated, just return data
+            results = res.data;
+            break;
+          } else if (res.data?.results) {
+            // Paginated response
+            results.push(...res.data.results);
+            nextUrl = res.data.next; // DRF provides `next` link
+          } else {
+            // Unknown format
+            break;
+          }
+        }
+
+        return results;
+      };
+
+      try {
+        // Fetch all categories and all products
+        const [categories, products] = await Promise.all([
+          fetchAllPages("http://127.0.0.1:8000/api/categories/"),
+          fetchAllPages("http://127.0.0.1:8000/api/products/"),
+        ]);
+
+        // ---- GROUP PRODUCTS BY CATEGORY NAME ----
+        const groupedProducts = {};
+        products.forEach((product) => {
+          const key = this.normalize(product?.category?.name);
+          if (!key) return;
+
+          if (!groupedProducts[key]) groupedProducts[key] = [];
+          groupedProducts[key].push(product);
+        });
+
+        // ---- MAP CATEGORIES WITH PRODUCTS ----
+        this.categories = categories
+          .map((cat) => {
+            const key = this.normalize(cat.name);
+            return {
+              id: cat.id,
+              title: cat.name,
+              slug: cat.slug,
+              image: cat.image,
+              items: groupedProducts[key] || [],
+            };
+          })
+          .filter((cat) => cat.items.length > 0); // remove categories with no products
+      } catch (err) {
+        console.error("API ERROR:", err);
+        if (err.response) {
+          this.error = `Failed to load data (${err.response.status})`;
+        } else {
+          this.error = "Server not reachable";
+        }
+      } finally {
+        this.loading = false;
+      }
     },
   },
-  created() {
-    // Group products by type
-    const grouped = {};
-
-    products.forEach((product) => {
-      if (!grouped[product.type]) grouped[product.type] = [];
-      grouped[product.type].push(product);
-    });
-
-    // Convert to array format for v-for and limit to 8 categories for 2 rows
-    this.categories = Object.keys(grouped)
-      .map((typeName) => ({
-        title: typeName,
-        items: grouped[typeName],
-      }))
-      .slice(0, 8);
+  mounted() {
+    this.fetchHomeData();
   },
 };
 </script>
-<style>
+
+<style scoped>
 .seedetail {
   text-align: left; /* Align to left */
   border-top: 1px solid var(--primary-color); /* Theme primary color top border */
@@ -269,6 +271,7 @@ export default {
   font-size: 12px;
   margin-top: 6px;
   color: #333;
+  text-decoration:none;
 }
 
 /* Responsive */
@@ -323,8 +326,9 @@ export default {
 }
 
 .category-card p {
-  font-size: 15px;
+  font-size: 13px;
   color: #6b6b6b;
+  text-decoration: none;
 }
 
 .badge {
@@ -367,6 +371,17 @@ export default {
   padding: 2rem 0.5rem 1rem 0.5rem;
   margin: 0 auto;
   max-width: 1320px;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+  text-align: center;
+  margin: 20px 0;
+  padding: 10px;
+  background: #ffe6e6;
+  border: 1px solid #ff9999;
+  border-radius: 5px;
 }
 
 .product-grid {
@@ -680,51 +695,80 @@ export default {
     padding: 1rem 0.5rem 0 0.5rem;
   }
 
+  /* Container full width */
   .container {
+    width: 100%;
     padding: 10px;
-    max-width: 100%;
     margin: 0;
+    box-sizing: border-box;
   }
 
+  /* Category Cards Grid */
   .card-grid {
-    grid-template-columns: repeat(2, 1fr);
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 columns */
     gap: 10px;
+    width: 100%;
   }
 
   .category-card {
+    width: 100%;
     padding: 15px 10px;
-    height: auto;
+    height: 350px;
     min-height: 100px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
   .card-title {
-    font-size: 18px;
-    margin-bottom: 10px;
+    font-size: 10px;
+    margin-bottom: 5px;
   }
 
+  /* Image Grid inside category card */
   .image-grid {
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr)); /* 2 columns */
+    grid-template-rows: repeat(2, minmax(0, 1fr)); /* 2 rows */
     gap: 4px;
+    width: 100%;
+    box-sizing: border-box;
   }
 
   .image-item {
+    min-width: 0; /* prevents overflow */
     min-height: 80px;
+    height:30px;
     padding: 4px;
+    box-sizing: border-box;
   }
 
   .image-item img,
   .placeholder-image {
-    height: 70px;
+    width: 100%;
+    height: 60px;
+    object-fit: cover;
+    display: block;
+  }
+  .category-card p{
+    text-decoration:none;
   }
 
   .image-label {
-    font-size: 11px;
+    font-size: 8px;  
+    overflow: visible;
+    word-wrap: break-word;
+    text-decoration: none;
+    
   }
 
+  /* See detail link */
   .seedetail {
     padding-top: 8px;
     margin-top: 8px;
+    border-top:0.5px solid rgb(215, 211, 211);
   }
 
   .seedetail a {

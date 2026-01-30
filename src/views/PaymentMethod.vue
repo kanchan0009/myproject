@@ -349,7 +349,7 @@ export default {
 }
 
 .payment-card.active {
-  border-color: #ff7a00;
+  border-color: #55c894;
 }
 
 .payment-card img {
@@ -396,7 +396,7 @@ export default {
 }
 
 .total {
-  color: #ff7a00;
+  color: #55c894;
   font-weight: bold;
 }
 
@@ -452,7 +452,7 @@ input {
 
 input:focus {
   outline: none;
-  border-color: #ff7a00;
+  border-color: #55c894;
 }
 
 /* Row */
@@ -501,7 +501,7 @@ input:focus {
 .pay-btn {
   width: 100%;
   padding: 14px;
-  background: #ff7a00;
+  background: #55c894;
   color: #fff;
   border: none;
   font-size: 16px;
@@ -510,7 +510,7 @@ input:focus {
 }
 
 .pay-btn:hover {
-  background: #e96b00;
+  background: #55c894;
 }
 
 /* eSewa Payment */
@@ -578,7 +578,7 @@ input:focus {
 
 /* Button */
 .confirm-btn {
-  background: #ff7a00;
+  background: #55c894;
   color: #fff;
   border: none;
   padding: 14px;
@@ -590,7 +590,7 @@ input:focus {
 }
 
 .confirm-btn:hover {
-  background: #e96b00;
+  background: #55c894;
 }
 
 /* Mobile phones */
