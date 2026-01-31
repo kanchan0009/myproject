@@ -131,7 +131,7 @@ export default {
 
 .category-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(1, 1fr);
   gap: 24px;
 }
 .category-card:hover {
@@ -325,7 +325,7 @@ p {
     padding: 0;
   }
   .category-card {
-    position:relative;
+    position: relative;
 
     min-height: 130px;
   }
@@ -342,7 +342,6 @@ p {
     font-size: 12px;
   }
   .view-btn {
-
     padding: 8px;
     font-size: 10px;
     margin-bottom: 3px;

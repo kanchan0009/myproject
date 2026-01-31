@@ -8,7 +8,7 @@
   </div>
   <div v-else-if="!product" class="not-found-container">
     <div class="not-found-message">Product not found</div>
-    <button @click="$router.push('/products')" class="back-button">
+    <button @click="router.push('/products')" class="back-button">
       Back to Products
     </button>
   </div>
@@ -107,8 +107,6 @@
           <button
             type="button"
             class="wishlist-button"
-            :class="{ 'out-of-stock': !product.is_in_stock }"
-            :disabled="!product.is_in_stock"
             @click="addToWishlist(product)"
           >
             ❤️ Add to Wishlist
@@ -145,20 +143,6 @@
   </div>
 
   <div v-if="product">
-    <h2>Specifications</h2>
-
-    <div class="spec-card">
-      <div class="spec-grid">
-        <div
-          v-for="(value, key) in product.specifications"
-          :key="key"
-          class="spec-item"
-        >
-          <div class="spec-label">{{ key }}</div>
-          <div class="spec-value">{{ value }}</div>
-        </div>
-      </div>
-    </div>
     <h2>Related Products</h2>
 
     <div class="products">
@@ -188,140 +172,204 @@
     </div>
   </div>
 </template>
-
 <script>
-import { watch } from "vue";
-import axios from "axios";
+import { ref, inject, onMounted, watch, computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
+import api from "@/api/axios";
 
 export default {
   name: "ProductDetail",
 
-  data() {
-    return {
-      products: [], 
-      product: null, 
-      mainImage: "", 
-      quantity: 1, 
-      loading: true,
-      error: null,
-      apiPage: 1, 
-      totalPages: 1,
-    };
+  props: {
+    productId: {
+      type: [String, Number],
+      required: true,
+    },
   },
 
-  async mounted() {
-    await this.fetchProductById(this.$route.params.productId);
+  setup(props) {
+    const route = useRoute();
+    const router = useRouter();
+    const cartState = inject("cartState");
 
-    
-    watch(
-      () => this.$route.params.productId,
-      async (newId) => {
-        await this.fetchProductById(newId);
-        this.quantity = 1;
-      }
-    );
-  },
+    const product = ref(null);
+    const mainImage = ref("");
+    const quantity = ref(1);
+    const loading = ref(true);
+    const error = ref(null);
+    const relatedProducts = ref([]);
 
-  methods: {
-    async fetchProductById(productId) {
+    const fetchProductById = async (productId) => {
       try {
-        this.loading = true;
-        this.error = null;
+        loading.value = true;
+        error.value = null;
 
-        let found = false;
-        let page = 1;
-
-        while (!found) {
-          const res = await axios.get(
-            `http://127.0.0.1:8000/api/products/?page=${page}`
-          );
-
-          const results = res.data.results;
-          this.totalPages = Math.ceil(res.data.count / results.length);
-
-          const product = results.find(p => p.id == productId);
-          if (product) {
-            this.product = product;
-            found = true;
-            break;
+        // Try to fetch single product by ID first
+        try {
+          const res = await api.get(`/api/product/${productId}/`);
+          product.value = res.data;
+        } catch (detailErr) {
+          if (detailErr.response?.status === 404) {
+            // If detail endpoint fails with 404, try to fetch from list endpoint
+            const listRes = await api.get("/api/products/");
+            const products = listRes.data.results || listRes.data;
+            const foundProduct = products.find((p) => p.id == productId);
+            if (foundProduct) {
+              product.value = foundProduct;
+            } else {
+              throw new Error(`Product with ID ${productId} not found.`);
+            }
+          } else {
+            throw detailErr;
           }
-
-          page++;
-          if (page > this.totalPages) break; // stop if no more pages
-        }
-
-        if (!found) {
-          this.product = null;
-          this.error = "Product not found";
         }
 
         // Set main image
-        this.mainImage =
-          this.product?.primary_image ||
-          "/assets/medical.jpeg"; // fallback image
+        mainImage.value = product.value.primary_image || "/assets/medical.jpeg";
+
+        // Fetch related products by category (excluding current product)
+        if (product.value.category?.id) {
+          const relatedRes = await api.get(
+            `/api/products/?category=${product.value.category.id}`,
+          );
+          relatedProducts.value = relatedRes.data.results
+            .filter((p) => p.id !== product.value.id)
+            .slice(0, 4);
+        } else {
+          relatedProducts.value = [];
+        }
       } catch (err) {
-        console.error("Error fetching product:", err);
-        this.error = "Failed to load product";
-        this.product = null;
+        console.error("Failed to fetch product:", err);
+        if (err.response?.status === 404) {
+          error.value = `Product with ID ${productId} not found. It may have been removed or the ID is invalid.`;
+        } else if (err.response?.status === 500) {
+          error.value = "Server error. Please try again later.";
+        } else if (!err.response) {
+          error.value = "Network error. Please check your connection.";
+        } else {
+          error.value = "Failed to load product. Please try again.";
+        }
       } finally {
-        this.loading = false;
+        loading.value = false;
       }
-    },
+    };
 
-    updateQuantity(change) {
-      const newQty = this.quantity + change;
-      this.quantity = newQty < 1 ? 1 : newQty;
-    },
+    const updateQuantity = (change) => {
+      const newQty = quantity.value + change;
+      quantity.value = newQty < 1 ? 1 : newQty;
+    };
 
-    setMainImage(image) {
-      this.mainImage = image || "/assets/medical.jpeg";
-    },
+    const setMainImage = (image) => {
+      mainImage.value = image || "/assets/medical.jpeg";
+    };
 
-    async handleAddToCart(product, qty) {
+    const handleAddToCart = async (prod, qty = 1) => {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        router.push("/login");
+        return;
+      }
+
       try {
-        await axios.post("http://127.0.0.1:8000/api/cart/", {
-          product_id: product.id,
+        await api.post(
+          "/api/cart/add_item/",
+          { product_id: prod.id, quantity: qty },
+          { headers: { Authorization: `Token ${token}` } },
+        );
+
+        // Update local cart state
+        cartState.addToCart({
+          id: prod.id,
+          name: prod.name,
+          price: prod.final_price,
+          image: prod.primary_image || "/assets/medical.jpeg",
           quantity: qty,
         });
-        alert(`Added ${qty} of "${product.name}" to cart`);
+
+        // Toast is shown by cartState.addToCart
       } catch (err) {
-        console.error(err);
-        alert("Failed to add to cart");
+        console.error("Failed to add to cart:", err.response || err);
+        const msg =
+          err.response?.data?.detail || "Failed to add to cart. Check console.";
+        alert(msg);
       }
-    },
+    };
 
-    async addToWishlist(product) {
-      try {
-        await axios.post("http://127.0.0.1:8000/api/wishlist/", {
-          product: product.id,
-        });
-        alert(`Added "${product.name}" to wishlist`);
-      } catch (err) {
-        console.error(err);
-        alert("Failed to add to wishlist");
+    const addToWishlist = async (prod) => {
+      console.log("addToWishlist called with product:", prod);
+      // Update local wishlist state immediately
+      const wishlistState = inject("wishlistState");
+      console.log("wishlistState:", wishlistState);
+      if (!wishlistState) {
+        console.error("wishlistState not available");
+        cartState.showToast("Wishlist functionality not available", "error");
+        return;
       }
-    },
+      wishlistState.addToWishlist(prod);
+      console.log("Added to wishlist state");
 
-    retryFetch() {
-      this.error = null;
-      this.fetchProductById(this.$route.params.productId);
-    },
-  },
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        try {
+          // Attempt to sync with backend
+          await api.post("/api/wishlist/", { product_id: prod.id });
+          cartState.showToast("Product added to wishlist!", "success");
+        } catch (err) {
+          console.error(
+            "Failed to sync wishlist with server:",
+            err.response || err,
+          );
+          // Still show success since it's added locally
+          cartState.showToast("Product added to wishlist locally!", "success");
+        }
+      } else {
+        cartState.showToast(
+          "Product added to wishlist locally! Log in to sync.",
+          "success",
+        );
+      }
+    };
 
-  computed: {
-    buttonText() {
-      return this.product?.is_in_stock ? "Add to Cart" : "Out of Stock";
-    },
-    relatedProducts() {
-      if (!this.product) return [];
-      return this.products
-        .filter(
-          (p) =>
-            p.id !== this.product.id &&
-            p.category?.id === this.product.category?.id
-        )
-        .slice(0, 4);
-    },
+    const retryFetch = () => {
+      error.value = null;
+      fetchProductById(props.productId);
+    };
+
+    const buttonText = computed(() => {
+      return product.value?.is_in_stock ? "Add to Cart" : "Out of Stock";
+    });
+
+    // Watch for route parameter changes
+    watch(
+      () => route.params.productId,
+      async (newId) => {
+        if (newId && newId !== props.productId) {
+          quantity.value = 1;
+          await fetchProductById(newId);
+        }
+      },
+    );
+
+    onMounted(async () => {
+      // Fetch product initially
+      await fetchProductById(props.productId);
+    });
+
+    return {
+      router,
+      product,
+      mainImage,
+      quantity,
+      loading,
+      error,
+      relatedProducts,
+      updateQuantity,
+      setMainImage,
+      handleAddToCart,
+      addToWishlist,
+      retryFetch,
+      buttonText,
+    };
   },
 };
 </script>
@@ -814,47 +862,46 @@ h2 {
     flex-direction: row;
     gap: 10px;
   }
-  .wishlist-button{
-    height:35px;
-    font-size:12px;
-    font-weight:bold;
+  .wishlist-button {
+    height: 35px;
+    font-size: 12px;
+    font-weight: bold;
   }
-  .add-to-cart-button{
-    height:35px;
-    font-size:12px;
-    font-weight:bold;
+  .add-to-cart-button {
+    height: 35px;
+    font-size: 12px;
+    font-weight: bold;
   }
-  .price-section{
-    height:50px;
-    padding:8px 8px;
+  .price-section {
+    height: 50px;
+    padding: 8px 8px;
   }
-  .price-badge{
-  height: 30px;
-  display:flex;
-  flex-direction:row;
-  justify-content:space-evenly;
-
+  .price-badge {
+    height: 30px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
   }
-  .current-price{
-    font-size:15px;
+  .current-price {
+    font-size: 15px;
   }
-  .old-price{
-    font-size:12px;
+  .old-price {
+    font-size: 12px;
   }
-  .discount-percent{
-    font-size:12px;
-    height:25px;
-    text-align:center;
+  .discount-percent {
+    font-size: 12px;
+    height: 25px;
+    text-align: center;
   }
-  .quantity-control-wrapper{
-    height:40px;
+  .quantity-control-wrapper {
+    height: 40px;
   }
-  .feature-item{
-    height:54px;
+  .feature-item {
+    height: 54px;
   }
-  .feature-title{
-    font-size:12px;
-    margin-bottom:0;
+  .feature-title {
+    font-size: 12px;
+    margin-bottom: 0;
   }
 }
 </style>

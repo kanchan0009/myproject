@@ -15,28 +15,27 @@
 
         <div class="image-grid">
           <!-- exactly 4 slots -->
-          <div class="image-item" v-for="index in 4" :key="index">
-            <template v-if="category.items[index - 1]">
-              <router-link
-                :to="`/productdetail/${category.items[index - 1].id}`"
-              >
-                <img
-                  :src="
-                    category.items[index - 1].images?.[0] ||
-                    '/assets/medical.jpeg'
-                  "
-                  :alt="category.items[index - 1].name"
-                />
-                <p class="image-label">
-                  {{ category.items[index - 1].name }}
-                </p>
-              </router-link>
-            </template>
+          <template v-for="index in 4" :key="index">
+            <router-link
+              v-if="category.items[index - 1]"
+              :to="`/productdetail/${category.items[index - 1].id}`"
+              class="image-item"
+              style="display: flex; width: 100%"
+            >
+              <img
+                :src="
+                  category.items[index - 1].images?.[0] ||
+                  '/assets/medical.jpeg'
+                "
+                :alt="category.items[index - 1].name"
+              />
+              <p class="image-label">
+                {{ category.items[index - 1].name }}
+              </p>
+            </router-link>
 
-            <template v-else>
-              <div class="no-image">No Product</div>
-            </template>
-          </div>
+            <div v-else class="image-item no-image">No Product</div>
+          </template>
         </div>
 
         <div class="seedetail">
@@ -244,6 +243,7 @@ export default {
   padding: 8px;
   flex: 1;
   min-height: 140px;
+  width: 100%;
 }
 
 .image-item img,
@@ -271,7 +271,7 @@ export default {
   font-size: 12px;
   margin-top: 6px;
   color: #333;
-  text-decoration:none;
+  text-decoration: none;
 }
 
 /* Responsive */
@@ -740,7 +740,7 @@ export default {
   .image-item {
     min-width: 0; /* prevents overflow */
     min-height: 80px;
-    height:30px;
+    height: 30px;
     padding: 4px;
     box-sizing: border-box;
   }
@@ -752,23 +752,22 @@ export default {
     object-fit: cover;
     display: block;
   }
-  .category-card p{
-    text-decoration:none;
+  .category-card p {
+    text-decoration: none;
   }
 
   .image-label {
-    font-size: 8px;  
+    font-size: 8px;
     overflow: visible;
     word-wrap: break-word;
     text-decoration: none;
-    
   }
 
   /* See detail link */
   .seedetail {
     padding-top: 8px;
     margin-top: 8px;
-    border-top:0.5px solid rgb(215, 211, 211);
+    border-top: 0.5px solid rgb(215, 211, 211);
   }
 
   .seedetail a {

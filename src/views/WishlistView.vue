@@ -48,8 +48,9 @@
 </template>
 
 <script>
-import { inject } from "vue";
+import { inject, ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
+import api from "@/api/axios";
 
 export default {
   name: "WishlistView",
@@ -57,21 +58,69 @@ export default {
     const wishlistState = inject("wishlistState");
     const cartState = inject("cartState");
     const router = useRouter();
+    const loading = ref(false);
+    const error = ref(null);
 
-    const wishlistItems = wishlistState.items;
+    const fetchWishlist = async () => {
+      try {
+        loading.value = true;
+        const token = localStorage.getItem("authToken");
+        if (!token) return;
 
-    const removeFromWishlist = (item) => {
-      const index = wishlistState.items.findIndex(
-        (wishlistItem) => wishlistItem.id === item.id,
-      );
-      if (index > -1) {
-        wishlistState.items.splice(index, 1);
+        const res = await api.post("/api/wishlist/", {
+          headers: { Authorization: `Token ${token}` },
+        });
+
+        wishlistState.items = res.data.results || [];
+      } catch (err) {
+        console.error("Failed to fetch wishlist:", err);
+        error.value = "Failed to load wishlist.";
+      } finally {
+        loading.value = false;
       }
     };
 
-    const addToCart = (item) => {
-      cartState.addToCart(item);
-      removeFromWishlist(item); // Remove from wishlist after adding to cart
+    const removeFromWishlist = async (item) => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          alert("Please log in first!");
+          return;
+        }
+
+        await api.post(
+          "/api/wishlist/",
+          { product_id: item.id },
+          { headers: { Authorization: `Token ${token}` } },
+        );
+
+        const index = wishlistState.items.findIndex(
+          (wishlistItem) => wishlistItem.id === item.id,
+        );
+        if (index > -1) wishlistState.items.splice(index, 1);
+
+        alert("Removed from wishlist!");
+      } catch (err) {
+        console.error("Failed to remove from wishlist:", err);
+        alert("Failed to remove item from wishlist.");
+      }
+    };
+
+    const addToCart = async (item) => {
+      try {
+        const token = localStorage.getItem("authToken");
+        if (!token) {
+          alert("Please log in first!");
+          return;
+        }
+
+        await cartState.addToCart(item);
+
+        await removeFromWishlist(item);
+      } catch (err) {
+        console.error("Failed to add to cart:", err);
+        alert("Failed to add item to cart.");
+      }
     };
 
     const goToProductDetail = (item) => {
@@ -82,8 +131,14 @@ export default {
       router.push("/products");
     };
 
+    onMounted(() => {
+      fetchWishlist();
+    });
+
     return {
-      wishlistItems,
+      wishlistItems: wishlistState.items,
+      loading,
+      error,
       removeFromWishlist,
       addToCart,
       goToProductDetail,

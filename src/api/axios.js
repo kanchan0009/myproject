@@ -31,7 +31,8 @@ api.interceptors.request.use((config) => {
   }
 
   // Add auth token if available, but not for login endpoint
-  const authToken = localStorage.getItem("auth_token");
+  const authToken =
+    localStorage.getItem("auth_token") || localStorage.getItem("authToken");
   if (authToken && !config.url.includes("/api/auth/login/")) {
     config.headers["Authorization"] = `Token ${authToken}`;
   }

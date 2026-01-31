@@ -16,12 +16,6 @@ const routes = [
         name: "Categories",
         component: () => import("@/views/CategoryView.vue"),
       },
-      // {
-      //   path: "/categories/:categoryId",
-      //   name: "CategoryDetail",
-      //   component: () => import("@/views/CategoryView.vue"),
-      //   props: true,
-      // },
       {
         path: "/products",
         name: "Products",
@@ -52,6 +46,11 @@ const routes = [
         path: "/checkout",
         name: "Checkout",
         component: () => import("@/views/CheckoutView.vue"),
+      },
+      {
+        path: "/shipping-detail",
+        name: "ShippingDetail",
+        component: () => import("@/views/ShippingDetail.vue"),
       },
       {
         path: "/payment",

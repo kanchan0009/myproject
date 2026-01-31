@@ -200,14 +200,14 @@ export default {
 
     /* ---------------- CART ---------------- */
 
-    const cartItems = computed(() => cartState.items || []);
+    const cartItems = computed(() => cartState.items?.value || []);
 
     const totalItems = computed(() =>
-      cartItems.value.reduce((t, i) => t + i.quantity, 0)
+      (cartItems.value || []).reduce((t, i) => t + i.quantity, 0),
     );
 
     const itemsTotal = computed(() =>
-      cartItems.value.reduce((t, i) => t + i.price * i.quantity, 0)
+      (cartItems.value || []).reduce((t, i) => t + i.price * i.quantity, 0),
     );
 
     const deliveryFee = computed(() => (itemsTotal.value > 5000 ? 0 : 200));
@@ -238,8 +238,7 @@ export default {
     /* ---------------- ADDRESS ---------------- */
 
     const editShippingAddress = () => {
-      isEditingAddress.value = true;
-      editAddress.value = { ...address.value };
+      router.push("/shipping-detail");
     };
 
     const saveShippingAddress = () => {
@@ -272,45 +271,10 @@ export default {
     /* ---------------- ORDER API ---------------- */
 
     const proceedToPay = async () => {
-      if (!cartItems.value.length) {
-        toastMessage.value = "Your cart is empty";
-        toastType.value = "error";
-        return;
-      }
-
-      loading.value = true;
-
-      try {
-        const payload = {
-          shipping_full_name: address.value.name,
-          shipping_phone: address.value.phone,
-          shipping_address: address.value.fullAddress,
-          notes: "",
-          items: cartItems.value.map((item) => ({
-            product: item.id, // MUST be backend product ID
-            quantity: item.quantity,
-          })),
-        };
-
-        await axios.post(
-          "http://127.0.0.1:8000/api/orders/",
-          payload
-        );
-
-        toastMessage.value = "Order placed successfully!";
-        toastType.value = "success";
-
-        // OPTIONAL: clear cart
-        cartState.items = [];
-
-        router.push("/payment");
-      } catch (err) {
-        console.error("Order failed:", err.response?.data || err);
-        toastMessage.value = "Failed to place order";
-        toastType.value = "error";
-      } finally {
-        loading.value = false;
-      }
+      // Always navigate to payment page - let the payment page handle validation
+      toastMessage.value = "Proceeding to payment...";
+      toastType.value = "info";
+      router.push("/payment");
     };
 
     /* ---------------- UI HELPERS ---------------- */
@@ -322,7 +286,7 @@ export default {
       invoiceContact.value[field] = value;
       localStorage.setItem(
         "invoiceContact",
-        JSON.stringify(invoiceContact.value)
+        JSON.stringify(invoiceContact.value),
       );
     };
 
@@ -336,7 +300,24 @@ export default {
       fetch("/data/checkout.json")
         .then((res) => res.json())
         .then((data) => {
-          address.value = data.address || {};
+          // Load shipping details from localStorage if available
+          const savedShipping = localStorage.getItem("shippingDetails");
+          if (savedShipping) {
+            const shippingData = JSON.parse(savedShipping);
+            address.value = {
+              name: shippingData.shipping_full_name,
+              phone: shippingData.shipping_phone,
+              fullAddress: shippingData.shipping_address,
+              city: shippingData.shipping_city,
+              state: shippingData.shipping_state,
+              postalCode: shippingData.shipping_postal_code,
+              tag: "Home", // Default tag
+              pickupInfo: "Nawalparasi Branch", // Default pickup
+            };
+          } else {
+            address.value = data.address || {};
+          }
+
           packageInfo.value = data.package || {};
           editAddress.value = { ...address.value };
 
@@ -579,7 +560,7 @@ export default {
 }
 
 .save-btn {
-  background:#6fc6f5;
+  background: #6fc6f5;
   color: #fff;
   border: none;
   padding: 8px 16px;

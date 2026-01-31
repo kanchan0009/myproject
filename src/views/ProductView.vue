@@ -65,7 +65,14 @@
               class="product-card"
             >
               <div class="product-image">
-                <img :src="product.image" />
+                <router-link
+                  :to="{
+                    name: 'ProductDetail',
+                    params: { productId: product.id },
+                  }"
+                >
+                  <img :src="product.image" />
+                </router-link>
               </div>
 
               <div class="product-details">
@@ -80,6 +87,12 @@
                 <div class="product-actions">
                   <button class="add-button" @click="handleAddToCart(product)">
                     <i class="fa-solid fa-cart-shopping"></i> Add
+                  </button>
+                  <button
+                    class="wishlist-button"
+                    @click="handleAddToWishlist(product)"
+                  >
+                    <i class="fa-solid fa-heart"></i>
                   </button>
                   <!-- View Details Button -->
                   <router-link
@@ -124,6 +137,7 @@
 </template>
 <script>
 import api from "@/api/axios";
+import { inject } from "vue";
 
 export default {
   data() {
@@ -143,6 +157,15 @@ export default {
       loading: true,
       error: null,
       selectedCategoryFromQuery: null,
+    };
+  },
+
+  setup() {
+    const cartState = inject("cartState");
+    const wishlistState = inject("wishlistState");
+    return {
+      cartState,
+      wishlistState,
     };
   },
 
@@ -235,16 +258,74 @@ export default {
     },
 
     async handleAddToCart(product) {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        this.$router.push("/login");
+        return;
+      }
+
       try {
-        await api.post("/api/cart/", {
-          product_id: product.id,
+        await api.post(
+          "/api/cart/add_item/",
+          {
+            product_id: product.id,
+            quantity: 1,
+          },
+          { headers: { Authorization: `Token ${token}` } },
+        );
+
+        // Update local cart state
+        this.cartState.addToCart({
+          id: product.id,
+          name: product.name,
+          price: product.price,
+          image: product.image,
           quantity: 1,
         });
-        alert("Product added to cart!");
       } catch (err) {
-        console.error("STATUS:", err.response?.status);
-        console.error("DATA:", err.response?.data);
-        alert("Failed to add product to cart");
+        console.error("Failed to add to cart:", err.response || err);
+        const msg =
+          err.response?.data?.detail || "Failed to add to cart. Check console.";
+        alert(msg);
+      }
+    },
+
+    async handleAddToWishlist(product) {
+      console.log("handleAddToWishlist called with product:", product);
+      // Update local wishlist state immediately
+      if (!this.wishlistState) {
+        console.error("wishlistState not available");
+        this.cartState.showToast(
+          "Wishlist functionality not available",
+          "error",
+        );
+        return;
+      }
+      this.wishlistState.addToWishlist(product);
+      console.log("Added to wishlist state");
+
+      const token = localStorage.getItem("authToken");
+      if (token) {
+        try {
+          // Attempt to sync with backend
+          await api.post("/api/wishlist/", { product_id: product.id });
+          this.cartState.showToast("Product added to wishlist!", "success");
+        } catch (err) {
+          console.error(
+            "Failed to sync wishlist with server:",
+            err.response || err,
+          );
+          // Still show success since it's added locally
+          this.cartState.showToast(
+            "Product added to wishlist locally!",
+            "success",
+          );
+        }
+      } else {
+        this.cartState.showToast(
+          "Product added to wishlist locally! Log in to sync.",
+          "success",
+        );
       }
     },
 

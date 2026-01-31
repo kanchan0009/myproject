@@ -6,4 +6,4 @@
 
 ## Pending Tasks
 
-- [ ] Test the CategoryView on desktop to confirm 4 cards per row display correctly
+- [x] Test the CategoryView on desktop to confirm 4 cards per row display correctly

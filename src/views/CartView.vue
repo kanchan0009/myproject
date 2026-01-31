@@ -34,12 +34,12 @@
             />
 
             <div class="item-info" @click="goToProductDetail(item)">
-              <h4>{{ item.product.name }}</h4>
+              <h4>{{ item.name }}</h4>
               <p class="meta">Professional physiotherapy equipment</p>
             </div>
 
             <div class="item-price">
-              <span class="price"> Rs. {{ item.product.price }} </span>
+              <span class="price"> Rs. {{ item.price }} </span>
             </div>
 
             <div class="qty">
@@ -89,7 +89,7 @@
 
 <script>
 import api from "@/api/axios";
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, inject } from "vue";
 import { useRouter } from "vue-router";
 
 export default {
@@ -97,80 +97,122 @@ export default {
 
   setup() {
     const router = useRouter();
+    const cartState = inject("cartState");
+
+    if (!cartState || !cartState.items) {
+      console.error("cartState not provided");
+      return {};
+    }
+
+    // READ-ONLY view of cart items
+    const cartItems = computed(() => {
+      return Array.isArray(cartState.items.value)
+        ? cartState.items.value
+        : [];
+    });
+
+    const loading = ref(false);
     const voucherCode = ref("");
-    const cartItems = ref([]);
 
-    const fetchCartItems = async () => {
-      try {
-        const res = await api.get("/api/cart/");
-        cartItems.value = (res.data.results || res.data).flatMap((cart) =>
-          cart.items.map((item) => ({
-            ...item,
-            selected: true,
-          })),
-        );
-      } catch (err) {
-        console.error("Failed to load cart", err);
-      }
-    };
-
-    onMounted(fetchCartItems);
-
+    // Delete cart item (MUTATE SOURCE, NOT COMPUTED)
     const deleteItem = async (item) => {
       try {
         await api.delete(`/api/cart/${item.id}/`);
-        cartItems.value = cartItems.value.filter(
-          (cartItem) => cartItem.id !== item.id,
+        cartState.items.value = cartState.items.value.filter(
+          (ci) => ci.id !== item.id
         );
       } catch (err) {
         console.error("Failed to delete item", err);
       }
     };
 
+    // Update item quantity
     const updateQuantity = async (item, change) => {
       const newQty = item.quantity + change;
+
       if (newQty <= 0) {
         await deleteItem(item);
         return;
       }
 
       try {
-        await api.patch(`/api/cart/${item.id}/`, {
+        await api.post("/api/cart/add_item/", {
+          product_id: item.id,
           quantity: newQty,
         });
-        item.quantity = newQty;
+
+        const target = cartState.items.value.find(
+          (i) => i.id === item.id
+        );
+        if (target) {
+          target.quantity = newQty;
+        }
       } catch (err) {
         console.error("Failed to update quantity", err);
       }
     };
 
-    const selectedItemsCount = computed(
-      () => cartItems.value.filter((i) => i.selected).length,
+    // Computed values
+    const selectedItemsCount = computed(() =>
+      cartItems.value.filter((i) => i.selected).length
     );
 
     const subtotal = computed(() =>
       cartItems.value
         .filter((i) => i.selected)
-        .reduce((total, i) => total + i.product.price * i.quantity, 0),
+        .reduce((total, i) => total + (i.price || 0) * i.quantity, 0)
     );
 
-    const shippingFee = computed(() => (subtotal.value > 5000 ? 0 : 200));
+    const shippingFee = computed(() =>
+      subtotal.value > 5000 ? 0 : 200
+    );
+
     const total = computed(() => subtotal.value + shippingFee.value);
+
+    const toggleItemSelection = (item) => {
+      item.selected = !item.selected;
+    };
+
+    const continueShopping = () => {
+      router.push("/");
+    };
+
+    const goToProductDetail = (item) => {
+      router.push(`/product/${item.id}`);
+    };
+
+    const applyVoucher = () => {
+      alert("Voucher functionality not implemented yet");
+    };
+
+    const checkout = () => {
+      if (!cartItems.value.length) {
+        alert("Your cart is empty!");
+        return;
+      }
+      router.push("/checkout");
+    };
 
     return {
       cartItems,
+      loading,
       voucherCode,
       deleteItem,
       updateQuantity,
+      toggleItemSelection,
+      continueShopping,
+      goToProductDetail,
+      applyVoucher,
       selectedItemsCount,
       subtotal,
       shippingFee,
       total,
-      router,
+      checkout,
     };
   },
 };
 </script>
+
 
 <style scoped>
 .cart-page {

@@ -3,10 +3,16 @@
     <div class="login-form">
       <h2>Login</h2>
       <form @submit.prevent="handleLogin">
-        <!-- Username or Email -->
+        <!-- Username -->
         <div class="form-group">
-          <label for="username">Username or Email</label>
-          <input type="text" id="username" v-model="username" required />
+          <label for="username">Username</label>
+          <input
+            type="text"
+            id="username"
+            v-model="username"
+            required
+            :class="{ 'error-input': errors.username }"
+          />
           <p v-if="errors.username" class="field-error">
             {{ errors.username }}
           </p>
@@ -15,7 +21,13 @@
         <!-- Password -->
         <div class="form-group">
           <label for="password">Password</label>
-          <input type="password" id="password" v-model="password" required />
+          <input
+            type="password"
+            id="password"
+            v-model="password"
+            required
+            :class="{ 'error-input': errors.password }"
+          />
           <p v-if="errors.password" class="field-error">
             {{ errors.password }}
           </p>
@@ -38,22 +50,19 @@
     </div>
   </div>
 </template>
+
 <script>
 import api from "@/api/axios";
-import { ref, inject } from "vue";
+import { ref } from "vue";
 import { useRouter } from "vue-router";
 
 export default {
   name: "LoginView",
   setup() {
     const router = useRouter();
-    const auth = inject("auth");
 
-    // Form fields
     const username = ref("");
     const password = ref("");
-
-    // Loading and errors
     const loading = ref(false);
     const errors = ref({
       username: "",
@@ -65,64 +74,37 @@ export default {
       loading.value = true;
       errors.value = { username: "", password: "", general: "" };
 
+      if (!username.value) {
+        errors.value.username = "Username is required";
+        loading.value = false;
+        return;
+      }
+      if (!password.value) {
+        errors.value.password = "Password is required";
+        loading.value = false;
+        return;
+      }
+
       try {
-        // Try username first
-        let payload = {
-          username: username.value,
+        const response = await api.post("/api/auth/login/", {
+          username: username.value, // <--- changed from email to username
           password: password.value,
-        };
+        });
 
-        let response = await api.post("/api/auth/login/", payload);
+        const token = response.data.token;
 
-        // If username fails, try with email
-        if (!response.data.token && response.status !== 200) {
-          payload = {
-            email: username.value,
-            password: password.value,
-          };
-          response = await api.post("/api/auth/login/", payload);
-        }
+        // Save token and set axios header
+        localStorage.setItem("authToken", token);
+        api.defaults.headers.common["Authorization"] = `Token ${token}`;
 
-        // Check for successful login
-        if (
-          response.data.token ||
-          response.data.key ||
-          response.status === 200
-        ) {
-          const token = response.data.token || response.data.key;
-          if (token) {
-            localStorage.setItem("auth_token", token);
-            // Update axios defaults for future requests
-            api.defaults.headers.common["Authorization"] = `Token ${token}`;
-          }
-
-          alert("Login successful!");
-          router.push("/"); // redirect to home page
-        } else {
-          throw new Error("No token received");
-        }
+        // Redirect after login
+        router.push("/");
       } catch (err) {
         console.error("Login error:", err.response || err);
-
-        // Handle different error types
-        if (err.response?.status === 400) {
-          errors.value.general =
-            "Invalid username/email or password. Please check your credentials.";
-        } else if (err.response?.status === 401) {
-          errors.value.general = "Invalid credentials. Please try again.";
-        } else if (err.response?.status === 403) {
-          errors.value.general = "Account is disabled or access denied.";
-        } else if (err.response?.status === 429) {
-          errors.value.general =
-            "Too many login attempts. Please try again later.";
-        } else {
-          const errorMsg =
-            err.response?.data?.detail ||
-            err.response?.data?.non_field_errors?.[0] ||
-            err.response?.data?.error ||
-            "Login failed. Please check your credentials and try again.";
-          errors.value.general = errorMsg;
-        }
+        errors.value.general =
+          err.response?.status === 401 || err.response?.status === 400
+            ? "Invalid username or password."
+            : "Login failed. Please try again.";
       } finally {
         loading.value = false;
       }
@@ -149,13 +131,16 @@ export default {
   color: red;
   margin-top: 10px;
   font-weight: bold;
+  text-align: center;
 }
+
 .login-container {
   display: flex;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
   background-color: #f5f5f5;
+  padding: 20px;
 }
 
 .login-form {
@@ -172,29 +157,29 @@ export default {
   margin-bottom: 1.5rem;
   color: #333;
 }
-
 .form-group {
   margin-bottom: 1rem;
 }
-
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
   color: #555;
+  font-weight: 500;
 }
-
-.form-group input,
-.form-group textarea {
+.form-group input {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #ddd;
   border-radius: 4px;
   font-size: 1rem;
+  transition: border-color 0.3s;
 }
-
-.form-group textarea {
-  resize: vertical;
-  min-height: 80px;
+.form-group input:focus {
+  outline: none;
+  border-color: #6fc6f5;
+}
+.form-group input.error-input {
+  border-color: red;
 }
 
 .login-btn {
@@ -207,20 +192,26 @@ export default {
   font-size: 1rem;
   cursor: pointer;
   transition: background-color 0.3s;
+  margin-top: 1rem;
 }
-
 .login-btn:hover:not(:disabled) {
   background-color: #5bb8f5;
 }
-
 .login-btn:disabled {
   background-color: #ccc;
   cursor: not-allowed;
 }
 
-.error {
-  color: red;
+.register-link {
   text-align: center;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
+  color: #666;
+}
+.register-link a {
+  color: #6fc6f5;
+  text-decoration: none;
+}
+.register-link a:hover {
+  text-decoration: underline;
 }
 </style>

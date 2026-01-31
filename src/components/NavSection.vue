@@ -134,38 +134,24 @@
       </ul>
     </div>
   </nav>
-
-  <!-- Toast Notification -->
-  <ToastNotification
-    ref="toastRef"
-    :message="toastMessage"
-    :type="toastType"
-    :duration="3000"
-  />
 </template>
 
 <script>
-import { ref, computed, inject, defineExpose } from "vue";
+import { ref, computed, inject } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
-import ToastNotification from "@/components/ToastNotification.vue";
 
 export default {
   name: "Navbar",
-  components: {
-    ToastNotification,
-  },
   setup() {
     const cartState = inject("cartState");
     const wishlistState = inject("wishlistState");
+    const showToast = inject("showToast");
     const router = useRouter();
     const showCategoriesDesktop = ref(false);
     const showCategoriesMobile = ref(false);
     const isMobileMenuOpen = ref(false);
-    const toastMessage = ref("");
-    const toastType = ref("success");
     const searchQuery = ref("");
-    const toastRef = ref(null);
     const showSuggestions = ref(false);
     const filteredSuggestions = ref([]);
     const products = ref([]);
@@ -193,21 +179,15 @@ export default {
     };
 
     const cartItemCount = computed(() => {
-      return cartState.items.reduce((total, item) => total + item.quantity, 0);
+      return cartState.items.value.reduce(
+        (total, item) => total + item.quantity,
+        0,
+      );
     });
 
     const wishlistItemCount = computed(() => {
       return wishlistState.items.length;
     });
-
-    // Show toast notification
-    const showToast = (message, type = "success") => {
-      toastMessage.value = message;
-      toastType.value = type;
-      if (toastRef.value) {
-        toastRef.value.show();
-      }
-    };
 
     // Update search suggestions
     const updateSuggestions = () => {
@@ -300,19 +280,11 @@ export default {
     // Set the toast function in cartState
     cartState.setToastFunction(showToast);
 
-    // Expose methods to parent
-    defineExpose({
-      addToCart,
-      showToast,
-    });
-
     return {
       isMobileMenuOpen,
       showCategoriesDesktop,
       showCategoriesMobile,
       cartItems: cartState.items,
-      toastMessage,
-      toastType,
       searchQuery,
       showSuggestions,
       filteredSuggestions,
@@ -469,7 +441,6 @@ export default {
 .wishlist-icon {
   position: relative;
   cursor: pointer;
-
 }
 
 .wishlist-icon i {

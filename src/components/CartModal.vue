@@ -49,7 +49,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import api from "@/api/axios";
 
 export default {
   name: "CartModal",
@@ -73,7 +73,7 @@ export default {
   computed: {
     totalPrice() {
       return this.cartItems.reduce(
-        (total, item) => total + item.product.price * item.quantity,
+        (total, item) => total + (item.product?.price || 0) * item.quantity,
         0,
       );
     },
@@ -94,39 +94,95 @@ export default {
 
     async fetchCartItems() {
       this.loading = true;
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        this.loading = false;
+        return;
+      }
+
       try {
-        const res = await axios.get("http://127.0.0.1:8000/api/cart/");
+        const res = await api.get("/api/cart/", {
+          headers: { Authorization: `Token ${token}` },
+        });
         this.cartItems = res.data.results || res.data;
       } catch (err) {
-        console.error("Failed to load cart", err);
+        console.error("Failed to load cart", err.response || err);
       } finally {
         this.loading = false;
       }
     },
 
+    async addToCart(productId, quantity = 1) {
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("Please log in first!");
+        return;
+      }
+
+      try {
+        await api.post(
+          "/api/cart/add_item/",
+          { product_id: productId, quantity },
+          {
+            headers: {
+              Authorization: `Token ${token}`,
+            },
+          },
+        );
+        await this.fetchCartItems();
+      } catch (err) {
+        console.error("Failed to add product to cart", err.response || err);
+        alert("Failed to add product to cart. Check console for details.");
+      }
+    },
+
     async updateQuantity(item, change) {
-  const newQty = item.quantity + change;
-  if (newQty <= 0) return this.removeItem(item.id);
+      const newQty = item.quantity + change;
+      if (newQty <= 0) return this.removeItem(item.id);
 
-  try {
-    await api.patch(`/api/cart/${item.id}/`, { quantity: newQty });
-    item.quantity = newQty;
-  } catch (err) {
-    console.error("Failed to update quantity", err);
-  }
-},
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("Please log in first!");
+        return;
+      }
 
+      try {
+        await api.post(
+          "/api/cart/add_item/",
+          { product_id: item.product.id, quantity: newQty },
+          {
+            headers: { Authorization: `Token ${token}` },
+          },
+        );
+        item.quantity = newQty;
+        await this.fetchCartItems();
+      } catch (err) {
+        console.error("Failed to update quantity", err.response || err);
+      }
+    },
 
     async removeItem(cartItemId) {
-  try {
-    await api.delete(`/api/cart/${cartItemId}/`);
-    this.cartItems = this.cartItems.filter((i) => i.id !== cartItemId);
-  } catch (err) {
-    console.error("Failed to remove item", err);
-  }
-},
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        alert("Please log in first!");
+        return;
+      }
+
+      try {
+        await api.delete(`/api/cart/${cartItemId}/`, {
+          headers: { Authorization: `Token ${token}` },
+        });
+        this.cartItems = this.cartItems.filter((i) => i.id !== cartItemId);
+      } catch (err) {
+        console.error("Failed to remove item", err.response || err);
+      }
+    },
 
     checkout() {
+      if (!this.cartItems.length) {
+        alert("Your cart is empty!");
+        return;
+      }
       alert(`Checkout total: NPR ${this.totalPrice.toLocaleString()}`);
     },
   },

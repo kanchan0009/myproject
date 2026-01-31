@@ -172,37 +172,61 @@
         </div>
       </div>
     </div>
+
+    <!-- Toast Notification -->
+    <ToastNotification
+      ref="toast"
+      :message="toastMessage"
+      :type="toastType"
+      @close="onToastClose"
+    />
   </div>
 </template>
 
 <script>
-import { inject, computed, ref } from "vue";
+import { inject, computed, ref, nextTick, watch } from "vue";
 import { useRouter } from "vue-router";
+import api from "@/api/axios";
+import ToastNotification from "@/components/ToastNotification.vue";
 
 export default {
   name: "PaymentMethod",
+  components: {
+    ToastNotification,
+  },
   setup() {
     const cartState = inject("cartState");
     const router = useRouter();
+    const loading = ref(false);
+
+    const toastMessage = ref("");
+    const toastType = ref("success");
+    const toast = ref(null);
 
     const selectedMethod = ref(null);
     const paymentMethods = [
       {
-        id: "card",
-        title: "Credit/Debit Card",
-        subtitle: "Credit/Debit Card",
-        icon: "https://cdn-icons-png.flaticon.com/512/633/633611.png",
+        id: "esewa",
+        title: "eSewa",
+        subtitle: "Pay with eSewa",
+        icon: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Esewa_logo.png",
       },
       {
-        id: "esewa",
-        title: "eSewa Mobile Wallet",
-        subtitle: "eSewa Mobile Wallet",
-        icon: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Esewa_logo.png",
+        id: "khalti",
+        title: "Khalti",
+        subtitle: "Pay with Khalti",
+        icon: "https://khalti.com/static/img/logo.png",
+      },
+      {
+        id: "bank",
+        title: "Bank Transfer",
+        subtitle: "Direct Bank Transfer",
+        icon: "https://cdn-icons-png.flaticon.com/512/2920/2920276.png",
       },
       {
         id: "cod",
         title: "Cash on Delivery",
-        subtitle: "Cash on Delivery",
+        subtitle: "Pay when you receive",
         icon: "https://cdn-icons-png.flaticon.com/512/2331/2331970.png",
       },
     ];
@@ -217,12 +241,15 @@ export default {
     });
 
     // Computed properties for order summary
-    const cartItems = computed(() => cartState.items);
+    const cartItems = computed(() => cartState.items?.value || []);
     const totalItems = computed(() => {
-      return cartItems.value.reduce((total, item) => total + item.quantity, 0);
+      return (cartItems.value || []).reduce(
+        (total, item) => total + item.quantity,
+        0,
+      );
     });
     const subtotal = computed(() => {
-      return cartItems.value.reduce(
+      return (cartItems.value || []).reduce(
         (total, item) => total + item.price * item.quantity,
         0,
       );
@@ -237,26 +264,36 @@ export default {
     // Validation
     const validateCardForm = () => {
       if (!cardForm.value.cardNumber.trim()) {
-        cartState.showToast("Card number is required", "error");
+        toastMessage.value = "Card number is required";
+        toastType.value = "error";
         return false;
       }
       if (!cardForm.value.name.trim()) {
-        cartState.showToast("Name on card is required", "error");
+        toastMessage.value = "Name on card is required";
+        toastType.value = "error";
         return false;
       }
       if (!cardForm.value.expiry.trim()) {
-        cartState.showToast("Expiry date is required", "error");
+        toastMessage.value = "Expiry date is required";
+        toastType.value = "error";
         return false;
       }
       if (!cardForm.value.cvv.trim()) {
-        cartState.showToast("CVV is required", "error");
+        toastMessage.value = "CVV is required";
+        toastType.value = "error";
         return false;
       }
       return true;
     };
 
-    // Payment processing
-    const processPayment = () => {
+    // Get shipping details from localStorage
+    const getShippingDetails = () => {
+      const shippingData = localStorage.getItem("shippingDetails");
+      return shippingData ? JSON.parse(shippingData) : null;
+    };
+
+    // Payment processing with API integration
+    const processPayment = async () => {
       if (!selectedMethod.value) {
         cartState.showToast("Please select a payment method", "error");
         return;
@@ -266,14 +303,58 @@ export default {
         return;
       }
 
-      // Simulate payment processing
-      setTimeout(() => {
-        cartState.showToast("Payment successful! Order placed.", "success");
-        // Clear cart
+      // Get shipping details
+      const shippingDetails = getShippingDetails();
+      if (!shippingDetails) {
+        cartState.showToast(
+          "Shipping details not found. Please add shipping information.",
+          "error",
+        );
+        router.push("/shipping-detail");
+        return;
+      }
+
+      loading.value = true;
+
+      try {
+        // Prepare order payload
+        const orderPayload = {
+          shipping_full_name: shippingDetails.shipping_full_name,
+          shipping_phone: shippingDetails.shipping_phone,
+          shipping_address: shippingDetails.shipping_address,
+          shipping_city: shippingDetails.shipping_city,
+          shipping_state: shippingDetails.shipping_state,
+          shipping_postal_code: shippingDetails.shipping_postal_code,
+          notes: shippingDetails.notes || "",
+          payment_method: selectedMethod.value,
+          items: cartItems.value.map((item) => ({
+            product: item.id,
+            quantity: item.quantity,
+          })),
+        };
+
+        // Post order to API
+        const response = await api.post("/api/orders/", orderPayload);
+
+        console.log("Order placed successfully:", response.data);
+
+        cartState.showToast("Order placed successfully!", "success");
+
+        // Clear cart and shipping details
         cartState.items = [];
+        localStorage.removeItem("shippingDetails");
+
         // Navigate to home
         router.push("/");
-      }, 1000);
+      } catch (error) {
+        console.error("Order placement failed:", error.response?.data || error);
+        cartState.showToast(
+          "Failed to place order. Please try again.",
+          "error",
+        );
+      } finally {
+        loading.value = false;
+      }
     };
 
     return {
@@ -286,6 +367,7 @@ export default {
       deliveryFee,
       totalAmount,
       processPayment,
+      loading,
     };
   },
 };
