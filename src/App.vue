@@ -4,25 +4,23 @@
     ref="toastRef"
     :message="toastMessage"
     :type="toastType"
+    :cart-items="cartItems"
     :duration="3000"
   />
 </template>
 
 <script>
-import { provide, ref, onMounted, watch} from "vue";
+import { provide, ref, onMounted, watch } from "vue";
 import api from "@/api/axios";
 import ToastNotification from "@/components/ToastNotification.vue";
 
 export default {
-  components: {
-    ToastNotification,
-  },
-  setup() {
-    const isAuthenticated = ref(false);
-    const toastMessage = ref("");
-    const toastType = ref("success");
-    const toastRef = ref(null);
+  name: "App",
+  components: { ToastNotification },
 
+  setup() {
+    // --- AUTH ---
+    const isAuthenticated = ref(false);
     const checkAuth = () => {
       const token = localStorage.getItem("authToken");
       if (token) {
@@ -32,121 +30,70 @@ export default {
         isAuthenticated.value = false;
       }
     };
-
     const login = (token) => {
       localStorage.setItem("authToken", token);
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       isAuthenticated.value = true;
     };
-
     const logout = () => {
       localStorage.removeItem("authToken");
       delete api.defaults.headers.common["Authorization"];
       isAuthenticated.value = false;
     };
 
-    // Cart state management
-    const cartItems = ref([]);
-    let showToast = (message, type = "info") => {
+    // --- TOAST ---
+    const toastMessage = ref("");
+    const toastType = ref("success");
+    const toastRef = ref(null);
+
+    const showToast = (message, type = "info") => {
       toastMessage.value = message;
       toastType.value = type;
-      if (toastRef.value) {
-        toastRef.value.show();
-      }
+      toastRef.value?.show();
     };
 
-    // Load cart items from localStorage
+    // --- CART ---
+    const cartItems = ref([]);
     const loadCartFromStorage = () => {
       try {
         const stored = localStorage.getItem("cartItems");
         if (stored) {
           const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed)) {
-            cartItems.value = parsed;
-          }
+          if (Array.isArray(parsed)) cartItems.value = parsed;
         }
       } catch (e) {
-        console.error("Error loading cart from localStorage:", e);
-        cartItems.value = [];
+        console.error("Error loading cart from storage:", e);
       }
     };
-
-    // Save cart items to localStorage
     const saveCartToStorage = () => {
       try {
         localStorage.setItem("cartItems", JSON.stringify(cartItems.value));
       } catch (e) {
-        console.error("Error saving cart to localStorage:", e);
+        console.error("Error saving cart to storage:", e);
       }
     };
-
-    // Watch for changes and save to localStorage
     watch(cartItems, saveCartToStorage, { deep: true });
 
-    // Wishlist state management
-    const wishlistItems = ref([]);
-
-    const addToWishlist = (product) => {
-      const existingItem = wishlistItems.value.find(
-        (item) => item.id === product.id,
-      );
-      if (!existingItem) {
-        wishlistItems.value.push({
-          ...product,
-        });
-      }
-      showToast("Product added to wishlist", "success");
-    };
-
-    const removeFromWishlist = (productId) => {
-      wishlistItems.value = wishlistItems.value.filter(
-        (item) => item.id !== productId,
-      );
-      showToast("Product removed from wishlist", "info");
-    };
-
     const addToCart = (product) => {
-      const existingItem = cartItems.value.find(
-        (item) => item.id === product.id,
-      );
-      if (existingItem) {
-        existingItem.quantity += 1;
+      const existing = cartItems.value.find((i) => i.id === product.id);
+      if (existing) {
+        existing.quantity += 1;
       } else {
-        cartItems.value.push({
-          ...product,
-          quantity: 1,
-          selected:true,
-          price:product.price,
-        });
+        cartItems.value.push({ ...product, quantity: 1, selected: true });
       }
-
-      // Remove from wishlist if it exists there
-      const wishlistItemIndex = wishlistItems.value.findIndex(
-        (item) => item.id === product.id,
-      );
-      if (wishlistItemIndex !== -1) {
-        wishlistItems.value.splice(wishlistItemIndex, 1);
-      }
-
-      const totalItems = cartItems.value.reduce(
-        (sum, item) => sum + item.quantity,
-        0,
-      );
-      showToast(`Product added to cart (${totalItems} items)`, "success");
+      showToast("Product added to cart", "success");
     };
 
     const removeFromCart = (productId) => {
-      cartItems.value = cartItems.value.filter((item) => item.id !== productId);
+      cartItems.value = cartItems.value.filter((i) => i.id !== productId);
       showToast("Product removed from cart", "info");
     };
 
     const updateQuantity = (productId, quantity) => {
-      const item = cartItems.value.find((item) => item.id === productId);
+      const item = cartItems.value.find((i) => i.id === productId);
       if (item) {
         item.quantity = quantity;
-        if (item.quantity <= 0) {
-          removeFromCart(productId);
-        }
+        if (item.quantity <= 0) removeFromCart(productId);
       }
     };
 
@@ -154,28 +101,51 @@ export default {
       cartItems.value = [];
     };
 
+    // --- WISHLIST ---
+
+    const wishlistItems = ref([]);
+
+    const addToWishlist = (prod) => {
+      if (!wishlistItems.value.some((i) => i.id === prod.id)) {
+        wishlistItems.value.push({
+          id: prod.id,
+          name: prod.name,
+          price: prod.final_price || prod.price,
+          image: prod.primary_image || "/assets/medical.jpeg",
+        });
+      }
+      showToast("Product added to wishlist", "success");
+    };
+
+    const removeFromWishlist = (productId) => {
+      wishlistItems.value = wishlistItems.value.filter(
+        (i) => i.id !== productId,
+      );
+      showToast("Product removed from wishlist", "info");
+    };
+
+    // --- Demo Login / Load ---
+    const loginDemo = () => {
+      const demoToken = "demo-token";
+      login(demoToken);
+      showToast("Demo login successful", "success");
+    };
+
     onMounted(() => {
       checkAuth();
       loadCartFromStorage();
     });
 
-    provide("auth", {
-      isAuthenticated,
-      login,
-      logout,
-    });
-
+    // --- PROVIDE STATES ---
+    provide("auth", { isAuthenticated, login, logout });
     provide("cartState", {
       items: cartItems,
       addToCart,
       removeFromCart,
       updateQuantity,
       clearCart,
-      setToastFunction: (fn) => {
-        showToast = fn;
-      },
+      showToast,
     });
-
     provide("wishlistState", {
       items: wishlistItems,
       addToWishlist,
@@ -187,6 +157,10 @@ export default {
       toastMessage,
       toastType,
       toastRef,
+      loginDemo,
+      logout,
+      cartItems,
+      wishlistItems,
     };
   },
 };

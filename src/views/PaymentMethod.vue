@@ -1,804 +1,432 @@
+<
 <template>
-  <div class="checkout-page">
-    <div class="checkout-container">
-      <!-- LEFT -->
-      <div class="payment-section">
-        <h2>Select Payment Method</h2>
+  <div class="checkout-container">
+    <h2>Select Payment Method</h2>
 
-        <div class="payment-options">
+    <div class="checkout-content">
+      <!-- Left Section: Payment Methods & Details -->
+      <div class="payment-section">
+        <!-- Payment Method Row -->
+        <div class="payment-row">
           <div
             v-for="method in paymentMethods"
             :key="method.id"
             class="payment-card"
             :class="{ active: selectedMethod === method.id }"
-            @click="
-              selectedMethod = selectedMethod === method.id ? null : method.id
-            "
+            @click="selectedMethod = method.id"
           >
             <img :src="method.icon" />
-            <h4>{{ method.title }}</h4>
-            <p>{{ method.subtitle }}</p>
+            <div>
+              <strong>{{ method.title }}</strong>
+              <p>{{ method.subtitle }}</p>
+            </div>
           </div>
         </div>
 
-        <!-- Card Payment Container -->
-        <div v-if="selectedMethod === 'card'" class="card-payment-container">
-          <div class="card-payment">
-            <!-- Card Icons -->
-            <div class="card-icons">
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/5/5e/Visa_Inc._logo.svg"
-                alt="Visa"
-              />
-              <img
-                src="https://upload.wikimedia.org/wikipedia/commons/2/2a/Mastercard-logo.svg"
-                alt="Mastercard"
-              />
-            </div>
-
-            <!-- Card Number -->
+        <!-- Payment Details -->
+        <div class="payment-details">
+          <!-- Card Payment -->
+          <div v-if="selectedMethod === 'card'" class="details-box">
+            <h3>Pay with Card</h3>
             <div class="form-group">
-              <label><span>*</span> Card number</label>
+              <label>Card Number</label>
               <input
                 v-model="cardForm.cardNumber"
                 type="text"
-                placeholder="Card number"
+                placeholder="1234 5678 9012 3456"
               />
             </div>
-
-            <!-- Name -->
             <div class="form-group">
-              <label><span>*</span> Name on card</label>
+              <label>Card Holder Name</label>
               <input
                 v-model="cardForm.name"
                 type="text"
-                placeholder="Name on card"
+                placeholder="John Doe"
               />
             </div>
-
-            <!-- Expiry + CVV -->
             <div class="row">
               <div class="form-group">
-                <label><span>*</span> Expiry date</label>
+                <label>Expiry Date</label>
                 <input
                   v-model="cardForm.expiry"
                   type="text"
                   placeholder="MM/YY"
                 />
               </div>
-
               <div class="form-group">
-                <label>
-                  <span>*</span> CVV
-                  <span class="info">ⓘ</span>
-                </label>
+                <label>CVV</label>
                 <input
                   v-model="cardForm.cvv"
                   type="password"
-                  placeholder="CVV"
+                  placeholder="***"
                 />
               </div>
             </div>
-
-            <!-- Save Card -->
-            <div class="save-card">
-              <input v-model="cardForm.saveCard" type="checkbox" />
-              <div class="save-card-text">
-                <strong>Save Card</strong>
-                <p>
-                  We will save this card for your convenience. If required, you
-                  can remove the card in the "Payment Options" section in the
-                  "Account" menu.
-                </p>
-              </div>
-            </div>
-
-            <!-- Pay Button -->
-            <button class="pay-btn" @click="processPayment">Pay Now</button>
+            <button class="pay-btn" @click="placeOrder">
+              Pay Rs. {{ totalAmount }}
+            </button>
           </div>
-        </div>
 
-        <!-- eSewa Payment Container -->
-        <div v-if="selectedMethod === 'esewa'" class="esewa-payment-container">
-          <div class="esewa-payment">
-            <h3>Scan QR Code to Pay</h3>
-            <p>
-              Scan the QR code below using your eSewa mobile app to complete the
-              payment.
-            </p>
-            <div class="qr-code">
-              <img
-                src="https://via.placeholder.com/200x200?text=QR+Code"
-                alt="eSewa QR Code"
-              />
-            </div>
-            <p class="amount">Amount: Rs. {{ totalAmount }}</p>
-            <button class="pay-btn" @click="processPayment">
-              Confirm Payment
+          <!-- eSewa Payment -->
+          <div v-if="selectedMethod === 'esewa'" class="details-box">
+            <h3>Pay with eSewa</h3>
+            <img
+              class="qr"
+              src="https://upload.wikimedia.org/wikipedia/commons/8/8a/Qr-1024.png"
+              alt="QR Code"
+            />
+            <button class="pay-btn" @click="placeOrder">
+              Scan to Pay Rs. {{ totalAmount }}
+            </button>
+          </div>
+
+          <!-- Cash on Delivery -->
+          <div v-if="selectedMethod === 'cod'" class="details-box">
+            <h3>Cash on Delivery</h3>
+            <ul>
+              <li>Pay in cash when the product is delivered.</li>
+              <li>Please keep the exact amount ready.</li>
+              <li>Delivery agent will contact you before delivery.</li>
+            </ul>
+            <button class="pay-btn" @click="placeOrder">
+              Confirm Order Rs. {{ totalAmount }}
             </button>
           </div>
         </div>
-
-        <!-- Cash on Delivery Container -->
-        <div v-if="selectedMethod === 'cod'" class="cod-container">
-          <ul class="cod-rules">
-            <li>
-              You may pay in cash to our courier upon receiving your parcel at
-              the doorstep.
-            </li>
-            <li>
-              Cash Payment Fee (2%), with a maximum cap of Rs. 20 applies only
-              to Cash on Delivery payment method. There is no extra fee when
-              using other payment methods.
-            </li>
-            <li>
-              Before agreeing to receive the parcel, check if your delivery
-              status has been updated to <strong>'Out for Delivery'</strong> on
-              PhysioNepal App.
-            </li>
-            <li>
-              Before receiving, confirm that the airway bill shows that the
-              parcel is from PhysioNepal.
-            </li>
-            <li>
-              Before you make payment to the courier, confirm your order number,
-              sender information, and tracking number on the parcel.
-            </li>
-          </ul>
-
-          <button class="confirm-btn" @click="processPayment">
-            Confirm Order
-          </button>
-        </div>
       </div>
 
-      <!-- RIGHT -->
+      <!-- Right Section: Order Summary -->
       <div class="order-summary">
         <h3>Order Summary</h3>
-
-        <div class="summary-row">
-          <span>Subtotal ({{ totalItems }} items)</span>
+        <div class="row">
+          <span
+            >Subtotal ({{ cartItems.length }} items + shipping fee
+            included)</span
+          >
           <span>Rs. {{ subtotal }}</span>
         </div>
-
-        <div class="summary-row">
-          <span>Delivery Fee</span>
+        <div class="row">
+          <span>Shipping Fee</span>
           <span>Rs. {{ deliveryFee }}</span>
         </div>
-
         <div class="total-row">
           <span>Total Amount</span>
-          <span class="total">Rs. {{ totalAmount }}</span>
+          <span class="total-amount">Rs. {{ totalAmount }}</span>
         </div>
       </div>
     </div>
-
-    <!-- Toast Notification -->
-    <ToastNotification
-      ref="toast"
-      :message="toastMessage"
-      :type="toastType"
-      @close="onToastClose"
-    />
   </div>
 </template>
 
 <script>
-import { inject, computed, ref, nextTick, watch } from "vue";
+import { inject, ref, computed } from "vue";
 import { useRouter } from "vue-router";
-import api from "@/api/axios";
-import ToastNotification from "@/components/ToastNotification.vue";
+import axios from "axios";
 
 export default {
   name: "PaymentMethod",
-  components: {
-    ToastNotification,
-  },
   setup() {
-    const cartState = inject("cartState");
     const router = useRouter();
-    const loading = ref(false);
+    const cartState = inject("cartState");
+    const selectedMethod = ref("card");
 
-    const toastMessage = ref("");
-    const toastType = ref("success");
-    const toast = ref(null);
-
-    const selectedMethod = ref(null);
-    const paymentMethods = [
-      {
-        id: "esewa",
-        title: "eSewa",
-        subtitle: "Pay with eSewa",
-        icon: "https://upload.wikimedia.org/wikipedia/commons/9/9a/Esewa_logo.png",
-      },
-      {
-        id: "khalti",
-        title: "Khalti",
-        subtitle: "Pay with Khalti",
-        icon: "https://khalti.com/static/img/logo.png",
-      },
-      {
-        id: "bank",
-        title: "Bank Transfer",
-        subtitle: "Direct Bank Transfer",
-        icon: "https://cdn-icons-png.flaticon.com/512/2920/2920276.png",
-      },
-      {
-        id: "cod",
-        title: "Cash on Delivery",
-        subtitle: "Pay when you receive",
-        icon: "https://cdn-icons-png.flaticon.com/512/2331/2331970.png",
-      },
-    ];
-
-    // Form data for card payment
     const cardForm = ref({
       cardNumber: "",
       name: "",
       expiry: "",
       cvv: "",
-      saveCard: false,
     });
 
-    // Computed properties for order summary
+    const paymentMethods = [
+      {
+        id: "card",
+        title: "Credit/Debit Card",
+        subtitle: "Pay with your card",
+        icon: "https://cdn-icons-png.flaticon.com/512/633/633611.png",
+      },
+      {
+        id: "esewa",
+        title: "eSewa Mobile Wallet",
+        subtitle: "Pay with eSewa",
+        icon: "https://upload.wikimedia.org/wikipedia/commons/7/7e/Esewa_logo.png",
+      },
+      {
+        id: "cod",
+        title: "Cash on Delivery",
+        subtitle: "Pay at delivery",
+        icon: "https://cdn-icons-png.flaticon.com/512/2331/2331943.png",
+      },
+    ];
+
     const cartItems = computed(() => cartState.items?.value || []);
-    const totalItems = computed(() => {
-      return (cartItems.value || []).reduce(
-        (total, item) => total + item.quantity,
-        0,
-      );
-    });
-    const subtotal = computed(() => {
-      return (cartItems.value || []).reduce(
-        (total, item) => total + item.price * item.quantity,
-        0,
-      );
-    });
-    const deliveryFee = computed(() => {
-      return subtotal.value > 5000 ? 0 : 200;
-    });
-    const totalAmount = computed(() => {
-      return subtotal.value + deliveryFee.value;
-    });
 
-    // Validation
+    const subtotal = computed(() =>
+      cartItems.value.reduce((sum, i) => sum + i.price * i.quantity, 0),
+    );
+
+    const deliveryFee = computed(() => (subtotal.value > 5000 ? 0 : 200));
+
+    const totalAmount = computed(() => subtotal.value + deliveryFee.value);
+
+    const showToast = (msg) => alert(msg);
+
+    const getShippingDetails = () => {
+      const data = localStorage.getItem("shippingDetails");
+      return data ? JSON.parse(data) : null;
+    };
+
     const validateCardForm = () => {
-      if (!cardForm.value.cardNumber.trim()) {
-        toastMessage.value = "Card number is required";
-        toastType.value = "error";
-        return false;
-      }
-      if (!cardForm.value.name.trim()) {
-        toastMessage.value = "Name on card is required";
-        toastType.value = "error";
-        return false;
-      }
-      if (!cardForm.value.expiry.trim()) {
-        toastMessage.value = "Expiry date is required";
-        toastType.value = "error";
-        return false;
-      }
-      if (!cardForm.value.cvv.trim()) {
-        toastMessage.value = "CVV is required";
-        toastType.value = "error";
-        return false;
-      }
+      if (!cardForm.value.cardNumber.trim())
+        return showToast("Card number required");
+      if (!cardForm.value.name.trim())
+        return showToast("Card holder name required");
+      if (!cardForm.value.expiry.trim())
+        return showToast("Expiry date required");
+      if (!cardForm.value.cvv.trim()) return showToast("CVV required");
       return true;
     };
-
-    // Get shipping details from localStorage
-    const getShippingDetails = () => {
-      const shippingData = localStorage.getItem("shippingDetails");
-      return shippingData ? JSON.parse(shippingData) : null;
-    };
-
-    // Payment processing with API integration
-    const processPayment = async () => {
+    const placeOrder = async () => {
+      // 1️⃣ Check payment method
       if (!selectedMethod.value) {
-        cartState.showToast("Please select a payment method", "error");
-        return;
+        return showToast("Please select a payment method");
       }
+      if (selectedMethod.value === "card" && !validateCardForm()) return;
 
-      if (selectedMethod.value === "card" && !validateCardForm()) {
-        return;
-      }
-
-      // Get shipping details
+      // 2️⃣ Check shipping details
       const shippingDetails = getShippingDetails();
       if (!shippingDetails) {
-        cartState.showToast(
-          "Shipping details not found. Please add shipping information.",
-          "error",
-        );
+        showToast("Please fill shipping details first");
         router.push("/shipping-detail");
         return;
       }
 
-      loading.value = true;
+      // 3️⃣ Check cart
+      if (!cartItems.value.length) {
+        showToast("Your cart is empty");
+        router.push("/products");
+        return;
+      }
+
+      // 4️⃣ Check auth token
+      const token = localStorage.getItem("authToken");
+      if (!token) {
+        showToast("You must be logged in to place an order.");
+        router.push("/login");
+        return;
+      }
+
+      // 5️⃣ Construct payload matching Django expected fields
+      const orderPayload = {
+        customer: shippingDetails.user_id || null,
+        customer_name: shippingDetails.shipping_full_name || "",
+        status: "pending",
+        shipping_full_name: shippingDetails.shipping_full_name || "",
+        shipping_phone: shippingDetails.shipping_phone || "",
+        shipping_address: shippingDetails.shipping_address || "",
+        shipping_city: shippingDetails.shipping_city || "",
+        shipping_state: shippingDetails.shipping_state || "",
+        shipping_postal_code: shippingDetails.shipping_postal_code || "",
+        subtotal: parseFloat(subtotal.value.toFixed(2)),
+        shipping_cost: parseFloat(deliveryFee.value.toFixed(2)),
+        total: parseFloat(totalAmount.value.toFixed(2)),
+        notes: shippingDetails.notes || "",
+        payment_method: selectedMethod.value,
+        items: cartItems.value.map((i) => ({
+          product_id: i.id ?? null, // MUST match Django
+          product_name: i.name ?? "",
+          quantity: Number(i.quantity) || 1,
+          price: parseFloat(i.price.toFixed(2)) || 0,
+          subtotal: parseFloat((i.price * i.quantity).toFixed(2)) || 0,
+        })),
+      };
 
       try {
-        // Prepare order payload
-        const orderPayload = {
-          shipping_full_name: shippingDetails.shipping_full_name,
-          shipping_phone: shippingDetails.shipping_phone,
-          shipping_address: shippingDetails.shipping_address,
-          shipping_city: shippingDetails.shipping_city,
-          shipping_state: shippingDetails.shipping_state,
-          shipping_postal_code: shippingDetails.shipping_postal_code,
-          notes: shippingDetails.notes || "",
-          payment_method: selectedMethod.value,
-          items: cartItems.value.map((item) => ({
-            product: item.id,
-            quantity: item.quantity,
-          })),
-        };
+        const response = await axios.post(
+          "http://127.0.0.1:8000/api/orders/",
+          orderPayload,
+          {
+            headers: {
+              Authorization: `Token ${token}`,
+              "Content-Type": "application/json",
+            },
+          },
+        );
 
-        // Post order to API
-        const response = await api.post("/api/orders/", orderPayload);
-
-        console.log("Order placed successfully:", response.data);
-
-        cartState.showToast("Order placed successfully!", "success");
-
-        // Clear cart and shipping details
-        cartState.items = [];
+        showToast("Order placed successfully!");
+        cartState.items.value = [];
         localStorage.removeItem("shippingDetails");
-
-        // Navigate to home
         router.push("/");
       } catch (error) {
-        console.error("Order placement failed:", error.response?.data || error);
-        cartState.showToast(
-          "Failed to place order. Please try again.",
-          "error",
-        );
-      } finally {
-        loading.value = false;
+        console.error("Axios error:", error.response?.data || error);
+
+        // Show meaningful message
+        if (error.response?.data?.detail) {
+          showToast(error.response.data.detail);
+        } else if (error.response?.data) {
+          showToast("Failed to place order. Check server logs.");
+        } else {
+          showToast("Network or server error occurred.");
+        }
       }
     };
 
     return {
       selectedMethod,
       paymentMethods,
-      cardForm,
       cartItems,
-      totalItems,
       subtotal,
       deliveryFee,
       totalAmount,
-      processPayment,
-      loading,
+      cardForm,
+      placeOrder,
     };
   },
 };
 </script>
 
 <style scoped>
-.checkout-page {
-  background: #f4f6f8;
-  min-height: 100vh;
-  padding: 20px;
+.checkout-container {
+  background: #f5f6f8;
+  padding: 24px;
   font-family: Arial, sans-serif;
 }
 
-/* Alert */
-.alert {
-  background: #fff3cd;
-  border: 1px solid #ffeeba;
-  color: #856404;
-  padding: 10px;
-  margin-bottom: 15px;
-  border-radius: 4px;
-}
-
-/* Layout */
-.checkout-container {
+.checkout-content {
   display: flex;
-  gap: 10px;
-  align-items: flex-start;
-  overflow: hidden;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
-/* Payment Section */
+/* Left Section */
 .payment-section {
   flex: 2;
 }
 
-.payment-section h2 {
-  margin-bottom: 20px;
-  font-size: 24px;
-  text-align: left;
-}
-
-.payment-options {
+.payment-row {
   display: flex;
-  gap: 20px;
+  gap: 16px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
 }
 
 .payment-card {
   background: #fff;
-  border: 1px solid #ddd;
-  padding: 10px;
-  width: 150px;
-  text-align: center;
+  padding: 16px;
+  display: flex;
+  gap: 12px;
+  width: 240px;
   cursor: pointer;
   border-radius: 6px;
-  transition: all 0.3s ease;
-}
-
-.payment-card:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border: 2px solid transparent;
+  align-items: center;
 }
 
 .payment-card.active {
-  border-color: #55c894;
+  border-color: rgb(85, 184, 85);
 }
 
 .payment-card img {
   width: 40px;
-  margin-bottom: 10px;
-}
-
-.payment-card h4 {
-  margin: 5px 0;
-  font-size: 16px;
+  height: 40px;
 }
 
 .payment-card p {
-  font-size: 13px;
-  color: #666;
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: #777;
 }
 
-/* Order Summary */
-.order-summary {
-  flex: 1;
+.payment-details {
   background: #fff;
-  padding: 25px 30px;
-  margin-right: 50px;
+  padding: 24px;
   border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  max-width: 500px;
+}
+
+.details-box h3 {
+  margin-bottom: 16px;
+}
+
+.qr {
+  width: 200px;
+  display: block;
+  margin: 16px auto;
+}
+
+.form-group {
+  margin-bottom: 12px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.row {
+  display: flex;
+  gap: 12px;
+}
+
+.pay-btn {
+  width: 100%;
+  margin-top: 16px;
+  padding: 12px;
+  background: rgb(85, 184, 85);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+/* Right Section */
+.order-summary {
+  background: #ffffff;
+  padding: 24px;
+  border-radius: 6px;
+  width: 360px;
+  font-family: Arial, sans-serif;
+  flex: 1;
 }
 
 .order-summary h3 {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
-.summary-row,
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: #555;
+}
+
+.label {
+  max-width: 240px;
+}
+
+.value {
+  font-weight: 500;
+}
+
 .total-row {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 15px;
-  font-size: 14px;
+  align-items: center;
+  margin-top: 16px;
 }
 
-.total-row {
-  border-top: 1px solid #eee;
-  padding-top: 15px;
-  font-size: 16px;
-}
-
-.total {
-  color: #55c894;
+.total-amount {
+  font-size: 26px;
   font-weight: bold;
-}
-
-/* Card Payment Container */
-.card-payment-container {
-  height: 600px;
-  width: 60%;
-  margin-top: 20px;
-}
-
-.card-payment {
-  max-width: 400px;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-}
-
-/* Icons */
-.card-icons {
-  display: flex;
-  gap: 15px;
-  margin-bottom: 20px;
-}
-
-.card-icons img {
-  height: 28px;
-}
-
-/* Form */
-.form-group {
-  margin-bottom: 18px;
-}
-
-label {
-  display: block;
-  font-size: 14px;
-  margin-bottom: 6px;
-}
-
-label span {
-  color: red;
-}
-
-input {
-  width: 100%;
-  padding: 12px;
-  border: 1px solid #dcdcdc;
-  font-size: 14px;
-  border-radius: 2px;
-}
-
-input:focus {
-  outline: none;
-  border-color: #55c894;
-}
-
-/* Row */
-.row {
-  display: flex;
-  gap: 20px;
-}
-
-.row .form-group {
-  flex: 1;
-}
-
-/* CVV info */
-.info {
-  font-size: 12px;
-  color: #0099cc;
-  margin-left: 5px;
-  cursor: pointer;
-}
-
-/* Save Card */
-.save-card {
-  display: flex;
-  gap: 10px;
-  margin: 20px 0;
-  font-size: 14px;
-}
-
-.save-card input {
-  margin-top: 4px;
-  width: 14px;
-  height: 14px;
-}
-
-.save-card p {
-  font-size: 12px;
-  color: #777;
-  margin: 4px 0 0;
-}
-
-.save-card-text {
-  text-align: left;
-}
-
-/* Button */
-.pay-btn {
-  width: 100%;
-  padding: 14px;
-  background: #55c894;
-  color: #fff;
-  border: none;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 2px;
-}
-
-.pay-btn:hover {
-  background: #55c894;
-}
-
-/* eSewa Payment */
-.esewa-payment-container {
-  width: 60%;
-  margin-top: 20px;
-}
-
-.esewa-payment {
-  max-width: 400px;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  text-align: center;
-}
-
-.esewa-payment h3 {
-  margin-bottom: 10px;
-}
-
-.esewa-payment p {
-  margin-bottom: 20px;
-  color: #666;
-}
-
-.qr-code {
-  margin-bottom: 20px;
-}
-
-.qr-code img {
-  width: 200px;
-  height: 200px;
-}
-
-.amount {
-  font-weight: bold;
-  margin-bottom: 20px;
-}
-
-/* Cash on Delivery */
-.cod-container {
-  background: #fff;
-  padding: 30px;
-  max-width: 800px;
-  font-family: Arial, sans-serif;
-  margin-top: 20px;
-  border-radius: 6px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  text-align: left;
-}
-
-/* Rules */
-.cod-rules {
-  margin-bottom: 30px;
-}
-
-.cod-rules p {
-  font-size: 15px;
-  color: #111;
-  margin-bottom: 14px;
-  line-height: 1.5;
-}
-
-/* Button */
-.confirm-btn {
-  background: #55c894;
-  color: #fff;
-  border: none;
-  padding: 14px;
-  font-size: 16px;
-  cursor: pointer;
-  border-radius: 2px;
-  width: 100%;
-  text-align: center;
-}
-
-.confirm-btn:hover {
-  background: #55c894;
-}
-
-/* Mobile phones */
-@media (max-width: 480px) {
-  .checkout-page {
-    padding: 10px;
-  }
-
-  .checkout-container {
-    flex-direction: column;
-    gap: 20px;
-  }
-
-  .payment-section {
-    flex: none;
-  }
-
-  .payment-section h2 {
-    font-size: 20px;
-    margin-bottom: 15px;
-  }
-
-  .payment-options {
-    flex-direction: row;
-    gap: 1px;
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-  }
-
-  .payment-card {
-    flex: 1;
-    min-width: 0;
-    padding: 2px;
-    text-align: center;
-  }
-
-  .payment-card img {
-    width: 25px;
-    margin-bottom: 2px;
-  }
-
-  .payment-card h4 {
-    margin: 1px 0;
-    font-size: 13px;
-  }
-
-  .payment-card p {
-    margin: 0;
-    font-size: 10px;
-  }
-
-  .order-summary {
-    margin-right: 0;
-    padding: 20px;
-  }
-
-  .order-summary h3 {
-    font-size: 18px;
-  }
-
-  .card-payment-container {
-    width: 100%;
-    height: auto;
-    margin-top: 15px;
-  }
-
-  .card-payment {
-    max-width: none;
-    padding: 15px;
-  }
-
-  .esewa-payment-container {
-    width: 100%;
-    margin-top: 15px;
-  }
-
-  .esewa-payment {
-    max-width: none;
-    padding: 15px;
-  }
-
-  .qr-code img {
-    width: 150px;
-    height: 150px;
-  }
-
-  .cod-container {
-    padding: 20px;
-    max-width: none;
-  }
-
-  .cod-rules p {
-    font-size: 14px;
-    margin-bottom: 10px;
-  }
-
-  .form-group {
-    margin-bottom: 15px;
-  }
-
-  label {
-    font-size: 13px;
-  }
-
-  input {
-    padding: 10px;
-    font-size: 13px;
-  }
-
-  .row {
-    gap: 10px;
-  }
-
-  .pay-btn,
-  .confirm-btn {
-    padding: 12px;
-    font-size: 14px;
-  }
-
-  .save-card {
-    font-size: 13px;
-  }
-
-  .save-card p {
-    font-size: 11px;
-  }
+  color: rgb(85, 184, 85);
 }
 </style>

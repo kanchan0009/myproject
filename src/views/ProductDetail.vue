@@ -190,8 +190,15 @@ export default {
   setup(props) {
     const route = useRoute();
     const router = useRouter();
-    const cartState = inject("cartState");
 
+    // Inject global states
+    const cartState = inject("cartState");
+    const wishlistState = inject("wishlistState");
+
+    if (!cartState) console.error("cartState not provided");
+    if (!wishlistState) console.error("wishlistState not provided");
+
+    // Reactive refs
     const product = ref(null);
     const mainImage = ref("");
     const quantity = ref(1);
@@ -199,35 +206,31 @@ export default {
     const error = ref(null);
     const relatedProducts = ref([]);
 
+    // Fetch product by ID
     const fetchProductById = async (productId) => {
       try {
         loading.value = true;
         error.value = null;
 
-        // Try to fetch single product by ID first
-        try {
-          const res = await api.get(`/api/product/${productId}/`);
-          product.value = res.data;
-        } catch (detailErr) {
-          if (detailErr.response?.status === 404) {
-            // If detail endpoint fails with 404, try to fetch from list endpoint
-            const listRes = await api.get("/api/products/");
-            const products = listRes.data.results || listRes.data;
-            const foundProduct = products.find((p) => p.id == productId);
-            if (foundProduct) {
-              product.value = foundProduct;
-            } else {
-              throw new Error(`Product with ID ${productId} not found.`);
-            }
-          } else {
-            throw detailErr;
-          }
+        let nextPageUrl = "/api/products/";
+        let foundProduct = null;
+
+        // Loop through pages to find product
+        while (nextPageUrl && !foundProduct) {
+          const res = await api.get(nextPageUrl);
+          const products = res.data.results || [];
+          foundProduct = products.find((p) => p.id == productId);
+          if (foundProduct) break;
+          nextPageUrl = res.data.next;
         }
 
-        // Set main image
+        if (!foundProduct)
+          throw new Error(`Product with ID ${productId} not found.`);
+
+        product.value = foundProduct;
         mainImage.value = product.value.primary_image || "/assets/medical.jpeg";
 
-        // Fetch related products by category (excluding current product)
+        // Fetch related products by category
         if (product.value.category?.id) {
           const relatedRes = await api.get(
             `/api/products/?category=${product.value.category.id}`,
@@ -240,20 +243,13 @@ export default {
         }
       } catch (err) {
         console.error("Failed to fetch product:", err);
-        if (err.response?.status === 404) {
-          error.value = `Product with ID ${productId} not found. It may have been removed or the ID is invalid.`;
-        } else if (err.response?.status === 500) {
-          error.value = "Server error. Please try again later.";
-        } else if (!err.response) {
-          error.value = "Network error. Please check your connection.";
-        } else {
-          error.value = "Failed to load product. Please try again.";
-        }
+        error.value = err.message || "Failed to load product.";
       } finally {
         loading.value = false;
       }
     };
 
+    // Quantity controls
     const updateQuantity = (change) => {
       const newQty = quantity.value + change;
       quantity.value = newQty < 1 ? 1 : newQty;
@@ -263,6 +259,7 @@ export default {
       mainImage.value = image || "/assets/medical.jpeg";
     };
 
+    // Add to cart
     const handleAddToCart = async (prod, qty = 1) => {
       const token = localStorage.getItem("authToken");
       if (!token) {
@@ -271,6 +268,7 @@ export default {
       }
 
       try {
+        // Sync with backend
         await api.post(
           "/api/cart/add_item/",
           { product_id: prod.id, quantity: qty },
@@ -281,69 +279,79 @@ export default {
         cartState.addToCart({
           id: prod.id,
           name: prod.name,
-          price: prod.final_price,
+          price: prod.final_price || prod.price,
           image: prod.primary_image || "/assets/medical.jpeg",
           quantity: qty,
         });
 
-        // Toast is shown by cartState.addToCart
+        cartState.showToast("Product added to cart!", "success");
       } catch (err) {
         console.error("Failed to add to cart:", err.response || err);
-        const msg =
-          err.response?.data?.detail || "Failed to add to cart. Check console.";
-        alert(msg);
+        const msg = err.response?.data?.detail || "Failed to add to cart.";
+        cartState.showToast(msg, "error");
       }
     };
 
+    // Add to wishlist
     const addToWishlist = async (prod) => {
-      console.log("addToWishlist called with product:", prod);
-      // Update local wishlist state immediately
-      const wishlistState = inject("wishlistState");
-      console.log("wishlistState:", wishlistState);
       if (!wishlistState) {
-        console.error("wishlistState not available");
-        cartState.showToast("Wishlist functionality not available", "error");
+        cartState?.showToast("Wishlist functionality not available", "error");
         return;
       }
-      wishlistState.addToWishlist(prod);
-      console.log("Added to wishlist state");
+
+      // Add locally first
+      wishlistState.addToWishlist({
+        id: prod.id,
+        name: prod.name,
+        price: prod.final_price || prod.price,
+        image: prod.primary_image || "/assets/medical.jpeg",
+      });
 
       const token = localStorage.getItem("authToken");
-      if (token) {
-        try {
-          // Attempt to sync with backend
-          await api.post("/api/wishlist/", { product_id: prod.id });
-          cartState.showToast("Product added to wishlist!", "success");
-        } catch (err) {
-          console.error(
-            "Failed to sync wishlist with server:",
-            err.response || err,
-          );
-          // Still show success since it's added locally
-          cartState.showToast("Product added to wishlist locally!", "success");
-        }
-      } else {
-        cartState.showToast(
-          "Product added to wishlist locally! Log in to sync.",
-          "success",
+
+      if (!token) {
+        cartState?.showToast(
+          "Product added to wishlist locally! Login to sync.",
+          "info",
+        );
+        return;
+      }
+
+      // If logged in, try to sync with backend
+      try {
+        await api.post(
+          "/api/wishlist/",
+          { product_id: prod.id },
+          {
+            headers: { Authorization: `Token ${token}` },
+          },
+        );
+        cartState?.showToast("Product added to wishlist!", "success");
+      } catch (err) {
+        console.error("Failed to sync wishlist:", err);
+        cartState?.showToast(
+          "Product added locally, but failed to sync with server.",
+          "warning",
         );
       }
     };
 
+    // Retry fetch if error
     const retryFetch = () => {
       error.value = null;
       fetchProductById(props.productId);
     };
 
+    // Computed button text
     const buttonText = computed(() => {
       return product.value?.is_in_stock ? "Add to Cart" : "Out of Stock";
     });
 
-    // Watch for route parameter changes
+    // Watch route changes
     watch(
       () => route.params.productId,
       async (newId) => {
-        if (newId && newId !== props.productId) {
+        if (newId && newId != props.productId) {
           quantity.value = 1;
           await fetchProductById(newId);
         }
@@ -351,12 +359,10 @@ export default {
     );
 
     onMounted(async () => {
-      // Fetch product initially
       await fetchProductById(props.productId);
     });
 
     return {
-      router,
       product,
       mainImage,
       quantity,

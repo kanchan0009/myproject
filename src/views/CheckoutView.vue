@@ -10,13 +10,11 @@
         </div>
 
         <div v-if="!isEditingAddress">
-          <p class="name">{{ address.name }} &nbsp; {{ address.phone }}</p>
-
-          <span class="tag">{{ address.tag }}</span>
-
-          <p class="address">
-            {{ address.fullAddress }}
+          <p class="name">
+            {{ displayAddress.name }} &nbsp; {{ displayAddress.phone }}
           </p>
+          <span class="tag">{{ displayAddress.tag }}</span>
+          <p class="address">{{ displayAddress.fullAddress }}</p>
 
           <div class="pickup-box">
             Collect your parcels from a nearby location at a minimal delivery

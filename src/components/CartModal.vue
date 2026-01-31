@@ -12,20 +12,12 @@
 
       <div v-else class="cart-content">
         <div class="cart-items">
-          <div
-            v-for="(item, index) in cartItems"
-            :key="index"
-            class="cart-item"
-          >
-            <img
-              :src="item.product.image"
-              :alt="item.product.name"
-              class="item-image"
-            />
+          <div v-for="item in cartItems" :key="item.id" class="cart-item">
+            <img :src="item.image" :alt="item.name" class="item-image" />
             <div class="item-details">
-              <h4>{{ item.product.name }}</h4>
+              <h4>{{ item.name }}</h4>
               <p class="item-price">
-                NPR {{ item.product.price.toLocaleString() }}
+                NPR {{ (item.price || 0).toLocaleString() }}
               </p>
               <div class="quantity-controls">
                 <button @click="updateQuantity(item, -1)">-</button>
@@ -49,142 +41,49 @@
 </template>
 
 <script>
-import api from "@/api/axios";
+import { inject, computed } from "vue";
 
 export default {
   name: "CartModal",
-
-  props: {
-    isOpen: {
-      type: Boolean,
-      default: false,
-    },
-  },
-
-  data() {
-    return {
-      cartItems: [],
-      loading: false,
-    };
-  },
-
+  props: { isOpen: { type: Boolean, default: false } },
   emits: ["close"],
 
-  computed: {
-    totalPrice() {
-      return this.cartItems.reduce(
-        (total, item) => total + (item.product?.price || 0) * item.quantity,
+  setup(props, { emit }) {
+    const cartState = inject("cartState");
+    if (!cartState) throw new Error("cartState not provided");
+
+    const cartItems = cartState.items;
+
+    const closeCart = () => emit("close");
+
+    const updateQuantity = (item, change) => {
+      const newQty = item.quantity + change;
+      cartState.updateQuantity(item.id, newQty);
+    };
+
+    const removeItem = (id) => cartState.removeFromCart(id);
+
+    const checkout = () => {
+      if (!cartItems.value.length) return alert("Your cart is empty!");
+      const total = cartItems.value.reduce(
+        (sum, i) => sum + (i.price || 0) * i.quantity,
         0,
       );
-    },
-  },
+      alert(`Checkout total: NPR ${total.toLocaleString()}`);
+    };
 
-  watch: {
-    isOpen(val) {
-      if (val) {
-        this.fetchCartItems();
-      }
-    },
-  },
+    const totalPrice = computed(() =>
+      cartItems.value.reduce((sum, i) => sum + (i.price || 0) * i.quantity, 0),
+    );
 
-  methods: {
-    closeCart() {
-      this.$emit("close");
-    },
-
-    async fetchCartItems() {
-      this.loading = true;
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        this.loading = false;
-        return;
-      }
-
-      try {
-        const res = await api.get("/api/cart/", {
-          headers: { Authorization: `Token ${token}` },
-        });
-        this.cartItems = res.data.results || res.data;
-      } catch (err) {
-        console.error("Failed to load cart", err.response || err);
-      } finally {
-        this.loading = false;
-      }
-    },
-
-    async addToCart(productId, quantity = 1) {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        alert("Please log in first!");
-        return;
-      }
-
-      try {
-        await api.post(
-          "/api/cart/add_item/",
-          { product_id: productId, quantity },
-          {
-            headers: {
-              Authorization: `Token ${token}`,
-            },
-          },
-        );
-        await this.fetchCartItems();
-      } catch (err) {
-        console.error("Failed to add product to cart", err.response || err);
-        alert("Failed to add product to cart. Check console for details.");
-      }
-    },
-
-    async updateQuantity(item, change) {
-      const newQty = item.quantity + change;
-      if (newQty <= 0) return this.removeItem(item.id);
-
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        alert("Please log in first!");
-        return;
-      }
-
-      try {
-        await api.post(
-          "/api/cart/add_item/",
-          { product_id: item.product.id, quantity: newQty },
-          {
-            headers: { Authorization: `Token ${token}` },
-          },
-        );
-        item.quantity = newQty;
-        await this.fetchCartItems();
-      } catch (err) {
-        console.error("Failed to update quantity", err.response || err);
-      }
-    },
-
-    async removeItem(cartItemId) {
-      const token = localStorage.getItem("authToken");
-      if (!token) {
-        alert("Please log in first!");
-        return;
-      }
-
-      try {
-        await api.delete(`/api/cart/${cartItemId}/`, {
-          headers: { Authorization: `Token ${token}` },
-        });
-        this.cartItems = this.cartItems.filter((i) => i.id !== cartItemId);
-      } catch (err) {
-        console.error("Failed to remove item", err.response || err);
-      }
-    },
-
-    checkout() {
-      if (!this.cartItems.length) {
-        alert("Your cart is empty!");
-        return;
-      }
-      alert(`Checkout total: NPR ${this.totalPrice.toLocaleString()}`);
-    },
+    return {
+      cartItems,
+      closeCart,
+      updateQuantity,
+      removeItem,
+      checkout,
+      totalPrice,
+    };
   },
 };
 </script>

@@ -9,9 +9,9 @@
       </div>
 
       <form @submit.prevent="saveShippingDetails" class="shipping-form">
+        <!-- Contact Information -->
         <div class="form-section">
           <h3>Contact Information</h3>
-
           <div class="form-group">
             <label for="fullName">Full Name *</label>
             <input
@@ -35,9 +35,9 @@
           </div>
         </div>
 
+        <!-- Shipping Address -->
         <div class="form-section">
           <h3>Shipping Address</h3>
-
           <div class="form-group">
             <label for="address">Address *</label>
             <textarea
@@ -85,9 +85,9 @@
           </div>
         </div>
 
+        <!-- Additional Info -->
         <div class="form-section">
           <h3>Additional Information</h3>
-
           <div class="form-group">
             <label for="notes">Delivery Notes (Optional)</label>
             <textarea
@@ -99,6 +99,7 @@
           </div>
         </div>
 
+        <!-- Actions -->
         <div class="form-actions">
           <button type="button" class="cancel-btn" @click="goBack">
             Cancel
@@ -111,16 +112,16 @@
 </template>
 
 <script>
-import { ref, onMounted } from "vue";
+import { ref, onMounted, inject } from "vue";
 import { useRouter } from "vue-router";
-import api from "@/api/axios";
 
 export default {
   name: "ShippingDetail",
   setup() {
     const router = useRouter();
-    const loading = ref(false);
+    const cartState = inject("cartState");
 
+    // Reactive shipping detail state
     const shippingDetails = ref({
       shipping_full_name: "",
       shipping_phone: "",
@@ -129,97 +130,87 @@ export default {
       shipping_state: "",
       shipping_postal_code: "",
       notes: "",
-      items: [],
+      tag: "Home", // Optional: Home/Office/etc.
     });
 
-    const goBack = () => {
-      router.go(-1);
-    };
+    // Computed property for display formatting
+    const displayAddress = ref({
+      name: "",
+      phone: "",
+      tag: "",
+      fullAddress: "",
+    });
 
-    const saveShippingDetails = async () => {
-      // Validate required fields
-      if (!shippingDetails.value.shipping_full_name.trim()) {
-        alert("Full name is required");
-        return;
-      }
-      if (!shippingDetails.value.shipping_phone.trim()) {
-        alert("Phone number is required");
-        return;
-      }
-      if (!shippingDetails.value.shipping_address.trim()) {
-        alert("Address is required");
-        return;
-      }
-      if (!shippingDetails.value.shipping_city.trim()) {
-        alert("City is required");
-        return;
-      }
-      if (!shippingDetails.value.shipping_state.trim()) {
-        alert("State/Province is required");
-        return;
-      }
-      if (!shippingDetails.value.shipping_postal_code.trim()) {
-        alert("Postal code is required");
-        return;
-      }
-
-      loading.value = true;
-
-      try {
-        // Prepare payload for API
-        const payload = {
-          shipping_full_name: shippingDetails.value.shipping_full_name,
-          shipping_phone: shippingDetails.value.shipping_phone,
-          shipping_address: shippingDetails.value.shipping_address,
-          shipping_city: shippingDetails.value.shipping_city,
-          shipping_state: shippingDetails.value.shipping_state,
-          shipping_postal_code: shippingDetails.value.shipping_postal_code,
-          notes: shippingDetails.value.notes,
-          items: shippingDetails.value.items, // This will be empty for now, can be populated from cart later
-        };
-
-        // Post to API (this might create a draft order or save shipping details)
-        const response = await api.post("/api/orders/", payload);
-
-        console.log("Shipping details saved:", response.data);
-
-        // Also save to localStorage as backup
-        localStorage.setItem(
-          "shippingDetails",
-          JSON.stringify(shippingDetails.value),
-        );
-
-        alert("Shipping details saved successfully!");
-
-        // Navigate back to checkout
-        router.push("/checkout");
-      } catch (error) {
-        console.error(
-          "Error saving shipping details:",
-          error.response?.data || error,
-        );
-        alert("Failed to save shipping details. Please try again.");
-      } finally {
-        loading.value = false;
-      }
-    };
-
-    onMounted(() => {
-      // Load existing shipping details from localStorage
+    // Load and format shipping details
+    const loadShippingDetails = () => {
       const saved = localStorage.getItem("shippingDetails");
       if (saved) {
-        shippingDetails.value = {
-          ...shippingDetails.value,
-          ...JSON.parse(saved),
-        };
+        shippingDetails.value = { ...shippingDetails.value, ...JSON.parse(saved) };
       }
+      displayAddress.value = {
+        name: shippingDetails.value.shipping_full_name,
+        phone: shippingDetails.value.shipping_phone,
+        tag: shippingDetails.value.tag || "Home",
+        fullAddress: `${shippingDetails.value.shipping_address}, ${shippingDetails.value.shipping_city}, ${shippingDetails.value.shipping_state} - ${shippingDetails.value.shipping_postal_code}`,
+      };
+    };
+
+    // Validation before saving
+    const validateFields = () => {
+      const requiredFields = [
+        "shipping_full_name",
+        "shipping_phone",
+        "shipping_address",
+        "shipping_city",
+        "shipping_state",
+        "shipping_postal_code",
+      ];
+
+      for (const field of requiredFields) {
+        if (!shippingDetails.value[field].trim()) {
+          alert(
+            `${field.replace("shipping_", "").replace("_", " ")} is required`
+          );
+          return false;
+        }
+      }
+      return true;
+    };
+
+    // Save shipping details to localStorage
+    const saveShippingDetails = () => {
+      if (!validateFields()) return;
+
+      if (!cartState || !cartState.items.value.length) {
+        alert("Your cart is empty. Add items before checkout.");
+        return;
+      }
+
+      localStorage.setItem("shippingDetails", JSON.stringify(shippingDetails.value));
+
+      // Update display address after saving
+      displayAddress.value = {
+        name: shippingDetails.value.shipping_full_name,
+        phone: shippingDetails.value.shipping_phone,
+        tag: shippingDetails.value.tag || "Home",
+        fullAddress: `${shippingDetails.value.shipping_address}, ${shippingDetails.value.shipping_city}, ${shippingDetails.value.shipping_state} - ${shippingDetails.value.shipping_postal_code}`,
+      };
+
+      alert("Shipping details saved successfully! You can now proceed to payment.");
+      router.push("/checkout");
+    };
+
+    const goBack = () => router.go(-1);
+
+    onMounted(() => {
+      loadShippingDetails();
     });
 
     return {
       shippingDetails,
-      goBack,
+      displayAddress,
       saveShippingDetails,
-      loading,
+      goBack,
     };
   },
 };

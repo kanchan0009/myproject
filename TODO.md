@@ -1,9 +1,9 @@
-# TODO for CategoryView Grid Update
+# TODO: Add Settings Icon Next to Login Icon
 
-## Completed Tasks
+## Tasks
 
-- [x] Add media query for screens above 768px to ensure 4 category cards per row on desktop
-
-## Pending Tasks
-
-- [x] Test the CategoryView on desktop to confirm 4 cards per row display correctly
+- [x] Create SettingsView.vue component
+- [x] Add settings route to router/index.js
+- [x] Add settings icon to NavSection.vue next to login icon
+- [x] Update NavSection.vue to include goToSettings method
+- [x] Move settings and login icons to mobile hamburger menu side menu

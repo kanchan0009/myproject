@@ -68,6 +68,10 @@
       }}</span>
     </div>
 
+    <div class="settings-icon" @click="goToSettings">
+      <i class="fas fa-cog"></i>
+    </div>
+
     <div class="login-icon" @click="goToLogin">
       <i class="fas fa-user"></i>
     </div>
@@ -76,6 +80,7 @@
   <!-- Navbar -->
   <nav class="navbar">
     <div class="nav-container">
+      <!-- Navigation Menu -->
       <ul class="nav-menu">
         <li class="nav-item">
           <router-link
@@ -134,10 +139,50 @@
       </ul>
     </div>
   </nav>
+
+  <!-- Mobile Side Menu -->
+  <div v-if="isMobileMenuOpen && isMobileView" class="mobile-side-menu">
+    <div class="side-menu-header">
+      <span>Menu</span>
+      <button @click="toggleMobileMenu" class="close-menu">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div class="side-menu-content">
+      <div class="side-menu-item" @click="goToHome">
+        <i class="fas fa-home"></i>
+        <span>Home</span>
+      </div>
+      <div class="side-menu-item" @click="goToCategories">
+        <i class="fas fa-th-large"></i>
+        <span>Categories</span>
+      </div>
+      <div class="side-menu-item" @click="goToProducts">
+        <i class="fas fa-box"></i>
+        <span>Products</span>
+      </div>
+      <div class="side-menu-item" @click="goToAbout">
+        <i class="fas fa-info-circle"></i>
+        <span>About Us</span>
+      </div>
+      <div class="side-menu-item" @click="goToContact">
+        <i class="fas fa-envelope"></i>
+        <span>Contact</span>
+      </div>
+      <div class="side-menu-item" @click="goToSettings">
+        <i class="fas fa-cog"></i>
+        <span>Settings</span>
+      </div>
+      <div class="side-menu-item" @click="goToLogin">
+        <i class="fas fa-user"></i>
+        <span>Login</span>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import { ref, computed, inject } from "vue";
+import { ref, computed, inject, onMounted, onUnmounted } from "vue";
 import { useRouter } from "vue-router";
 import axios from "axios";
 
@@ -178,6 +223,30 @@ export default {
       router.push("/login");
     };
 
+    const goToSettings = () => {
+      router.push("/settings");
+    };
+
+    const goToHome = () => {
+      router.push("/");
+    };
+
+    const goToCategories = () => {
+      router.push("/categories");
+    };
+
+    const goToProducts = () => {
+      router.push("/products");
+    };
+
+    const goToAbout = () => {
+      router.push("/about");
+    };
+
+    const goToContact = () => {
+      router.push("/contact");
+    };
+
     const cartItemCount = computed(() => {
       return cartState.items.value.reduce(
         (total, item) => total + item.quantity,
@@ -187,6 +256,16 @@ export default {
 
     const wishlistItemCount = computed(() => {
       return wishlistState.items.length;
+    });
+
+    const isMobileView = ref(window.innerWidth <= 768);
+
+    const updateMobileView = () => {
+      isMobileView.value = window.innerWidth <= 768;
+    };
+
+    onMounted(() => {
+      window.addEventListener("resize", updateMobileView);
     });
 
     // Update search suggestions
@@ -277,9 +356,6 @@ export default {
     // Fetch products on mount
     fetchProducts();
 
-    // Set the toast function in cartState
-    cartState.setToastFunction(showToast);
-
     return {
       isMobileMenuOpen,
       showCategoriesDesktop,
@@ -292,6 +368,7 @@ export default {
       goToCart,
       goToWishlist,
       goToLogin,
+      goToSettings,
       cartItemCount,
       wishlistItemCount,
       showToast,
@@ -503,6 +580,22 @@ export default {
   border: 2px solid white;
 }
 
+/* Settings Icon */
+.settings-icon {
+  position: relative;
+  cursor: pointer;
+}
+
+.settings-icon i {
+  font-size: 1.2em;
+  color: #333;
+  transition: color 0.3s ease;
+}
+
+.settings-icon:hover i {
+  color: #6fc6f5;
+}
+
 /* Login Icon */
 .login-icon {
   position: relative;
@@ -517,6 +610,97 @@ export default {
 
 .login-icon:hover i {
   color: #6fc6f5;
+}
+
+/* Hamburger Menu */
+.hamburger-menu {
+  cursor: pointer;
+  font-size: 1.5em;
+  color: white;
+  transition: color 0.3s ease;
+  background-color: #007bff;
+  padding: 10px;
+  border-radius: 6px;
+  border: 2px solid #0056b3;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.hamburger-menu:hover i {
+  color: #6fc6f5;
+}
+
+/* Mobile Side Menu */
+.mobile-side-menu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 250px;
+  height: 100vh;
+  background-color: #ffffff;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  z-index: 10000;
+  transform: translateX(0);
+  transition: transform 0.3s ease;
+}
+
+.side-menu-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #f8f9fa;
+}
+
+.side-menu-header span {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #333;
+}
+
+.close-menu {
+  background: none;
+  border: none;
+  font-size: 1.2em;
+  color: #333;
+  cursor: pointer;
+  transition: color 0.3s ease;
+}
+
+.close-menu:hover {
+  color: #6fc6f5;
+}
+
+.side-menu-content {
+  padding: 20px 0;
+}
+
+.side-menu-item {
+  display: flex;
+  align-items: center;
+  padding: 15px 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.side-menu-item:hover {
+  background-color: #f8f9fa;
+}
+
+.side-menu-item i {
+  font-size: 1.2em;
+  margin-right: 15px;
+  color: #333;
+}
+
+.side-menu-item span {
+  font-size: 1em;
+  color: #333;
+}
+
+.side-menu-item:last-child {
+  border-bottom: none;
 }
 
 /* Navbar */
@@ -615,6 +799,8 @@ export default {
   .main-header {
     padding: 8px 4%;
     height: 60px;
+    display:flex;
+    flex-direction:row;
   }
 
   .logo-icon {
@@ -656,9 +842,14 @@ export default {
     font-size: 1.3em;
   }
 
+  .mobile-only {
+    display: flex;
+  }
+
   .nav-container {
     padding: 0 15px;
     height: 50px;
+    justify-content: flex-end;
   }
 
   .nav-menu {
@@ -697,11 +888,14 @@ export default {
   }
 
   .main-header {
-    padding: 6px 3%;
-    height: 55px;
+    padding: 6px 0;
+    height: auto;
     flex-direction: row;
-    justify-content: space-evenly;
+    justify-content: space-between;
     align-items: center;
+    flex-wrap:wrap;
+    gap: 5px;
+    width:480px;
   }
 
   .logo-section {

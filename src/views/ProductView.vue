@@ -292,7 +292,7 @@ export default {
 
     async handleAddToWishlist(product) {
       console.log("handleAddToWishlist called with product:", product);
-      // Update local wishlist state immediately
+
       if (!this.wishlistState) {
         console.error("wishlistState not available");
         this.cartState.showToast(
@@ -315,9 +315,9 @@ export default {
             "Failed to sync wishlist with server:",
             err.response || err,
           );
-          // Still show success since it's added locally
+          
           this.cartState.showToast(
-            "Product added to wishlist locally!",
+            "Product added to the cart",
             "success",
           );
         }
@@ -508,7 +508,7 @@ export default {
   border-radius: 5px;
   outline: none;
   margin: 0;
-} /* Thumb */
+} 
 .price-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 22px;
@@ -654,7 +654,7 @@ export default {
   gap: 10px;
   margin-top: 8px;
 }
-.add-button {
+.add-button,.wishlist-button {
   flex: 1;
   background: #6fc6f5;
   color: #fff;

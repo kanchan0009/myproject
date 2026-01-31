@@ -2,72 +2,58 @@
   <div v-if="isVisible" class="toast-notification" :class="type">
     <div class="toast-content">
       <i :class="iconClass"></i>
-      <span>{{ message }}</span>
+      <span>{{ internalMessage }}</span>
     </div>
-    <button class="toast-close" @click="close">&times;</button>
+    <button @click="close">&times;</button>
   </div>
 </template>
 
 <script>
 export default {
-  name: "ToastNotification",
   props: {
-    message: {
-      type: String,
-      default: "",
-    },
-    type: {
-      type: String,
-      default: "success", // success, error, info, warning
-    },
-    duration: {
-      type: Number,
-      default: 3000, // milliseconds
-    },
+    message: String,
+    type: { type: String, default: "success" },
+    duration: { type: Number, default: 3000 },
+    cartItems: { type: Array, default: () => [] },
   },
   data() {
-    return {
-      isVisible: false,
-      timeoutId: null,
-    };
+    return { isVisible: false, timeoutId: null, internalMessage: "" };
   },
   computed: {
     iconClass() {
-      const icons = {
+      return {
         success: "fas fa-check-circle",
         error: "fas fa-exclamation-circle",
         info: "fas fa-info-circle",
         warning: "fas fa-exclamation-triangle",
-      };
-      return icons[this.type] || icons.info;
+      }[this.type] || "fas fa-info-circle";
     },
   },
   methods: {
     show() {
+      if (!this.message) return;
+      this.internalMessage = this.message;
       this.isVisible = true;
-      if (this.timeoutId) {
-        clearTimeout(this.timeoutId);
-      }
-      this.timeoutId = setTimeout(() => {
-        this.close();
-      }, this.duration);
+      if (this.timeoutId) clearTimeout(this.timeoutId);
+      this.timeoutId = setTimeout(this.close, this.duration);
     },
     close() {
       this.isVisible = false;
-      if (this.timeoutId) {
-        clearTimeout(this.timeoutId);
-        this.timeoutId = null;
-      }
+      this.internalMessage = "";
+      if (this.timeoutId) clearTimeout(this.timeoutId);
+      this.timeoutId = null;
       this.$emit("close");
     },
   },
   beforeUnmount() {
-    if (this.timeoutId) {
-      clearTimeout(this.timeoutId);
-    }
+    if (this.timeoutId) clearTimeout(this.timeoutId);
   },
 };
 </script>
+
+
+
+
 
 <style scoped>
 .toast-notification {

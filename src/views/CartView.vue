@@ -88,131 +88,62 @@
 </template>
 
 <script>
-import api from "@/api/axios";
 import { ref, computed, inject } from "vue";
 import { useRouter } from "vue-router";
 
 export default {
-  name: "CartView",
-
   setup() {
     const router = useRouter();
     const cartState = inject("cartState");
+    if (!cartState || !cartState.items) return {};
 
-    if (!cartState || !cartState.items) {
-      console.error("cartState not provided");
-      return {};
-    }
-
-    // READ-ONLY view of cart items
-    const cartItems = computed(() => {
-      return Array.isArray(cartState.items.value)
-        ? cartState.items.value
-        : [];
-    });
-
-    const loading = ref(false);
+    const cartItems = cartState.items;
     const voucherCode = ref("");
-
-    // Delete cart item (MUTATE SOURCE, NOT COMPUTED)
-    const deleteItem = async (item) => {
-      try {
-        await api.delete(`/api/cart/${item.id}/`);
-        cartState.items.value = cartState.items.value.filter(
-          (ci) => ci.id !== item.id
-        );
-      } catch (err) {
-        console.error("Failed to delete item", err);
-      }
-    };
-
-    // Update item quantity
-    const updateQuantity = async (item, change) => {
-      const newQty = item.quantity + change;
-
-      if (newQty <= 0) {
-        await deleteItem(item);
-        return;
-      }
-
-      try {
-        await api.post("/api/cart/add_item/", {
-          product_id: item.id,
-          quantity: newQty,
-        });
-
-        const target = cartState.items.value.find(
-          (i) => i.id === item.id
-        );
-        if (target) {
-          target.quantity = newQty;
-        }
-      } catch (err) {
-        console.error("Failed to update quantity", err);
-      }
-    };
-
-    // Computed values
-    const selectedItemsCount = computed(() =>
-      cartItems.value.filter((i) => i.selected).length
-    );
-
-    const subtotal = computed(() =>
-      cartItems.value
-        .filter((i) => i.selected)
-        .reduce((total, i) => total + (i.price || 0) * i.quantity, 0)
-    );
-
-    const shippingFee = computed(() =>
-      subtotal.value > 5000 ? 0 : 200
-    );
-
-    const total = computed(() => subtotal.value + shippingFee.value);
-
+    
     const toggleItemSelection = (item) => {
       item.selected = !item.selected;
     };
 
-    const continueShopping = () => {
-      router.push("/");
+    const deleteItem = (item) => cartState.removeFromCart(item.id);
+    const updateQuantity = (item, change) => {
+      const newQty = item.quantity + change;
+      cartState.updateQuantity(item.id, newQty);
     };
-
-    const goToProductDetail = (item) => {
-      router.push(`/product/${item.id}`);
-    };
-
-    const applyVoucher = () => {
-      alert("Voucher functionality not implemented yet");
-    };
-
+    const continueShopping = () => router.push("/");
+    const goToProductDetail = (item) => router.push(`/product/${item.id}`);
     const checkout = () => {
-      if (!cartItems.value.length) {
-        alert("Your cart is empty!");
-        return;
-      }
+      if (!cartItems.value.length) return alert("Your cart is empty!");
       router.push("/checkout");
     };
 
+    const selectedItemsCount = computed(
+      () => cartItems.value.filter((i) => i.selected).length,
+    );
+    const subtotal = computed(() =>
+      cartItems.value
+        .filter((i) => i.selected)
+        .reduce((t, i) => t + (i.price || 0) * i.quantity, 0),
+    );
+    const shippingFee = computed(() => (subtotal.value > 5000 ? 0 : 200));
+    const total = computed(() => subtotal.value + shippingFee.value);
+
     return {
       cartItems,
-      loading,
       voucherCode,
       deleteItem,
       updateQuantity,
-      toggleItemSelection,
       continueShopping,
       goToProductDetail,
-      applyVoucher,
+      checkout,
+      toggleItemSelection,
       selectedItemsCount,
       subtotal,
       shippingFee,
       total,
-      checkout,
     };
   },
 };
 </script>
-
 
 <style scoped>
 .cart-page {

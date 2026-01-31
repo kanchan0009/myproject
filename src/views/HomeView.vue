@@ -14,27 +14,29 @@
         <h3 class="card-title">{{ category.title }}</h3>
 
         <div class="image-grid">
-          <!-- exactly 4 slots -->
-          <template v-for="index in 4" :key="index">
+          <!-- Loop over up to 4 products -->
+          <template
+            v-for="item in category.items?.slice(0, 4) || []"
+            :key="item.id"
+          >
             <router-link
-              v-if="category.items[index - 1]"
-              :to="`/productdetail/${category.items[index - 1].id}`"
+              :to="{ name: 'ProductDetail', params: { productId: item.id } }"
               class="image-item"
-              style="display: flex; width: 100%"
             >
               <img
-                :src="
-                  category.items[index - 1].images?.[0] ||
-                  '/assets/medical.jpeg'
-                "
-                :alt="category.items[index - 1].name"
+                :src="item.images?.[0] || '/assets/medical.jpeg'"
+                :alt="item.name"
               />
-              <p class="image-label">
-                {{ category.items[index - 1].name }}
-              </p>
+              <p class="image-label">{{ item.name }}</p>
             </router-link>
+          </template>
 
-            <div v-else class="image-item no-image">No Product</div>
+          <!-- Fill remaining slots if fewer than 4 products -->
+          <template
+            v-for="n in 4 - (category.items?.slice(0, 4).length || 0)"
+            :key="'empty-' + n"
+          >
+            <div class="image-item no-image">No Product</div>
           </template>
         </div>
 
@@ -243,7 +245,6 @@ export default {
   padding: 8px;
   flex: 1;
   min-height: 140px;
-  width: 100%;
 }
 
 .image-item img,
