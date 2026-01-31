@@ -59,7 +59,7 @@
                 0,
                 getExpandedState(category.type)
                   ? (category.products || []).length
-                  : 5,
+                  : 4,
               )"
               :key="product.id"
               class="product-card"
@@ -315,11 +315,8 @@ export default {
             "Failed to sync wishlist with server:",
             err.response || err,
           );
-          
-          this.cartState.showToast(
-            "Product added to the cart",
-            "success",
-          );
+
+          this.cartState.showToast("Product added to the cart", "success");
         }
       } else {
         this.cartState.showToast(
@@ -438,16 +435,16 @@ export default {
         mappedProducts.forEach((p) => {
           const catName = p.category.name;
           if (!groupedByCategory[catName]) groupedByCategory[catName] = [];
-          // Only push first 5 products
+          
           if (groupedByCategory[catName].length < 5) {
             groupedByCategory[catName].push(p);
           }
         });
 
-        // Flatten grouped products back into array
+        
         this.products = Object.values(groupedByCategory).flat();
 
-        // Keep types, brands, categories as before
+        
         this.types = [
           ...new Set(
             mappedProducts
@@ -508,7 +505,7 @@ export default {
   border-radius: 5px;
   outline: none;
   margin: 0;
-} 
+}
 .price-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   width: 22px;
@@ -654,7 +651,8 @@ export default {
   gap: 10px;
   margin-top: 8px;
 }
-.add-button,.wishlist-button {
+.add-button,
+.wishlist-button {
   flex: 1;
   background: #6fc6f5;
   color: #fff;

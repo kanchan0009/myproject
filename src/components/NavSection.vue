@@ -462,7 +462,7 @@ export default {
 .search-form {
   display: flex;
   border: 1px solid #ccc;
-  border-radius: 20px;
+  border-radius: 15px;
   overflow: hidden;
 }
 .search-form input {
@@ -612,97 +612,6 @@ export default {
   color: #6fc6f5;
 }
 
-/* Hamburger Menu */
-.hamburger-menu {
-  cursor: pointer;
-  font-size: 1.5em;
-  color: white;
-  transition: color 0.3s ease;
-  background-color: #007bff;
-  padding: 10px;
-  border-radius: 6px;
-  border: 2px solid #0056b3;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.hamburger-menu:hover i {
-  color: #6fc6f5;
-}
-
-/* Mobile Side Menu */
-.mobile-side-menu {
-  position: fixed;
-  top: 0;
-  right: 0;
-  width: 250px;
-  height: 100vh;
-  background-color: #ffffff;
-  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
-  z-index: 10000;
-  transform: translateX(0);
-  transition: transform 0.3s ease;
-}
-
-.side-menu-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  border-bottom: 1px solid #e0e0e0;
-  background-color: #f8f9fa;
-}
-
-.side-menu-header span {
-  font-size: 1.2em;
-  font-weight: bold;
-  color: #333;
-}
-
-.close-menu {
-  background: none;
-  border: none;
-  font-size: 1.2em;
-  color: #333;
-  cursor: pointer;
-  transition: color 0.3s ease;
-}
-
-.close-menu:hover {
-  color: #6fc6f5;
-}
-
-.side-menu-content {
-  padding: 20px 0;
-}
-
-.side-menu-item {
-  display: flex;
-  align-items: center;
-  padding: 15px 20px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.side-menu-item:hover {
-  background-color: #f8f9fa;
-}
-
-.side-menu-item i {
-  font-size: 1.2em;
-  margin-right: 15px;
-  color: #333;
-}
-
-.side-menu-item span {
-  font-size: 1em;
-  color: #333;
-}
-
-.side-menu-item:last-child {
-  border-bottom: none;
-}
-
 /* Navbar */
 .navbar {
   background-color: #ffffff;
@@ -799,8 +708,8 @@ export default {
   .main-header {
     padding: 8px 4%;
     height: 60px;
-    display:flex;
-    flex-direction:row;
+    display: flex;
+    flex-direction: row;
   }
 
   .logo-icon {
@@ -893,9 +802,7 @@ export default {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
-    flex-wrap:wrap;
     gap: 5px;
-    width:480px;
   }
 
   .logo-section {
@@ -973,6 +880,9 @@ export default {
   .nav-text:hover {
     color: #55c894;
   }
+  .search-form button {
+  display:none;
+}
 
   .nav-text {
     font-size: 12px;
